@@ -1,0 +1,5 @@
+## Aider Configuration for Arbeidskassen Monorepo
+## All AI coding rules are defined in AI_INSTRUCTIONS.md (Single Source of Truth)
+
+read:
+  - AI_INSTRUCTIONS.md
