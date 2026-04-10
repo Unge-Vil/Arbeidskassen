@@ -4,6 +4,11 @@ import type { Database } from "./types";
 
 export async function createServerClient() {
   const cookieStore = await cookies();
+  type CookieToSet = {
+    name: string;
+    value: string;
+    options?: Parameters<typeof cookieStore.set>[2];
+  };
 
   return _createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,11 +18,11 @@ export async function createServerClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieToSet[]) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
+            cookiesToSet.forEach(({ name, value, options }: CookieToSet) => {
+              cookieStore.set(name, value, options);
+            });
           } catch {
             // The `setAll` method is called from a Server Component.
             // This can be ignored if middleware refreshes sessions.

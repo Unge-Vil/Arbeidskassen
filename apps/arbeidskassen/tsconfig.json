@@ -1,7 +1,6 @@
 {
   "extends": "@arbeidskassen/config/typescript/nextjs",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./app/*", "./src/*"]
     }

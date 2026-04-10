@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@source "../../../apps";
+@source "../../../packages/ui/src";
+
+@plugin "tailwindcss-animate";
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -22,6 +27,20 @@
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
+
+    /* Platform theme tokens */
+    --ak-bg-main: #f4f5f5;
+    --ak-bg-panel: #fdfdfd;
+    --ak-bg-card: #ffffff;
+    --ak-bg-hover: #f9fafb;
+    --ak-border: #e5e7eb;
+    --ak-border-soft: #f3f4f6;
+    --ak-text-main: #1a1f2e;
+    --ak-text-dim: #4b5563;
+    --ak-text-muted: #9ca3af;
+    --ak-accent: #5B6CF9;
+    --ak-accent-hover: #4b5cf0;
+    --ak-dot-color: #d4d4d8;
   }
 
   .dark {
@@ -44,5 +63,55 @@
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
+
+    /* Platform theme tokens – dark */
+    --ak-bg-main: #121212;
+    --ak-bg-panel: #1e1e1e;
+    --ak-bg-card: #252525;
+    --ak-bg-hover: #2d2d2d;
+    --ak-border: #333333;
+    --ak-border-soft: #2a2a2a;
+    --ak-text-main: #f3f4f6;
+    --ak-text-dim: #d1d5db;
+    --ak-text-muted: #6b7280;
+    --ak-accent: #5B6CF9;
+    --ak-accent-hover: #6d7dfa;
+    --ak-dot-color: #333333;
+  }
+
+  .night {
+    --background: 0 0% 2%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 8%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 83.1%;
+
+    /* Platform theme tokens – night */
+    --ak-bg-main: #0a0a0a;
+    --ak-bg-panel: #111111;
+    --ak-bg-card: #1a1a1a;
+    --ak-bg-hover: #222222;
+    --ak-border: #333333;
+    --ak-border-soft: #222222;
+    --ak-text-main: #f3f4f6;
+    --ak-text-dim: #d1d5db;
+    --ak-text-muted: #6b7280;
+    --ak-accent: #5B6CF9;
+    --ak-accent-hover: #6d7dfa;
+    --ak-dot-color: #222222;
   }
 }

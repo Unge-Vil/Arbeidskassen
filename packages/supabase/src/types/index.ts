@@ -1,11 +1,4 @@
-// Generated types from Supabase will go here.
-// Run `pnpm generate-types` in this package to regenerate.
+// Generated types from Supabase live in `database.ts`.
+// Run `pnpm generate-types` in this package to regenerate from the local schema.
 
-export type Database = {
-  public: {
-    Tables: Record<string, never>;
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
-  };
-};
+export type { Database, Json } from "./database";

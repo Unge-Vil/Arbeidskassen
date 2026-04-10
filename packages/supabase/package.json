@@ -5,22 +5,29 @@
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
+    "./auth": "./src/auth.ts",
     "./client": "./src/client.ts",
+    "./middleware": "./src/middleware.ts",
     "./server": "./src/server.ts",
     "./types": "./src/types/index.ts"
   },
   "scripts": {
     "build": "tsc",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "eslint . --max-warnings=0",
     "clean": "rm -rf dist node_modules .turbo",
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset",
+    "db:status": "supabase status",
     "generate-types": "supabase gen types typescript --local > src/types/database.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.0",
-    "@supabase/ssr": "^0.5.0"
+    "@supabase/ssr": "^0.5.0",
+    "next": "^15.1.0"
   },
   "devDependencies": {
     "@arbeidskassen/config": "workspace:*",
+    "@types/node": "^22.0.0",
     "supabase": "^2.0.0",
     "typescript": "^5.7.0"
   }

@@ -146,6 +146,9 @@ Any feature using AI/LLM APIs (OpenRouter, etc.) MUST:
 
 ## UI / UX
 
+- **Global CSS Import (CRITICAL):** All apps in this monorepo must import the global CSS from the UI package in their root `layout.tsx`. 
+  - ✅ **Correct:** `import "@arbeidskassen/ui/globals.css";`
+  - ❌ **Incorrect:** `import "./globals.css";` (This will break all theming and widget layouts).
 - Use `shadcn/ui` components from `@arbeidskassen/ui`. Do not install shadcn/ui separately in apps.
 - Use Tailwind CSS v4 utility classes. No custom CSS unless absolutely necessary.
 - Use the `cn()` utility from `@arbeidskassen/ui` for conditional class merging.
@@ -320,3 +323,5 @@ See [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md) for the full de
 - All database schema changes must go through **Supabase CLI migrations** (`supabase migration new`). Never suggest manual database edits via the Dashboard.
 - Migration files are immutable once committed. Create a new migration to fix issues.
 - When changing `packages/ui` or `packages/supabase`, run `pnpm build` to verify all consuming apps compile successfully.
+
+- **UX Guidelines:** See `docs/UX_GUIDELINES.md` and `docs/I18N_THEMING_AND_WCAG.md` for exact rules on styling, Radix primitives, animations, and WCAG requirements.

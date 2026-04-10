@@ -349,10 +349,16 @@ The dock persists across all routes via the root layout. Clicking a dock item na
 
 #### 3. Widget Dashboard
 
-The home screen (`/dashboard`) is a customizable grid of widgets:
+The home screen (`/dashboard`) is a customizable grid of widgets driven by `react-grid-layout`.
+
+- **Edit Mode**: Dashboards are locked by default to prevent accidental clicks/drags. Editing the layout (position, size, adding, or deleting widgets) requires clicking into an explicit "Rediger Layout" state.
+- **Explicit Saves**: Changes wait in a local draft state and are only synced to the backend (`layout_config` JSONB array in the `user_dashboards` table) when explicitly saving. This reduces database strain.
+- **Multiple Dashboards**: Users can create multiple dashboard tabs (e.g. "Sales", "Support", "Hoved") that each hold unique widgets.
 
 | Widget | Data Source | Update Frequency |
 | --- | --- | --- |
+| App Snarveier | Static props | - |
+| Kalkulator | Local state | - |
 | Today's bookings | BookDet module | Real-time |
 | Team availability | Today module | Real-time |
 | Revenue this month | Stripe API | Hourly |
@@ -360,7 +366,7 @@ The home screen (`/dashboard`) is a customizable grid of widgets:
 | AI credit balance | `ai_credits` table | On change |
 | Quick actions | Static | — |
 
-Widgets are React Server Components that stream in via `<Suspense>`. Each widget fetches its own data independently, so a slow widget doesn't block the rest.
+Widgets are React components rendered within the responsive grid. Backend data fetching happens asynchronously without blocking the shell.
 
 #### 4. Global Chat (Tiptap)
 

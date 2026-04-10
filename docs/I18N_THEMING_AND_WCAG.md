@@ -195,11 +195,14 @@ All colors are defined as HSL values in CSS custom properties. Components refere
 }
 ```
 
-#### 2. Theme Provider (root layout)
+#### 2. Theme Provider & Global CSS Import (root layout)
+
+> **CRITICAL RULE**: Next.js apps within this monorepo must ALWAYS import the global CSS from the UI package to correctly inject the CSS custom properties needed for the design system and dashboard widgets.
 
 ```typescript
 // app/layout.tsx
 import { ThemeProvider } from "next-themes";
+import "@arbeidskassen/ui/globals.css"; // MUST use this instead of "./globals.css"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
