@@ -1,0 +1,13 @@
+{
+  "name": "@arbeidskassen/config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./eslint/next": "./eslint/next.js",
+    "./eslint/library": "./eslint/library.js",
+    "./prettier": "./prettier/index.js",
+    "./typescript/base": "./typescript/base.json",
+    "./typescript/nextjs": "./typescript/nextjs.json",
+    "./typescript/library": "./typescript/library.json"
+  }
+}

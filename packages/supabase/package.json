@@ -1,0 +1,27 @@
+{
+  "name": "@arbeidskassen/supabase",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./server": "./src/server.ts",
+    "./types": "./src/types/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --ext .ts,.tsx",
+    "clean": "rm -rf dist node_modules .turbo",
+    "generate-types": "supabase gen types typescript --local > src/types/database.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.0",
+    "@supabase/ssr": "^0.5.0"
+  },
+  "devDependencies": {
+    "@arbeidskassen/config": "workspace:*",
+    "supabase": "^2.0.0",
+    "typescript": "^5.7.0"
+  }
+}
