@@ -9,6 +9,7 @@ type AuthenticatedShellProps = {
   tenantOptions: TenantOption[];
   userInitial: string;
   profileHref: string;
+  organizationHref: string;
   onTenantChange: (formData: FormData) => void | Promise<void>;
   onSignOut: (formData: FormData) => void | Promise<void>;
 };
@@ -19,6 +20,7 @@ export function AuthenticatedShell({
   tenantOptions,
   userInitial,
   profileHref,
+  organizationHref,
   onTenantChange,
   onSignOut,
 }: AuthenticatedShellProps) {
@@ -35,6 +37,7 @@ export function AuthenticatedShell({
           tenantOptions={tenantOptions}
           userInitial={userInitial}
           profileHref={profileHref}
+          organizationHref={organizationHref}
           onTenantChange={onTenantChange}
           onSignOut={onSignOut}
         />

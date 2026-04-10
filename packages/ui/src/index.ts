@@ -18,6 +18,13 @@ export {
   type ModuleTab,
   type TenantOption,
 } from "./components/navbar";
+export {
+  ModuleComingSoonPage,
+  type ModuleComingSoonAction,
+  type ModuleComingSoonFeature,
+  type ModuleComingSoonMilestone,
+  type ModuleComingSoonStatusItem,
+} from "./components/module-coming-soon";
 export { AppErrorState } from "./components/feedback/app-error-state";
 
 // shadcn/ui components

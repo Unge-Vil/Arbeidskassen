@@ -13,7 +13,7 @@ import {
   MessageSquare,
   Grip,
   User,
-  Settings,
+  Building2,
   Users,
   LogOut,
   Zap,
@@ -327,6 +327,7 @@ type ProfileMenuProps = {
   tenantOptions?: TenantOption[];
   userInitial?: string;
   profileHref?: string;
+  organizationHref?: string;
   onTenantChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
 };
@@ -421,6 +422,7 @@ export function ProfileMenu({
   tenantOptions = [],
   userInitial = "W",
   profileHref = "/profil",
+  organizationHref = "/organisasjon",
   onTenantChange,
   onSignOut,
 }: ProfileMenuProps) {
@@ -471,8 +473,13 @@ export function ProfileMenu({
                 <User size={14} className="text-[var(--ak-text-muted)]" /> Min profil
               </a>
             </DropdownMenu.Item>
-            <DropdownMenu.Item className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none">
-              <Settings size={14} className="text-[var(--ak-text-muted)]" /> Innstillinger
+            <DropdownMenu.Item asChild>
+              <a
+                href={organizationHref}
+                className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none"
+              >
+                <Building2 size={14} className="text-[var(--ak-text-muted)]" /> Organisasjon
+              </a>
             </DropdownMenu.Item>
 
             {hasTenantSwitcher ? (
@@ -625,6 +632,7 @@ type MobileNavDrawerProps = {
   tenantOptions?: TenantOption[];
   userInitial: string;
   profileHref?: string;
+  organizationHref?: string;
   onTenantChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
   onSearchOpen: () => void;
@@ -641,6 +649,7 @@ function MobileNavDrawer({
   tenantOptions = [],
   userInitial,
   profileHref = "/profil",
+  organizationHref = "/organisasjon",
   onTenantChange,
   onSignOut,
   onSearchOpen,
@@ -829,7 +838,7 @@ function MobileNavDrawer({
                     {orgName}
                   </p>
                   <p className="truncate text-[11px] text-[var(--ak-text-muted)]">
-                    Konto og innstillinger
+                    Profil og organisasjon
                   </p>
                 </div>
               </div>
@@ -838,6 +847,7 @@ function MobileNavDrawer({
                 tenantOptions={tenantOptions}
                 userInitial={userInitial}
                 profileHref={profileHref}
+                organizationHref={organizationHref}
                 onTenantChange={onTenantChange}
                 onSignOut={onSignOut}
               />
@@ -869,6 +879,7 @@ export interface NavbarProps {
   tenantOptions?: TenantOption[];
   userInitial?: string;
   profileHref?: string;
+  organizationHref?: string;
   onTenantChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
   activeModule: string;
@@ -884,6 +895,7 @@ export function Navbar({
   tenantOptions = [],
   userInitial = workspaceInitial,
   profileHref = "/profil",
+  organizationHref = "/organisasjon",
   onTenantChange,
   onSignOut,
   activeModule,
@@ -960,6 +972,7 @@ export function Navbar({
                 tenantOptions={tenantOptions}
                 userInitial={userInitial}
                 profileHref={profileHref}
+                organizationHref={organizationHref}
                 onTenantChange={onTenantChange}
                 onSignOut={onSignOut}
               />
@@ -998,6 +1011,7 @@ export function Navbar({
         tenantOptions={tenantOptions}
         userInitial={userInitial}
         profileHref={profileHref}
+        organizationHref={organizationHref}
         onTenantChange={onTenantChange}
         onSignOut={onSignOut}
         onSearchOpen={openSearch}

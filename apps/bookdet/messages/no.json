@@ -3,5 +3,42 @@
     "loading": "Laster...",
     "save": "Lagre",
     "back": "Tilbake"
+  },
+  "bookdetHome": {
+    "badge": "Bookingmodul · kommer snart",
+    "title": "BookDet bygges inn i samme adminopplevelse som Arbeidskassen",
+    "description": "Denne første versjonen prioriterer en felles adminflate med samme navigasjonsbar, tema og dashboardsystem som resten av plattformen. Kundevendte sider og egne domener som bookdet.no kommer i en egen fase.",
+    "primaryAction": "Åpne Arbeidskassen",
+    "secondaryAction": "Gå til Organisasjon",
+    "status": {
+      "shellLabel": "Admin-shell",
+      "shellValue": "Samme navbar",
+      "shellDetail": "BookDet følger nå samme design system og globale navigasjonsmønster.",
+      "domainLabel": "Public domene",
+      "domainValue": "Egen fase",
+      "domainDetail": "Kundevendte bookingflater og eget domene skilles fra adminopplevelsen.",
+      "phaseLabel": "Neste steg",
+      "phaseValue": "Bookingflyt",
+      "phaseDetail": "Kalender, ressurser og tilgjengelighet bygges ut i neste iterasjon."
+    },
+    "cards": {
+      "adminTitle": "Felles adminopplevelse",
+      "adminDescription": "Modulen henger sammen med Arbeidskassen i samme visuelle system, med felles toppnavigasjon og samme tone i UI-et.",
+      "adminBadge": "Plattform",
+      "customerTitle": "Public-sider senere",
+      "customerDescription": "BookDet skal også støtte egne kundevendte sider og bookingflyt på separate domener når den delen er klar.",
+      "customerBadge": "Domener",
+      "workflowTitle": "Daglig bruk i fokus",
+      "workflowDescription": "Neste milepæl er et operativt grensesnitt for avtaler, tilgjengelighet og ressursstyring i ekte Arbeidskassen-stil.",
+      "workflowBadge": "Roadmap"
+    },
+    "milestones": {
+      "oneTitle": "Nå",
+      "oneDescription": "Etablere en tydelig admininngang for BookDet med samme globale navigasjon som resten av plattformen.",
+      "twoTitle": "Snart",
+      "twoDescription": "Bygge kalenderoversikt, bookingskø og administrasjon av ressurser i modulens adminflate.",
+      "threeTitle": "Deretter",
+      "threeDescription": "Skille ut public booking-opplevelsen for egne domener, branding og kundevennlige bestillingssider."
+    }
   }
 }

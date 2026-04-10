@@ -21,6 +21,27 @@ function formatRole(role: TenantRole): string {
   }
 }
 
+function getOrganizationHref(locale: string): string {
+  const configuredUrl =
+    process.env.ORGANISASJON_APP_URL ??
+    process.env.ORGANIZATION_APP_URL ??
+    process.env.NEXT_PUBLIC_ORGANISASJON_URL ??
+    process.env.NEXT_PUBLIC_ORGANIZATION_APP_URL ??
+    (process.env.NODE_ENV === "development" ? "http://localhost:3002" : "/organisasjon");
+
+  const trimmedUrl = configuredUrl.trim().replace(/\/$/, "");
+
+  if (trimmedUrl.includes("{locale}")) {
+    return trimmedUrl.replace("{locale}", locale);
+  }
+
+  if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
+    return trimmedUrl.endsWith(`/${locale}`) ? trimmedUrl : `${trimmedUrl}/${locale}`;
+  }
+
+  return trimmedUrl || "/organisasjon";
+}
+
 export default async function AuthenticatedLayout({
   children,
   params,
@@ -51,6 +72,7 @@ export default async function AuthenticatedLayout({
       tenantOptions={tenantOptions}
       userInitial={getUserInitial(context.user.email)}
       profileHref={`/${locale}/profil`}
+      organizationHref={getOrganizationHref(locale)}
       onTenantChange={switchTenantAction}
       onSignOut={signOutAction}
     >

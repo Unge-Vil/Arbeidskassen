@@ -3,5 +3,42 @@
     "loading": "Loading...",
     "save": "Save",
     "back": "Back"
+  },
+  "bookdetHome": {
+    "badge": "Booking module · coming soon",
+    "title": "BookDet is being brought into the same admin experience as Arbeidskassen",
+    "description": "This first version prioritizes a shared admin surface with the same navbar, theme, and dashboard language as the rest of the platform. Customer-facing pages and dedicated domains like bookdet.no will come in a separate phase.",
+    "primaryAction": "Open Arbeidskassen",
+    "secondaryAction": "Go to Organization",
+    "status": {
+      "shellLabel": "Admin shell",
+      "shellValue": "Shared navbar",
+      "shellDetail": "BookDet now follows the same design system and global navigation pattern.",
+      "domainLabel": "Public domain",
+      "domainValue": "Separate phase",
+      "domainDetail": "Customer-facing booking surfaces and dedicated domains are intentionally kept separate from the admin flow.",
+      "phaseLabel": "Next step",
+      "phaseValue": "Booking flow",
+      "phaseDetail": "Calendar, resources, and availability are the next iteration for the module."
+    },
+    "cards": {
+      "adminTitle": "Unified admin experience",
+      "adminDescription": "The module now fits into the same visual system as Arbeidskassen, with shared top navigation and a consistent admin feel.",
+      "adminBadge": "Platform",
+      "customerTitle": "Public pages later",
+      "customerDescription": "BookDet will also support customer-facing booking pages and standalone domains once that surface is ready.",
+      "customerBadge": "Domains",
+      "workflowTitle": "Daily operations first",
+      "workflowDescription": "The next milestone is an operational UI for appointments, availability, and resource management in true Arbeidskassen style.",
+      "workflowBadge": "Roadmap"
+    },
+    "milestones": {
+      "oneTitle": "Now",
+      "oneDescription": "Establish a clear admin entry point for BookDet using the same global navigation as the rest of the platform.",
+      "twoTitle": "Soon",
+      "twoDescription": "Build the calendar overview, booking queue, and resource administration inside the module admin surface.",
+      "threeTitle": "After that",
+      "threeDescription": "Separate the public booking experience for custom domains, branding, and customer-friendly scheduling pages."
+    }
   }
 }
