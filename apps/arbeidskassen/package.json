@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
-    "clean": "rm -rf .next node_modules .turbo"
+    "clean": "rm -rf .next .next-build node_modules .turbo"
   },
   "dependencies": {
     "@arbeidskassen/supabase": "workspace:*",

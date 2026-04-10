@@ -5,6 +5,7 @@ import { cn } from "../../lib/utils"
 import { Check, LayoutTemplate, Pencil, PenSquare, Plus, Trash2, X } from "lucide-react"
 import { ResponsiveGridLayout, type Layout, useContainerWidth } from "react-grid-layout"
 import { registerDashboardWidgets } from "./register-dashboard-widgets"
+import { parseDashboardHotkeyInput } from "./dashboard-hotkeys"
 import { WidgetRegistry, widgetSizeToDimensions } from "./widget-registry"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -48,7 +49,7 @@ interface DashboardGridProps {
   initialDashboards: Dashboard[]
   onSaveLayout?: (dashboardId: string, layout: DashboardItem[]) => Promise<void>
   onCreateDashboard?: (name: string, hotkey: number | undefined, layout: DashboardItem[]) => Promise<Dashboard | null | undefined>
-  onRenameDashboard?: (dashboardId: string, name: string, hotkey?: number) => Promise<Dashboard | null | undefined>
+  onRenameDashboard?: (dashboardId: string, name: string, hotkey?: number | null) => Promise<Dashboard | null | undefined>
   onDeleteDashboard?: (dashboardId: string) => Promise<unknown>
   isReadOnly?: boolean
 }
@@ -89,6 +90,11 @@ export function DashboardGrid({
   const [formName, setFormName] = React.useState("")
   const [formHotkey, setFormHotkey] = React.useState("")
 
+  const handleHotkeyInputChange = (value: string) => {
+    const normalized = value.replace(/\D/g, "").slice(0, 1)
+    setFormHotkey(normalized === "0" ? "" : normalized)
+  }
+
   React.useEffect(() => {
     setDashboards(initialDashboards)
     setActiveDashboardId((currentId) => {
@@ -100,6 +106,23 @@ export function DashboardGrid({
   }, [initialDashboards])
 
   const activeDashboard = dashboards.find((dashboard) => dashboard.id === activeDashboardId)
+
+  const broadcastDashboards = React.useCallback(
+    (nextDashboards: Dashboard[]) => {
+      if (isReadOnly || typeof window === "undefined") return
+
+      window.dispatchEvent(
+        new CustomEvent("arbeidskassen:dashboards-updated", {
+          detail: nextDashboards,
+        }),
+      )
+    },
+    [isReadOnly],
+  )
+
+  React.useEffect(() => {
+    broadcastDashboards(dashboards)
+  }, [broadcastDashboards, dashboards])
 
   const handleEditToggle = () => {
     if (isEditing) {
@@ -149,7 +172,12 @@ export function DashboardGrid({
     const name = formName.trim()
     if (!name) return
 
-    const parsedHotkey = formHotkey ? parseInt(formHotkey, 10) : undefined
+    const parsedHotkey = parseDashboardHotkeyInput(formHotkey)
+
+    if (formHotkey.trim() && typeof parsedHotkey === "undefined") {
+      alert("Snarveien må være et tall mellom 1 og 9.")
+      return
+    }
 
     const starterLayout: DashboardItem[] = [
       {
@@ -173,7 +201,7 @@ export function DashboardGrid({
 
     setIsSaving(true)
     try {
-      const createdDashboard = await onCreateDashboard(name, parsedHotkey, starterLayout)
+      const createdDashboard = await onCreateDashboard(name, parsedHotkey ?? undefined, starterLayout)
       if (!createdDashboard) return
 
       setDashboards((previous) => [...previous, createdDashboard])
@@ -188,7 +216,7 @@ export function DashboardGrid({
   }
 
   const handleRenameDashboardClick = () => {
-    if (!onRenameDashboard || !activeDashboard || isEditing || isReadOnly) return
+    if (!onRenameDashboard || !activeDashboard || !isEditing || isReadOnly) return
     setFormName(activeDashboard.name)
     setFormHotkey(activeDashboard.hotkey?.toString() || "")
     setRenameDialogOpen(true)
@@ -200,7 +228,12 @@ export function DashboardGrid({
     const nextName = formName.trim()
     if (!nextName) return
 
-    const parsedHotkey = formHotkey ? parseInt(formHotkey, 10) : undefined
+    const parsedHotkey = parseDashboardHotkeyInput(formHotkey)
+
+    if (formHotkey.trim() && typeof parsedHotkey === "undefined") {
+      alert("Snarveien må være et tall mellom 1 og 9.")
+      return
+    }
 
     setIsSaving(true)
     try {
@@ -222,7 +255,7 @@ export function DashboardGrid({
   }
 
   const handleDeleteDashboardClick = () => {
-    if (!onDeleteDashboard || !activeDashboard || dashboards.length <= 1 || isEditing || isReadOnly) return
+    if (!onDeleteDashboard || !activeDashboard || dashboards.length <= 1 || !isEditing || isReadOnly) return
     setDeleteDialogOpen(true)
   }
 
@@ -235,6 +268,8 @@ export function DashboardGrid({
       const remainingDashboards = dashboards.filter((dashboard) => dashboard.id !== activeDashboard.id)
       setDashboards(remainingDashboards)
       setActiveDashboardId(remainingDashboards[0]?.id || "")
+      setDraftLayout([])
+      setIsEditing(false)
       setDeleteDialogOpen(false)
     } catch (err) {
       console.error("Failed to delete dashboard", err)
@@ -369,32 +404,32 @@ export function DashboardGrid({
 
         {!isReadOnly && (
           <div className="flex flex-wrap items-center gap-2">
-            {!isEditing && onRenameDashboard ? (
-              <button
-                onClick={handleRenameDashboardClick}
-                disabled={isSaving}
-                className="inline-flex items-center gap-2 rounded-lg border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-3 py-2 text-sm font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <PenSquare className="h-4 w-4" />
-                Gi nytt navn
-              </button>
-            ) : null}
-
-            {!isEditing && onDeleteDashboard && dashboards.length > 1 ? (
-              <button
-                onClick={handleDeleteDashboardClick}
-                disabled={isSaving}
-                className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Trash2 className="h-4 w-4" />
-                Slett
-              </button>
-            ) : null}
-
             {isEditing ? (
               <>
+                {onRenameDashboard ? (
+                  <button
+                    onClick={handleRenameDashboardClick}
+                    disabled={isSaving}
+                    className="inline-flex items-center gap-2 rounded-lg border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-3 py-2 text-sm font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <PenSquare className="h-4 w-4" />
+                    Gi nytt navn
+                  </button>
+                ) : null}
+
+                {onDeleteDashboard && dashboards.length > 1 ? (
+                  <button
+                    onClick={handleDeleteDashboardClick}
+                    disabled={isSaving}
+                    className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Slett
+                  </button>
+                ) : null}
+
                 {isSaving ? (
-                  <span className="text-sm font-medium text-[var(--ak-text-muted)] animate-pulse">Lagrer...</span>
+                  <span className="animate-pulse text-sm font-medium text-[var(--ak-text-muted)]">Lagrer...</span>
                 ) : (
                   <>
                     <button
@@ -538,7 +573,7 @@ export function DashboardGrid({
                 min="1"
                 max="9"
                 value={formHotkey}
-                onChange={(e) => setFormHotkey(e.target.value)}
+                onChange={(e) => handleHotkeyInputChange(e.target.value)}
                 placeholder="Valgfritt (F.eks. 2 for D+2)"
               />
             </div>
@@ -574,7 +609,7 @@ export function DashboardGrid({
                 min="1"
                 max="9"
                 value={formHotkey}
-                onChange={(e) => setFormHotkey(e.target.value)}
+                onChange={(e) => handleHotkeyInputChange(e.target.value)}
                 placeholder="Valgfritt"
               />
             </div>

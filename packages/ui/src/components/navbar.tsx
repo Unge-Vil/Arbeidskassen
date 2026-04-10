@@ -28,7 +28,7 @@ import {
 import { cn } from "../lib/utils";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
-import { useTheme } from "./theme-provider";
+import { useTheme } from "next-themes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 
 export interface ModuleTab {
@@ -314,10 +314,19 @@ const themeOptions = [
   },
 ] as const;
 
+type ThemeOptionId = (typeof themeOptions)[number]["id"];
+
+function resolveThemePreference(value: string | undefined): ThemeOptionId {
+  return value === "light" || value === "dark" || value === "night"
+    ? value
+    : "system";
+}
+
 type ProfileMenuProps = {
   orgName?: string;
   tenantOptions?: TenantOption[];
   userInitial?: string;
+  profileHref?: string;
   onTenantChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
 };
@@ -411,10 +420,13 @@ export function ProfileMenu({
   orgName = "Workspace",
   tenantOptions = [],
   userInitial = "W",
+  profileHref = "/profil",
   onTenantChange,
   onSignOut,
 }: ProfileMenuProps) {
-  const { themePreference, setThemePreference } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const themePreference = resolveThemePreference(theme);
+  const setThemePreference = (value: ThemeOptionId) => setTheme(value);
   const hasTenantSwitcher =
     tenantOptions.length > 1 && typeof onTenantChange === "function";
 
@@ -451,8 +463,13 @@ export function ProfileMenu({
           </div>
 
           <div className="space-y-0.5 p-2">
-            <DropdownMenu.Item className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none">
-              <User size={14} className="text-[var(--ak-text-muted)]" /> Min profil og konto
+            <DropdownMenu.Item asChild>
+              <a
+                href={profileHref}
+                className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none"
+              >
+                <User size={14} className="text-[var(--ak-text-muted)]" /> Min profil
+              </a>
             </DropdownMenu.Item>
             <DropdownMenu.Item className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none">
               <Settings size={14} className="text-[var(--ak-text-muted)]" /> Innstillinger
@@ -607,6 +624,7 @@ type MobileNavDrawerProps = {
   onModuleChange: (id: string) => void;
   tenantOptions?: TenantOption[];
   userInitial: string;
+  profileHref?: string;
   onTenantChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
   onSearchOpen: () => void;
@@ -622,11 +640,14 @@ function MobileNavDrawer({
   onModuleChange,
   tenantOptions = [],
   userInitial,
+  profileHref = "/profil",
   onTenantChange,
   onSignOut,
   onSearchOpen,
 }: MobileNavDrawerProps) {
-  const { themePreference, setThemePreference } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const themePreference = resolveThemePreference(theme);
+  const setThemePreference = (value: ThemeOptionId) => setTheme(value);
   const hasTenantSwitcher =
     tenantOptions.length > 1 && typeof onTenantChange === "function";
 
@@ -816,6 +837,7 @@ function MobileNavDrawer({
                 orgName={orgName}
                 tenantOptions={tenantOptions}
                 userInitial={userInitial}
+                profileHref={profileHref}
                 onTenantChange={onTenantChange}
                 onSignOut={onSignOut}
               />
@@ -846,6 +868,7 @@ export interface NavbarProps {
   modules?: ModuleTab[];
   tenantOptions?: TenantOption[];
   userInitial?: string;
+  profileHref?: string;
   onTenantChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
   activeModule: string;
@@ -860,6 +883,7 @@ export function Navbar({
   modules,
   tenantOptions = [],
   userInitial = workspaceInitial,
+  profileHref = "/profil",
   onTenantChange,
   onSignOut,
   activeModule,
@@ -935,6 +959,7 @@ export function Navbar({
                 orgName={orgName}
                 tenantOptions={tenantOptions}
                 userInitial={userInitial}
+                profileHref={profileHref}
                 onTenantChange={onTenantChange}
                 onSignOut={onSignOut}
               />
@@ -972,6 +997,7 @@ export function Navbar({
         onModuleChange={onModuleChange}
         tenantOptions={tenantOptions}
         userInitial={userInitial}
+        profileHref={profileHref}
         onTenantChange={onTenantChange}
         onSignOut={onSignOut}
         onSearchOpen={openSearch}

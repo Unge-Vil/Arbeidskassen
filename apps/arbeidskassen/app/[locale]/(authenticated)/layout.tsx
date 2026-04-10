@@ -23,17 +23,19 @@ function formatRole(role: TenantRole): string {
 
 export default async function AuthenticatedLayout({
   children,
+  params,
 }: {
   children: ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  const context = await getTenantContext();
+  const [{ locale }, context] = await Promise.all([params, getTenantContext()]);
 
   if (!context?.user) {
-    redirect("/login");
+    redirect(`/${locale}/login`);
   }
 
   if (!context.currentTenant || context.requiresTenantSelection) {
-    redirect("/select-tenant");
+    redirect(`/${locale}/select-tenant`);
   }
 
   const tenantOptions = context.memberships.map((membership) => ({
@@ -48,6 +50,7 @@ export default async function AuthenticatedLayout({
       orgName={context.currentTenant.display_name ?? context.currentTenant.name}
       tenantOptions={tenantOptions}
       userInitial={getUserInitial(context.user.email)}
+      profileHref={`/${locale}/profil`}
       onTenantChange={switchTenantAction}
       onSignOut={signOutAction}
     >

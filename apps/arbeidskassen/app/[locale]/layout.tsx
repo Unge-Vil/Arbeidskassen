@@ -31,6 +31,7 @@ export default async function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          themes={["light", "dark", "night"]}
         >
           <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
           <DashboardOverlay fetchDashboards={getDashboardsSafe} />

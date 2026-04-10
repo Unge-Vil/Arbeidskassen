@@ -161,7 +161,7 @@ export async function updateDashboardLayout(
 export async function updateDashboardName(
   dashboardId: string,
   name: string,
-  hotkey?: number,
+  hotkey?: number | null,
 ): Promise<Dashboard | null> {
   const supabase = await createServerClient();
   const { data: userResponse } = await supabase.auth.getUser();
@@ -176,8 +176,8 @@ export async function updateDashboardName(
   };
 
   if (typeof hotkey !== "undefined") {
-    updatePayload.hotkey = hotkey;
-    
+    updatePayload.hotkey = hotkey ?? null;
+
     if (hotkey) {
       await getDashboardTable(supabase)
         .update({ hotkey: null } as never)
