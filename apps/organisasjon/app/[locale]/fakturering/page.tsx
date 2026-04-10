@@ -1,46 +1,42 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@arbeidskassen/ui";
+import { Button } from "@arbeidskassen/ui";
 
-const priorities = [
-  "Se aktiv plan og abonnementsstatus",
-  "Samle betalingsmetoder og fakturahistorikk",
-  "Forberede Stripe- og EHF-flyt i neste iterasjon",
-];
+const billingRows = [
+  { label: "Aktiv plan", value: "Professional" },
+  { label: "Neste faktura", value: "1. mai 2026" },
+  { label: "Beløp", value: "2 490 kr / måned" },
+  { label: "Betalingsmåte", value: "Firmakort •••• 4242" },
+  { label: "Faktura-epost", value: "faktura@ungevil.no" },
+] as const;
 
 export default function FaktureringPage() {
   return (
-    <div className="space-y-6 text-[var(--ak-text-main)]">
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-[var(--ak-accent)]">Abonnement og betaling</p>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Fakturering</h1>
-          <p className="mt-1 max-w-2xl text-sm text-[var(--ak-text-muted)] sm:text-base">
-            Denne delen skal se og føles identisk med resten av plattformen, bare tilpasset organisasjonsinnstillinger for plan og betaling.
+    <div className="mx-auto max-w-5xl">
+      <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
+          <h1 className="text-[18px] font-semibold text-[var(--ak-text-main)]">Fakturering</h1>
+          <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
+            Se plan, betalingsmåte og fakturadetaljer for virksomheten.
           </p>
         </div>
-      </div>
 
-      <Card className="rounded-3xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-panel)] shadow-sm">
-        <CardHeader className="space-y-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] text-lg">
-            <span aria-hidden>💳</span>
+        <div className="space-y-3 px-6 py-5">
+          {billingRows.map((row) => (
+            <div
+              key={row.label}
+              className="flex flex-col gap-1 rounded-[10px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <p className="text-sm font-medium text-[var(--ak-text-main)]">{row.label}</p>
+              <p className="text-sm text-[var(--ak-text-muted)]">{row.value}</p>
+            </div>
+          ))}
+
+          <div className="flex justify-end pt-2">
+            <Button type="button" className="min-w-44 bg-[var(--ak-accent)] text-[var(--ak-accent-foreground)] hover:opacity-90">
+              Administrer abonnement
+            </Button>
           </div>
-          <div>
-            <CardTitle>Plan for faktureringsmodulen</CardTitle>
-            <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
-              Samme design, samme tokens — bare med fokus på planstatus, betaling og historikk.
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 text-sm text-[var(--ak-text-main)]">
-            {priorities.map((item) => (
-              <li key={item} className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] px-3 py-2">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
     </div>
   );
 }

@@ -28,7 +28,7 @@ import {
 import { cn } from "../lib/utils";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
-import { useTheme } from "next-themes";
+import { useTheme } from "./theme-provider";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 
 export interface ModuleTab {
@@ -104,16 +104,16 @@ export function ModuleTabs({
             key={mod.id}
             onClick={() => onModuleChange(mod.id)}
             className={cn(
-              "flex min-h-9 shrink-0 items-center gap-1.5 rounded-md border px-3 py-1 text-[12px] font-semibold whitespace-nowrap transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring",
               isActive
-                ? "bg-[var(--ak-bg-card)] text-[var(--ak-text-main)] shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-[var(--ak-border-soft)]"
+                ? "bg-[var(--ak-accent)] text-[var(--ak-accent-foreground)] shadow-sm border-transparent"
                 : "border-transparent text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)]"
             )}
           >
             <span
               className={cn(
                 isActive
-                  ? "text-[var(--ak-accent)]"
+                  ? "text-[var(--ak-accent-foreground)]"
                   : "text-[var(--ak-text-muted)]"
               )}
             >
@@ -958,6 +958,14 @@ export function Navbar({
                 ⌘K
               </span>
             </ActionIconButton>
+
+            <div
+              className="hidden items-center gap-1 rounded border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-2 py-1 text-[10px] font-bold text-[var(--ak-text-muted)] lg:inline-flex"
+              title="Åpne dashboard-overlay med D + 1-9"
+            >
+              <LayoutGrid size={12} strokeWidth={2} />
+              D + 1-9
+            </div>
 
             <AppLauncherPopover />
 

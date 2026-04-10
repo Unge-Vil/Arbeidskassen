@@ -1,64 +1,177 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React from "react";
+import {
+  ThemeProvider as NextThemesProvider,
+  useTheme as useNextTheme,
+} from "next-themes";
 
-export type ThemePreference = "light" | "dark" | "night" | "system";
-export type ResolvedTheme = "light" | "dark" | "night";
+import {
+  formatThemeCookieValue,
+  normalizeResolvedTheme,
+  normalizeThemePreference,
+  parseThemePreferenceCookie,
+  resolveInitialThemePreference,
+  THEME_PREFERENCE_STORAGE_KEY,
+  type ResolvedTheme,
+  type ThemePreference,
+} from "./theme-utils";
 
 interface ThemeContextValue {
+  theme: ThemePreference;
+  setTheme: (theme: ThemePreference) => void;
   themePreference: ThemePreference;
   resolvedTheme: ResolvedTheme;
   setThemePreference: (pref: ThemePreference) => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue>({
+const ThemeContext = React.createContext<ThemeContextValue>({
+  theme: "system",
+  setTheme: () => {},
   themePreference: "system",
   resolvedTheme: "light",
   setThemePreference: () => {},
 });
 
-export function useTheme() {
-  return useContext(ThemeContext);
+function ThemeContextBridge({
+  children,
+  forcedTheme,
+}: {
+  children: React.ReactNode;
+  forcedTheme?: ResolvedTheme;
+}) {
+  const { theme, setTheme, resolvedTheme } = useNextTheme();
+
+  const themePreference = normalizeThemePreference(forcedTheme ?? theme);
+  const safeResolvedTheme = forcedTheme
+    ? normalizeResolvedTheme(forcedTheme)
+    : normalizeResolvedTheme(
+        resolvedTheme,
+        themePreference === "system" ? "light" : normalizeResolvedTheme(themePreference, "light"),
+      );
+
+  const setThemePreference = React.useCallback(
+    (value: ThemePreference) => {
+      setTheme(value);
+    },
+    [setTheme],
+  );
+
+  const value = React.useMemo(
+    () => ({
+      theme: themePreference,
+      setTheme: setThemePreference,
+      themePreference,
+      resolvedTheme: safeResolvedTheme,
+      setThemePreference,
+    }),
+    [safeResolvedTheme, setThemePreference, themePreference],
+  );
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [themePreference, setThemePreference] =
-    useState<ThemePreference>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
+function ThemePreferenceSync({
+  forcedTheme,
+  initialThemePreference,
+}: {
+  forcedTheme?: ResolvedTheme;
+  initialThemePreference?: ThemePreference;
+}) {
+  const { theme, setTheme } = useNextTheme();
 
-  useEffect(() => {
-    const stored = localStorage.getItem("theme-preference") as ThemePreference;
-    if (stored) setThemePreference(stored);
-  }, []);
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
 
-  useEffect(() => {
-    localStorage.setItem("theme-preference", themePreference);
+    const preferredTheme = resolveInitialThemePreference({
+      forcedTheme,
+      profileThemePreference: initialThemePreference,
+      cookieThemePreference: parseThemePreferenceCookie(document.cookie),
+      storageThemePreference: window.localStorage.getItem(THEME_PREFERENCE_STORAGE_KEY),
+    });
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const updateTheme = () => {
-      if (themePreference === "system") {
-        setResolvedTheme(mediaQuery.matches ? "dark" : "light");
-      } else {
-        setResolvedTheme(themePreference);
+    if (theme !== preferredTheme) {
+      setTheme(preferredTheme);
+    }
+  }, [forcedTheme, initialThemePreference, setTheme]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const nextTheme = normalizeThemePreference(forcedTheme ?? theme);
+
+    window.localStorage.setItem(THEME_PREFERENCE_STORAGE_KEY, nextTheme);
+    document.cookie = formatThemeCookieValue(nextTheme);
+  }, [forcedTheme, theme]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== THEME_PREFERENCE_STORAGE_KEY || !event.newValue) {
+        return;
+      }
+
+      const nextTheme = normalizeThemePreference(event.newValue);
+
+      if (theme !== nextTheme) {
+        setTheme(nextTheme);
       }
     };
-    updateTheme();
-    mediaQuery.addEventListener("change", updateTheme);
-    return () => mediaQuery.removeEventListener("change", updateTheme);
-  }, [themePreference]);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove("light", "dark", "night");
-    root.classList.add(resolvedTheme);
-    root.setAttribute("data-theme", resolvedTheme);
-  }, [resolvedTheme]);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [setTheme, theme]);
+
+  return null;
+}
+
+export function useTheme() {
+  return React.useContext(ThemeContext);
+}
+
+export type { ResolvedTheme, ThemePreference };
+
+export function ThemeProvider({
+  children,
+  forcedTheme,
+  initialThemePreference,
+}: {
+  children: React.ReactNode;
+  forcedTheme?: ResolvedTheme;
+  initialThemePreference?: ThemePreference;
+}) {
+  const defaultTheme = resolveInitialThemePreference({
+    forcedTheme,
+    profileThemePreference: initialThemePreference,
+  });
 
   return (
-    <ThemeContext.Provider
-      value={{ themePreference, resolvedTheme, setThemePreference }}
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme={defaultTheme}
+      disableTransitionOnChange
+      enableSystem
+      forcedTheme={forcedTheme}
+      storageKey={THEME_PREFERENCE_STORAGE_KEY}
+      themes={["light", "dark", "night"]}
     >
-      {children}
-    </ThemeContext.Provider>
+      <ThemeContextBridge forcedTheme={forcedTheme}>
+        <ThemePreferenceSync
+          forcedTheme={forcedTheme}
+          initialThemePreference={initialThemePreference}
+        />
+        {children}
+      </ThemeContextBridge>
+    </NextThemesProvider>
   );
 }

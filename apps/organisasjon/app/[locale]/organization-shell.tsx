@@ -18,12 +18,11 @@ type OrganizationShellProps = {
 };
 
 const settingsSections = [
-  { href: "/", label: "Oversikt", icon: "🏠" },
-  { href: "/virksomhet", label: "Virksomhet", icon: "🏢" },
-  { href: "/brukere", label: "Brukere og roller", icon: "👥" },
-  { href: "/struktur", label: "Struktur", icon: "🧭" },
-  { href: "/fakturering", label: "Fakturering", icon: "💳" },
-  { href: "/audit-logg", label: "Audit logg", icon: "🛡️" },
+  { href: "/virksomhet", label: "Virksomhet", shortLabel: "V" },
+  { href: "/brukere", label: "Brukere", shortLabel: "B" },
+  { href: "/struktur", label: "Struktur", shortLabel: "S" },
+  { href: "/fakturering", label: "Fakturering", shortLabel: "F" },
+  { href: "/audit-logg", label: "Audit logg", shortLabel: "A" },
 ] as const;
 
 export function OrganizationShell({
@@ -38,10 +37,10 @@ export function OrganizationShell({
   onSignOut,
 }: OrganizationShellProps) {
   const pathname = usePathname();
-  const [activeModule, setActiveModule] = useState("dashboard");
+  const [activeModule, setActiveModule] = useState("teamarea");
 
   const isActive = (href: string) => {
-    const localizedHref = href === "/" ? `/${locale}` : `/${locale}${href}`;
+    const localizedHref = `/${locale}${href}`;
     return pathname === localizedHref || pathname.startsWith(`${localizedHref}/`);
   };
 
@@ -61,23 +60,17 @@ export function OrganizationShell({
         onSignOut={onSignOut}
       />
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:px-8 lg:py-8">
-          <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-72 lg:self-start">
-            <div className="overflow-hidden rounded-3xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-panel)] shadow-sm">
-              <div className="border-b border-[var(--ak-border-soft)] px-4 py-4 sm:px-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ak-text-muted)]">
+      <div className="flex flex-1 overflow-hidden">
+        <div className="flex h-full w-full flex-col lg:flex-row">
+          <aside className="w-full shrink-0 border-b border-[var(--ak-border-soft)] bg-[var(--ak-bg-panel)] lg:h-full lg:w-[242px] lg:border-b-0 lg:border-r">
+            <div className="h-full overflow-y-auto px-3 py-5">
+              <div className="px-2 pb-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ak-text-muted)]">
                   Organisasjon
-                </p>
-                <h2 className="mt-2 text-lg font-semibold text-[var(--ak-text-main)]">
-                  Innstillinger
-                </h2>
-                <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
-                  Alt følger samme tema, tokens og navigasjonsmønster som resten av Arbeidskassen.
                 </p>
               </div>
 
-              <nav className="space-y-1 p-2">
+              <nav className="space-y-1">
                 {settingsSections.map((section) => {
                   const active = isActive(section.href);
 
@@ -86,26 +79,23 @@ export function OrganizationShell({
                       key={section.href}
                       href={section.href}
                       className={cn(
-                        "flex items-center justify-between gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors",
+                        "flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium transition-colors duration-150",
                         active
-                          ? "bg-[var(--ak-bg-main)] text-[var(--ak-text-main)] shadow-sm"
-                          : "text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-main)]",
+                          ? "bg-[var(--ak-bg-hover)] text-[var(--ak-accent)]"
+                          : "text-[var(--ak-text-dim)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-main)]",
                       )}
                     >
-                      <span className="flex items-center gap-3">
-                        <span
-                          className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-xl border text-sm",
-                            active
-                              ? "border-[var(--ak-border-soft)] bg-[var(--ak-bg-panel)]"
-                              : "border-transparent bg-[var(--ak-bg-main)]",
-                          )}
-                        >
-                          <span aria-hidden>{section.icon}</span>
-                        </span>
-                        {section.label}
+                      <span
+                        className={cn(
+                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border text-[10px] font-semibold",
+                          active
+                            ? "border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] text-[var(--ak-accent)]"
+                            : "border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] text-[var(--ak-text-muted)]",
+                        )}
+                      >
+                        {section.shortLabel}
                       </span>
-                      <span aria-hidden className="opacity-70">→</span>
+                      <span className="truncate">{section.label}</span>
                     </Link>
                   );
                 })}
@@ -113,7 +103,9 @@ export function OrganizationShell({
             </div>
           </aside>
 
-          <main className="min-w-0 flex-1">{children}</main>
+          <main className="min-w-0 flex-1 overflow-y-auto bg-[var(--ak-bg-main)]">
+            <div className="mx-auto w-full max-w-6xl px-4 py-5 lg:px-8 lg:py-8">{children}</div>
+          </main>
         </div>
       </div>
     </div>

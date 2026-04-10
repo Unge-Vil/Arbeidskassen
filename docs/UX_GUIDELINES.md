@@ -4,11 +4,12 @@
 
 ## 1. Core Philosophy
 
-Arbeidskassen is a professional tool. The UX should feel **tactile, compact, fast, and contextual**, drawing inspiration from modern pro-tool workspaces such as Linear and Milanote.
+Arbeidskassen is a professional workspace tool. The UX should feel **breathable, card-based, friendly, and contextual**, inspired by modern workspace platforms like monday.com and Notion.
 
-*   **Compact by Default:** Favor dense but readable layouts. Standard interface text should default to **`13px`**, with concise spacing such as `p-4` / `gap-3` before reaching for spacious dashboard padding.
-*   **Tactile Interactions:** Interactive controls must feel like physical tools, not flat hyperlinks. Use visible surfaces, subtle borders, and feedback such as `transition-all active:scale-[0.98]`.
-*   **Labels as Metadata:** Form labels and micro-labels should default to **`11px`**, **bold**, **uppercase**, with wider tracking to reinforce structure and scanability.
+*   **Breathable by Default:** Favor generous but readable layouts. Standard interface text defaults to **`14px`** with `line-height: 1.5`. Use `p-5` / `p-6` / `gap-4` as standard spacing. Density can be reduced explicitly with the `density-compact` utility class for tables and data-heavy views.
+*   **Card-Based Canvas:** The workspace uses white cards (`--ak-bg-card`) on a light gray canvas (`--ak-bg-main`) with subtle shadows (`shadow-sm`). Each settings section, content block, or module panel is its own card with `rounded-xl` corners.
+*   **Labels as Helpers:** Form labels default to **`13px`**, **medium weight**, **normal-case** with standard letter-spacing. They guide the user without shouting.
+*   **Tactile Interactions:** Interactive controls should feel responsive. Use visible surfaces, subtle borders, and optional feedback such as `active:scale-[0.98]` on buttons.
 *   **Keyboard First:** Power users must be able to use the application without a mouse.
 *   **Contextual UI:** Only show what is relevant to the current module (`appName`). Avoid global clutter.
 *   **Accessible by Default:** We strictly adhere to WCAG 2.1 AA. Every focus state must be clearly visible, icon-only controls need `aria-label`s, and effective hit targets must remain at least `44px` through padding or layout.
@@ -24,11 +25,14 @@ Always use `@radix-ui/react-*` primitives (via shadcn/ui) for:
 *   `Select`
 *   `Tabs`
 
-Shared components must reflect the Arbeidskassen tactile system:
-*   Buttons and segmented controls should look like **compact physical tools** with backgrounds and borders, not plain text links.
-*   Cards, inputs, and popovers should use **tight but comfortable spacing** (`p-4`, `p-5`, `px-3`, `py-2`) and rounded corners (`rounded-md` / `rounded-lg`).
+Shared components must reflect the Arbeidskassen breathable system:
+*   Buttons use `rounded-lg` corners with responsive sizing (`min-h-11`) and `text-[14px]`. Small buttons use `text-[13px]`.
+*   Cards and settings sections use `rounded-xl` corners, `shadow-sm`, generous padding (`p-5`/`p-6`), and `bg-[var(--ak-bg-card)]` on the canvas background.
+*   Inputs and selects use `rounded-lg`, `text-[14px]`, and consistent `min-h-11` height.
 *   Focus treatments must be crisp and theme-token-driven, using the platform ring color (`--ak-ring`) rather than hardcoded Tailwind colors.
 *   Preserve all Radix semantics and accessibility behavior — never trade keyboard support or ARIA correctness for custom styling.
+*   Use `<SelectNative>` from `@arbeidskassen/ui` for native HTML select elements instead of inline styled `<select>` tags.
+*   Use `<PageHeader>` from `@arbeidskassen/ui` for all settings/admin pages that need a category label + title + description header.
 
 **Why?** Radix handles focus trapping, `Escape` key listeners, and ARIA labels out of the box.
 
@@ -70,7 +74,61 @@ When closing:
 className="data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
 ```
 
-## 7. Workflow: Adding New Components (SOP)
+## 7. Status Colors
+
+Arbeidskassen uses dedicated semantic status tokens for task/item states. Never hardcode status colors.
+
+| Status | Token | Use |
+|--------|-------|-----|
+| Working on it | `--ak-status-working` (yellow) + `--ak-status-working-bg` | Active tasks |
+| Stuck | `--ak-status-stuck` (red) + `--ak-status-stuck-bg` | Blocked items |
+| Done | `--ak-status-done` (green) + `--ak-status-done-bg` | Completed items |
+| Blank/Unset | `--ak-status-blank` (gray) + `--ak-status-blank-bg` | No status assigned |
+
+Use the `<StatusBadge>` component from `@arbeidskassen/ui` for rendering status pills:
+```tsx
+<StatusBadge variant="working" label="Working on it" />
+<StatusBadge variant="stuck" label="Stuck" />
+<StatusBadge variant="done" label="Done" />
+```
+
+## 8. Settings Page Pattern
+
+All settings and administration pages (Profile, Organization/Virksomhet, Structure, etc.) follow a consistent layout.
+
+### 8A. Standard settings page
+
+Use this pattern when a page needs richer context, helper panels, or multiple sections:
+
+1.  **`<PageHeader>`** at the top with `category`, `title`, and optional `description`.
+2.  **Two-column grid** on wide screens: `grid xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.85fr)]` — form on the left, sidebar info on the right.
+3.  **Section cards** use `rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] p-6 shadow-sm sm:p-7` with `mb-6` heading spacing inside.
+4.  **Inner form grids** use `gap-5` for comfortable field spacing.
+5.  **Alert banners** (success, error, warning) use `rounded-xl` and semantic color tokens.
+
+### 8B. Left-sidebar settings shell
+
+Use this pattern for app-level settings areas where many pages share the same navigation, such as `Organisasjon`, `Backoffice`, or future admin modules.
+
+1.  **Sidebar is flush left and full height** under the top navbar. It should be a dedicated left column, visually attached to the page edge.
+2.  **Sidebar width:** around `220px–248px` on desktop. Keep it narrow and simple.
+3.  **Sidebar surface:** use a subtle app-shell background like `bg-[var(--ak-bg-panel)]` or a very light neutral surface with a right border.
+4.  **Navigation items:** one vertical list, one active item at a time. Active item uses the primary accent background with strong contrast.
+5.  **Content area:** scrolls independently from the sidebar. The content container can still be centered with a readable `max-w-*`.
+6.  **Do not add unnecessary landing pages** for settings modules. The first real settings page should usually be the default route.
+7.  **Use the same card style across all subpages** inside the settings module so `Virksomhet`, `Brukere`, `Struktur`, `Fakturering`, and `Audit logg` feel like one system.
+
+### 8C. Simple settings card variant
+
+When the desired UI is closer to a clean admin form (like the current `Virksomhet` reference), prefer:
+
+- one primary white card with a light border
+- a header row inside the card (`title` + short helper text)
+- straightforward form rows and minimal extra chrome
+- one clear primary action aligned to the bottom right
+- no decorative side widgets unless they add real value
+
+## 9. Workflow: Adding New Components (SOP)
 
 To maintain a robust, stable, and highly accessible design system across the monorepo, follow this Standard Operating Procedure (SOP) when adding new UX/UI components:
 

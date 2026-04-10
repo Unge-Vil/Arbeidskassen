@@ -1,46 +1,76 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@arbeidskassen/ui";
+import { getCurrentTenantActivity } from "@arbeidskassen/supabase";
 
-const priorities = [
-  "Samle viktige hendelser på tvers av moduler",
-  "Vise hvem som gjorde hva og når",
-  "Klargjøre tenant-sikret historikk og revisjonsspor",
-];
+const actionLabels = {
+  INSERT: "Opprettet",
+  UPDATE: "Oppdatert",
+  DELETE: "Slettet",
+} as const;
 
-export default function AuditLoggPage() {
+const tableLabels: Record<string, string> = {
+  tenants: "Virksomhet",
+  tenant_members: "Tilganger",
+  organizations: "Organisasjoner",
+  departments: "Avdelinger",
+  sub_departments: "Undergrupper",
+  audit_logs: "Audit logg",
+};
+
+function formatTimestamp(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("no-NO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+export default async function AuditLoggPage() {
+  const events = (await getCurrentTenantActivity()) ?? [];
+
   return (
-    <div className="space-y-6 text-[var(--ak-text-main)]">
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-[var(--ak-accent)]">Historikk og sporbarhet</p>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Audit logg</h1>
-          <p className="mt-1 max-w-2xl text-sm text-[var(--ak-text-muted)] sm:text-base">
-            Også revisjonssporet skal leve i samme settings-shell, med samme visuelle språk og navigasjon som resten av plattformen.
+    <div className="mx-auto max-w-5xl">
+      <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
+          <h1 className="text-[18px] font-semibold text-[var(--ak-text-main)]">Audit logg</h1>
+          <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
+            Se de siste registrerte endringene i valgt virksomhet.
           </p>
         </div>
-      </div>
 
-      <Card className="rounded-3xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-panel)] shadow-sm">
-        <CardHeader className="space-y-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] text-lg">
-            <span aria-hidden>🛡️</span>
-          </div>
-          <div>
-            <CardTitle>Dette kommer i audit-loggen</CardTitle>
-            <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
-              Alt av viktige endringer i organisasjonen skal kunne spores herfra.
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 text-sm text-[var(--ak-text-main)]">
-            {priorities.map((item) => (
-              <li key={item} className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] px-3 py-2">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+        <div className="space-y-3 px-6 py-5">
+          {events.length > 0 ? (
+            events.map((event) => (
+              <div
+                key={event.id}
+                className="rounded-[10px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] px-3 py-3"
+              >
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-[var(--ak-text-main)]">
+                      {actionLabels[event.action]} · {tableLabels[event.tableName] ?? event.tableName}
+                    </p>
+                    <p className="text-sm text-[var(--ak-text-muted)]">
+                      Post {event.recordId.slice(0, 8)} ble oppdatert i tabellen {tableLabels[event.tableName] ?? event.tableName.toLowerCase()}.
+                    </p>
+                  </div>
+                  <span className="text-sm text-[var(--ak-text-muted)]">{formatTimestamp(event.createdAt)}</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-[10px] border border-dashed border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] px-4 py-4 text-sm text-[var(--ak-text-muted)]">
+              Ingen audit-hendelser er registrert ennå.
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

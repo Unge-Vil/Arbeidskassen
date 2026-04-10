@@ -32,10 +32,10 @@ export default async function SelectTenantPage({
 
   if (context.memberships.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f5f5] px-4">
-        <div className="w-full max-w-lg rounded-2xl border border-amber-200 bg-white p-6 shadow-sm">
-          <h1 className="text-xl font-bold text-[#1a1f2e]">Ingen aktive workspaces</h1>
-          <p className="mt-2 text-sm text-gray-600">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--ak-bg-main)] px-4">
+        <div className="w-full max-w-lg rounded-2xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] p-6 shadow-sm">
+          <h1 className="text-xl font-bold text-[var(--ak-text-main)]">Ingen aktive workspaces</h1>
+          <p className="mt-2 text-sm text-[var(--ak-text-muted)]">
             Kontoen din er logget inn, men mangler et aktivt tenant-medlemskap.
             Kontakt en administrator for tilgang.
           </p>
@@ -43,7 +43,7 @@ export default async function SelectTenantPage({
           <form action={signOutAction} className="mt-4">
             <button
               type="submit"
-              className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+              className="rounded-lg border border-[var(--ak-border-soft)] px-4 py-2 text-sm font-semibold text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)]"
             >
               Logg ut
             </button>
@@ -61,22 +61,22 @@ export default async function SelectTenantPage({
   const currentTenantId = context.currentTenant?.id ?? null;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f4f5f5] px-4 py-10">
-      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--ak-bg-main)] px-4 py-10">
+      <div className="w-full max-w-2xl rounded-2xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] p-6 shadow-sm">
         <div className="mb-6 text-center">
-          <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white shadow-md">
+          <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--ak-accent)] text-xl font-bold text-[var(--ak-accent-foreground)] shadow-md">
             A
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1a1f2e]">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--ak-text-main)]">
             Velg workspace
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-[var(--ak-text-muted)]">
             Kontoen din er knyttet til flere tenants. Velg hvor du vil jobbe nå.
           </p>
         </div>
 
         {params?.error ? (
-          <div className="mb-4 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+          <div className="mb-4 rounded-lg border border-[var(--ak-status-stuck)] bg-[var(--ak-status-stuck-bg)] text-[var(--ak-status-stuck)]">
             {decodeURIComponent(params.error)}
           </div>
         ) : null}
@@ -93,21 +93,21 @@ export default async function SelectTenantPage({
                   type="submit"
                   className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition-all ${
                     isCurrent
-                      ? "border-blue-200 bg-blue-50"
-                      : "border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50/40"
+                      ? "border-[var(--ak-accent)] bg-[var(--ak-bg-hover)] ring-1 ring-[var(--ak-accent)]"
+                      : "border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] hover:border-[var(--ak-accent)] hover:bg-[var(--ak-bg-hover)]"
                   }`}
                 >
                   <div>
-                    <div className="text-sm font-bold text-[#1a1f2e]">{tenantName}</div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="text-sm font-bold text-[var(--ak-text-main)]">{tenantName}</div>
+                    <div className="mt-1 text-xs text-[var(--ak-text-muted)]">
                       Rolle: {formatRole(membership.role)} · Plan: {membership.tenant.plan}
                     </div>
                   </div>
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                       isCurrent
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700"
+                        ? "bg-[var(--ak-accent)] text-[var(--ak-accent-foreground)]"
+                        : "bg-[var(--ak-bg-hover)] border border-[var(--ak-border-soft)] text-[var(--ak-text-dim)]"
                     }`}
                   >
                     {isCurrent ? "Aktiv" : "Velg"}
@@ -121,7 +121,7 @@ export default async function SelectTenantPage({
         <form action={signOutAction} className="mt-6 flex justify-center">
           <button
             type="submit"
-            className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+            className="rounded-lg border border-[var(--ak-border-soft)] px-4 py-2 text-sm font-semibold text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)]"
           >
             Logg ut
           </button>

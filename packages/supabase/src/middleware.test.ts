@@ -13,6 +13,7 @@ describe("handleAppSession", () => {
     vi.clearAllMocks();
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   });
 
   it("refreshes auth cookies without mutating the immutable request cookie store", async () => {
@@ -63,5 +64,51 @@ describe("handleAppSession", () => {
     expect(requestCookieSet).not.toHaveBeenCalled();
     expect(response.headers.get("x-intl-locale")).toBe("no");
     expect(response.cookies.get("sb-access-token")?.value).toBe("fresh-token");
+  });
+
+  it("accepts the Vercel/Supabase publishable key env name when anon key is absent", async () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_test_key";
+
+    vi.mocked(createServerClient).mockReturnValue({
+      auth: {
+        getUser: vi.fn(async () => ({
+          data: {
+            user: null,
+          },
+        })),
+      },
+    } as never);
+
+    const request = new NextRequest("https://example.com/");
+    const response = await handleAppSession(
+      request,
+      { protectedPrefixes: ["/dashboard"] },
+      NextResponse.next({ request }),
+    );
+
+    expect(createServerClient).toHaveBeenCalledWith(
+      "https://example.supabase.co",
+      "sb_publishable_test_key",
+      expect.any(Object),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("keeps public routes available when Supabase env is missing", async () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+    const request = new NextRequest("https://example.com/");
+    const response = await handleAppSession(
+      request,
+      { protectedPrefixes: ["/dashboard"] },
+      NextResponse.next({ request }),
+    );
+
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
   });
 });

@@ -24,4 +24,20 @@ export {
   type ProfileThemePreference,
   type UserProfile,
 } from "./profile";
+export {
+  getCurrentUserDashboardsSafe,
+  type DashboardItem,
+  type UserDashboard,
+} from "./dashboard";
+export {
+  getCurrentTenantActivity,
+  getCurrentTenantDirectory,
+  getCurrentTenantStructure,
+  summarizeTenantActivity,
+  summarizeTenantDirectory,
+  summarizeTenantStructure,
+  type TenantActivityItem,
+  type TenantDirectoryMember,
+  type TenantStructureSummary,
+} from "./organization";
 export type { Database } from "./types";

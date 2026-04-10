@@ -40,6 +40,9 @@ export * from "./components/ui/select";
 export * from "./components/ui/sheet";
 export * from "./components/ui/sonner";
 export * from "./components/ui/tabs";
+export * from "./components/ui/select-native";
+export * from "./components/ui/page-header";
+export * from "./components/ui/status-badge";
 
 export { useDashboardStore } from "./components/dashboard/dashboard-store";
 export { DashboardOverlay } from "./components/dashboard/dashboard-overlay";

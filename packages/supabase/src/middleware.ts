@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { resolveSupabaseEnv, SUPABASE_ENV_ERROR_MESSAGE } from "./env";
 
 export type AppAuthMiddlewareOptions = {
   loginPath?: string;
@@ -26,18 +27,27 @@ export async function handleAppSession(
   }: AppAuthMiddlewareOptions = {},
   initialResponse?: NextResponse,
 ) {
-  let response = initialResponse ?? NextResponse.next({ request });
+  const response = initialResponse ?? NextResponse.next({ request });
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const { pathname } = request.nextUrl;
+  const isLoginRoute = matchesPath(pathname, loginPath);
+  const isProtectedRoute = protectedPrefixes.some((prefix) =>
+    prefix === "/" ? pathname === "/" : matchesPath(pathname, prefix),
+  );
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in middleware runtime.",
-    );
+  const { url: supabaseUrl, key: supabaseKey } = resolveSupabaseEnv();
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error(SUPABASE_ENV_ERROR_MESSAGE);
+
+    if (!isLoginRoute && isProtectedRoute) {
+      return NextResponse.redirect(new URL(loginPath, request.url));
+    }
+
+    return response;
   }
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+  const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -50,15 +60,21 @@ export async function handleAppSession(
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
 
-  const { pathname } = request.nextUrl;
-  const isLoginRoute = matchesPath(pathname, loginPath);
-  const isProtectedRoute = protectedPrefixes.some((prefix) =>
-    prefix === "/" ? pathname === "/" : matchesPath(pathname, prefix),
-  );
+  try {
+    const {
+      data: { user: resolvedUser },
+    } = await supabase.auth.getUser();
+
+    user = resolvedUser;
+  } catch (error) {
+    console.error("Supabase auth session refresh failed in middleware.", error);
+
+    if (!isLoginRoute && isProtectedRoute) {
+      return NextResponse.redirect(new URL(loginPath, request.url));
+    }
+  }
 
   if (!user && isProtectedRoute) {
     return NextResponse.redirect(new URL(loginPath, request.url));

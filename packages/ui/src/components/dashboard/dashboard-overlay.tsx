@@ -145,6 +145,12 @@ export function DashboardOverlay({
               <div>
                 <p className="mb-1 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--ak-text-muted)]">OVERLAY DASHBOARD (Read-only)</p>
                 <h2 className="text-3xl font-bold text-[var(--ak-text-main)]">{currentDashboardName}</h2>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[var(--ak-text-muted)]">
+                  <span className="rounded-md border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-2 py-1 font-semibold text-[var(--ak-text-main)]">
+                    D + 1-9
+                  </span>
+                  <span>Trykk samme snarvei igjen for å lukke overlayet.</span>
+                </div>
               </div>
               <Dialog.Close className="rounded-full p-2 text-[var(--ak-text-muted)] transition-colors hover:bg-[var(--ak-bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <span className="sr-only">Lukk</span>

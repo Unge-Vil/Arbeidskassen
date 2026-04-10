@@ -1,46 +1,104 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@arbeidskassen/ui";
+import { Button } from "@arbeidskassen/ui";
+import {
+  getCurrentTenantDirectory,
+  type TenantDirectoryMember,
+  type TenantRole,
+} from "@arbeidskassen/supabase";
 
-const priorities = [
-  "Invitere nye brukere til tenant",
-  "Tildele owner/admin/member/viewer-roller",
-  "Deaktivere tilgang uten å miste historikk",
-];
+function formatRole(role: TenantRole): string {
+  switch (role) {
+    case "owner":
+      return "Eier";
+    case "admin":
+      return "Admin";
+    case "member":
+      return "Medlem";
+    default:
+      return "Lesetilgang";
+  }
+}
 
-export default function BrukerePage() {
+function formatScope(member: TenantDirectoryMember): string {
+  if (member.subDepartmentName) {
+    return `${member.orgName ?? "Virksomhet"} / ${member.deptName ?? "Avdeling"} / ${member.subDepartmentName}`;
+  }
+
+  if (member.deptName) {
+    return `${member.orgName ?? "Virksomhet"} / ${member.deptName}`;
+  }
+
+  return member.orgName ?? "Virksomhetsnivå";
+}
+
+function formatJoinedAt(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("no-NO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
+export default async function BrukerePage() {
+  const members = (await getCurrentTenantDirectory()) ?? [];
+
   return (
-    <div className="space-y-6 text-[var(--ak-text-main)]">
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-[var(--ak-accent)]">Tilgang og medlemskap</p>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Brukere og roller</h1>
-          <p className="mt-1 max-w-2xl text-sm text-[var(--ak-text-muted)] sm:text-base">
-            Denne siden følger samme shell og tema som resten av systemet, og blir hjemmet for invitasjoner, roller og tilgangsstyring.
+    <div className="mx-auto max-w-5xl">
+      <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
+          <h1 className="text-[18px] font-semibold text-[var(--ak-text-main)]">Brukere</h1>
+          <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
+            Se aktive medlemskap i valgt virksomhet og hvor i strukturen de hører hjemme.
           </p>
         </div>
-      </div>
 
-      <Card className="rounded-3xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-panel)] shadow-sm">
-        <CardHeader className="space-y-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] text-lg">
-            <span aria-hidden>👥</span>
-          </div>
-          <div>
-            <CardTitle>Prioriteringer i denne delen</CardTitle>
-            <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
-              Her bygger vi den neste settings-flaten i samme designretning som `Virksomhet`.
+        <div className="space-y-3 px-6 py-5">
+          {members.length > 0 ? (
+            members.map((member) => (
+              <div
+                key={member.id}
+                className="flex flex-col gap-2 rounded-[10px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm font-medium text-[var(--ak-text-main)]">
+                    {member.userLabel}
+                    {member.isCurrentUser ? " (deg)" : ""}
+                  </p>
+                  <p className="text-sm text-[var(--ak-text-muted)]">{formatScope(member)}</p>
+                  <p className="mt-1 text-xs text-[var(--ak-text-muted)]">
+                    Lagt til {formatJoinedAt(member.joinedAt)}
+                  </p>
+                </div>
+                <span className="inline-flex rounded-full border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-2.5 py-1 text-[11px] font-semibold text-[var(--ak-text-dim)]">
+                  {formatRole(member.role)}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-[10px] border border-dashed border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] px-4 py-4 text-sm text-[var(--ak-text-muted)]">
+              Det finnes ingen aktive medlemmer i denne virksomheten ennå.
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-[var(--ak-text-muted)]">
+              {members.length} aktive medlemskap i valgt tenant.
             </p>
+            <Button
+              type="button"
+              disabled
+              className="min-w-36 bg-[var(--ak-accent)] text-[var(--ak-accent-foreground)] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Invitering kommer snart
+            </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 text-sm text-[var(--ak-text-main)]">
-            {priorities.map((item) => (
-              <li key={item} className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] px-3 py-2">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
     </div>
   );
 }

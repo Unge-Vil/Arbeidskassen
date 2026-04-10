@@ -104,9 +104,15 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-bold text-[var(--ak-text-main)] tracking-tight">
           God morgen 👋
         </h1>
-        <p className="text-[var(--ak-text-muted)] mt-1">
+        <p className="mt-1 text-[var(--ak-text-muted)]">
           Dette er din arbeidsflate. Dra og slipp ikonene og verktøyene slik det passer deg best.
         </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--ak-text-muted)]">
+          <span className="rounded-md border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-2 py-1 font-semibold text-[var(--ak-text-main)]">
+            D + 1-9
+          </span>
+          <span>Åpne overlayet og hopp mellom dashbord fra hele plattformen.</span>
+        </div>
       </div>
 
       {dashboards.length > 0 ? (

@@ -3,8 +3,13 @@ import { redirect } from "next/navigation";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { ThemeProvider } from "@arbeidskassen/ui";
-import { getTenantContext, type TenantRole } from "@arbeidskassen/supabase";
+import { DashboardOverlay, ThemeProvider } from "@arbeidskassen/ui";
+import {
+  getCurrentUserDashboardsSafe,
+  getCurrentUserProfile,
+  getTenantContext,
+  type TenantRole,
+} from "@arbeidskassen/supabase";
 import "@arbeidskassen/ui/globals.css";
 
 import { signOutAction, switchTenantAction } from "../actions/auth";
@@ -58,10 +63,11 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const [{ locale }, messages, context] = await Promise.all([
+  const [{ locale }, messages, context, currentProfile] = await Promise.all([
     params,
     getMessages(),
     getTenantContext(),
+    getCurrentUserProfile(),
   ]);
 
   if (!context?.user) {
@@ -82,7 +88,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <ThemeProvider>
+        <ThemeProvider initialThemePreference={currentProfile?.profile.themePreference}>
           <NextIntlClientProvider messages={messages}>
             <OrganizationShell
               locale={locale}
@@ -90,13 +96,14 @@ export default async function RootLayout({
               tenantOptions={tenantOptions}
               userInitial={getUserInitial(context.user.email)}
               profileHref={getArbeidskassenHref(locale, "/profil")}
-              organizationHref={`/${locale}`}
+              organizationHref={`/${locale}/virksomhet`}
               onTenantChange={switchTenantAction}
               onSignOut={signOutAction}
             >
               {children}
             </OrganizationShell>
           </NextIntlClientProvider>
+          <DashboardOverlay fetchDashboards={getCurrentUserDashboardsSafe} />
         </ThemeProvider>
       </body>
     </html>
