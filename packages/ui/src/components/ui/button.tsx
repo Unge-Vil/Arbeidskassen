@@ -5,25 +5,27 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "../../lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-md border text-[13px] font-medium ring-offset-[var(--ak-bg-main)] transition-[transform,box-shadow,background-color,border-color,color] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none disabled:active:scale-100 motion-reduce:transition-none motion-reduce:active:scale-100 active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default:
+          "border-transparent bg-[var(--ak-accent)] text-[var(--ak-accent-foreground)] shadow-sm hover:bg-[var(--ak-accent-hover)] hover:shadow-md",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "border-transparent bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] text-[var(--ak-text-main)] shadow-sm hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-main)]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "border-[var(--ak-border-soft)] bg-[var(--ak-bg-panel)] text-[var(--ak-text-main)] shadow-sm hover:bg-[var(--ak-bg-hover)]",
+        ghost:
+          "border-transparent bg-transparent text-[var(--ak-text-main)] hover:border-[var(--ak-border-soft)] hover:bg-[var(--ak-bg-hover)]",
+        link: "border-transparent bg-transparent text-[var(--ak-accent)] underline-offset-4 hover:text-[var(--ak-accent-hover)] hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "px-4 py-2",
+        sm: "px-3.5 py-2 text-[12px]",
+        lg: "px-5 py-2.5",
+        icon: "size-11 p-0",
       },
     },
     defaultVariants: {

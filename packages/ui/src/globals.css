@@ -40,6 +40,8 @@
     --ak-text-muted: #9ca3af;
     --ak-accent: #5B6CF9;
     --ak-accent-hover: #4b5cf0;
+    --ak-accent-foreground: #ffffff;
+    --ak-ring: rgb(91 108 249 / 0.32);
     --ak-dot-color: #d4d4d8;
   }
 
@@ -76,6 +78,8 @@
     --ak-text-muted: #6b7280;
     --ak-accent: #5B6CF9;
     --ak-accent-hover: #6d7dfa;
+    --ak-accent-foreground: #ffffff;
+    --ak-ring: rgb(109 125 250 / 0.42);
     --ak-dot-color: #333333;
   }
 
@@ -112,6 +116,38 @@
     --ak-text-muted: #6b7280;
     --ak-accent: #5B6CF9;
     --ak-accent-hover: #6d7dfa;
+    --ak-accent-foreground: #ffffff;
+    --ak-ring: rgb(109 125 250 / 0.42);
     --ak-dot-color: #222222;
+  }
+
+  *,
+  ::before,
+  ::after {
+    border-color: var(--ak-border-soft);
+  }
+
+  body {
+    background-color: var(--ak-bg-main);
+    color: var(--ak-text-main);
+    font-size: 13px;
+    line-height: 1.45;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer utilities {
+  .density-compact {
+    --ak-density-gap: 0.5rem;
+    --ak-density-pad: 0.75rem;
+    --ak-density-panel-pad: 1rem;
+    --ak-density-control-height: 2.75rem;
+  }
+
+  .density-spacious {
+    --ak-density-gap: 0.75rem;
+    --ak-density-pad: 0.875rem;
+    --ak-density-panel-pad: 1.25rem;
+    --ak-density-control-height: 3rem;
   }
 }

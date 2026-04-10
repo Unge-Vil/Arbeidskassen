@@ -4,15 +4,18 @@
 
 ## 1. Core Philosophy
 
-Arbeidskassen is a professional tool. The UX should feel **fast, contextual, and unobtrusive**, drawing inspiration from modern minimalist workspaces (like Linear, Milanote, and Google Workspace).
+Arbeidskassen is a professional tool. The UX should feel **tactile, compact, fast, and contextual**, drawing inspiration from modern pro-tool workspaces such as Linear and Milanote.
 
+*   **Compact by Default:** Favor dense but readable layouts. Standard interface text should default to **`13px`**, with concise spacing such as `p-4` / `gap-3` before reaching for spacious dashboard padding.
+*   **Tactile Interactions:** Interactive controls must feel like physical tools, not flat hyperlinks. Use visible surfaces, subtle borders, and feedback such as `transition-all active:scale-[0.98]`.
+*   **Labels as Metadata:** Form labels and micro-labels should default to **`11px`**, **bold**, **uppercase**, with wider tracking to reinforce structure and scanability.
 *   **Keyboard First:** Power users must be able to use the application without a mouse.
-*   **Contextual UI:** Only show what is relevant to the current module (`appName`). Avoid global clutter. 
-*   **Accessible by Default:** We strictly adhere to WCAG 2.1 AA. Never invent custom interactive elements when a primitive exists.
+*   **Contextual UI:** Only show what is relevant to the current module (`appName`). Avoid global clutter.
+*   **Accessible by Default:** We strictly adhere to WCAG 2.1 AA. Every focus state must be clearly visible, icon-only controls need `aria-label`s, and effective hit targets must remain at least `44px` through padding or layout.
 
 ## 2. Components & Accessibility (Radix & shadcn/ui)
 
-Do **NOT** create custom dropdowns, modals, or popovers using `useState` and `div` elements. AI agents often default to building custom `onClickOutside` handlers. **This is strictly forbidden.** 
+Do **NOT** create custom dropdowns, modals, or popovers using `useState` and `div` elements. AI agents often default to building custom `onClickOutside` handlers. **This is strictly forbidden.**
 
 Always use `@radix-ui/react-*` primitives (via shadcn/ui) for:
 *   `DropdownMenu`
@@ -20,6 +23,12 @@ Always use `@radix-ui/react-*` primitives (via shadcn/ui) for:
 *   `Dialog` (Modals)
 *   `Select`
 *   `Tabs`
+
+Shared components must reflect the Arbeidskassen tactile system:
+*   Buttons and segmented controls should look like **compact physical tools** with backgrounds and borders, not plain text links.
+*   Cards, inputs, and popovers should use **tight but comfortable spacing** (`p-4`, `p-5`, `px-3`, `py-2`) and rounded corners (`rounded-md` / `rounded-lg`).
+*   Focus treatments must be crisp and theme-token-driven, using the platform ring color (`--ak-ring`) rather than hardcoded Tailwind colors.
+*   Preserve all Radix semantics and accessibility behavior — never trade keyboard support or ARIA correctness for custom styling.
 
 **Why?** Radix handles focus trapping, `Escape` key listeners, and ARIA labels out of the box.
 

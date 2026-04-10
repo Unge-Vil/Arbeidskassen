@@ -149,6 +149,12 @@ Any feature using AI/LLM APIs (OpenRouter, etc.) MUST:
 - **Global CSS Import (CRITICAL):** All apps in this monorepo must import the global CSS from the UI package in their root `layout.tsx`. 
   - ✅ **Correct:** `import "@arbeidskassen/ui/globals.css";`
   - ❌ **Incorrect:** `import "./globals.css";` (This will break all theming and widget layouts).
+- The default Arbeidskassen admin style is **compact, tactile, and data-dense** — think pro-tool UI, not a spacious marketing dashboard.
+- Default to **compact padding and spacing** (`p-4`, `p-5`, `gap-2`, `gap-3`) before using larger values like `p-8`.
+- Prefer **rounded but controlled surfaces** (`rounded-md` or `rounded-lg`) and subtle borders/shadows for depth.
+- Buttons, tabs, and clickable controls must look like **physical tools** with visible backgrounds/borders — avoid flat text-link treatments for primary actions.
+- Standard control/body text should usually be around **`text-[13px]`**, while labels and metadata should use **`text-[11px] font-bold uppercase tracking-wider`**.
+- Add tactile feedback to interactive elements when appropriate, e.g. `transition-all active:scale-[0.98]`, while respecting `prefers-reduced-motion`.
 - Use `shadcn/ui` components from `@arbeidskassen/ui`. Do not install shadcn/ui separately in apps.
 - Use Tailwind CSS v4 utility classes. No custom CSS unless absolutely necessary.
 - Use the `cn()` utility from `@arbeidskassen/ui` for conditional class merging.
@@ -269,7 +275,8 @@ This is a non-negotiable legal and ethical requirement. See [docs/I18N_THEMING_A
 - Never skip heading levels. Use `<h1>` → `<h2>` → `<h3>` in order.
 - All form inputs MUST have an associated `<label>` element.
 - All images must have appropriate `alt` text (or `alt=""` with `role="presentation"` for decorative images).
-- Use `focus-visible:ring-2 focus-visible:ring-ring` for focus indicators (shadcn default).
+- Use crisp focus indicators that map to the platform theme tokens, e.g. `focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] focus-visible:ring-offset-2`.
+- Ensure effective click/tap targets remain at least **44px** via padding, spacing, or layout even when the UI is visually compact.
 - Ensure color contrast meets WCAG AA minimums (4.5:1 for normal text, 3:1 for large text).
 - Never convey information through color alone — always pair with text, icons, or patterns.
 - Respect `prefers-reduced-motion`. Animations must be non-essential.
