@@ -24,7 +24,10 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-tailwindcss": "^3.18.2",
     "globals": "^17.4.0",
+    "next": "^15.1.0",
     "prettier": "^3.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "turbo": "^2.3.3",
     "typescript-eslint": "^8.58.1",
     "vitest": "^4.1.4"
