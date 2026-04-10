@@ -20,6 +20,7 @@ type OrganizationShellProps = {
 const settingsSections = [
   { href: "/virksomhet", label: "Virksomhet", shortLabel: "V" },
   { href: "/brukere", label: "Brukere", shortLabel: "B" },
+  { href: "/roller", label: "Roller", shortLabel: "R" },
   { href: "/struktur", label: "Struktur", shortLabel: "S" },
   { href: "/fakturering", label: "Fakturering", shortLabel: "F" },
   { href: "/audit-logg", label: "Audit logg", shortLabel: "A" },

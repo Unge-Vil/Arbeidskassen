@@ -1,10 +1,14 @@
 export { createBrowserClient } from "./client";
 export { createServerClient } from "./server";
 export {
+  canManageTenantAdministration,
   getCurrentUser,
+  getEffectivePermissions,
   getEffectiveRole,
   getSelectedTenantId,
   getTenantContext,
+  hasAnyTenantRole,
+  hasPermission,
   requireTenantContext,
   signOut,
   switchTenant,
@@ -31,13 +35,26 @@ export {
 } from "./dashboard";
 export {
   getCurrentTenantActivity,
+  getCurrentTenantCustomRoles,
   getCurrentTenantDirectory,
   getCurrentTenantStructure,
   summarizeTenantActivity,
   summarizeTenantDirectory,
   summarizeTenantStructure,
   type TenantActivityItem,
+  type TenantCustomRoleSummary,
   type TenantDirectoryMember,
   type TenantStructureSummary,
 } from "./organization";
+export {
+  createPermissionMap,
+  DEFAULT_ROLE_PERMISSIONS,
+  getPermissionDefinitionsByGroup,
+  normalizePermissionKeys,
+  PLATFORM_PERMISSION_DEFINITIONS,
+  PLATFORM_PERMISSION_KEYS,
+  type PermissionMap,
+  type PlatformPermissionDefinition,
+  type PlatformPermissionKey,
+} from "./permissions";
 export type { Database } from "./types";

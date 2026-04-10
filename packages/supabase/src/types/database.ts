@@ -165,6 +165,52 @@ export type Database = {
           }
         ];
       };
+      custom_roles: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          id: string;
+          is_archived: boolean;
+          name: string;
+          permissions: Json;
+          slug: string;
+          tenant_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          id?: string;
+          is_archived?: boolean;
+          name: string;
+          permissions?: Json;
+          slug: string;
+          tenant_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          id?: string;
+          is_archived?: boolean;
+          name?: string;
+          permissions?: Json;
+          slug?: string;
+          tenant_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "custom_roles_tenant_id_fkey";
+            columns: ["tenant_id"];
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       departments: {
         Row: {
           created_at: string;
@@ -306,6 +352,58 @@ export type Database = {
           },
           {
             foreignKeyName: "sub_departments_tenant_id_fkey";
+            columns: ["tenant_id"];
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      member_role_assignments: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          is_active: boolean;
+          member_id: string;
+          role_id: string;
+          tenant_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_active?: boolean;
+          member_id: string;
+          role_id: string;
+          tenant_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_active?: boolean;
+          member_id?: string;
+          role_id?: string;
+          tenant_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "member_role_assignments_member_id_fkey";
+            columns: ["member_id"];
+            referencedRelation: "tenant_members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "member_role_assignments_role_id_fkey";
+            columns: ["role_id"];
+            referencedRelation: "custom_roles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "member_role_assignments_tenant_id_fkey";
             columns: ["tenant_id"];
             referencedRelation: "tenants";
             referencedColumns: ["id"];

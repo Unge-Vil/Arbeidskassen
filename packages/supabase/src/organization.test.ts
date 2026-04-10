@@ -74,9 +74,13 @@ describe("organization helpers", () => {
         userLabel: "Bruker user-1",
         role: "owner",
         joinedAt: "2026-04-10T09:00:00.000Z",
+        orgId: "org-1",
+        deptId: "dept-1",
+        subDepartmentId: "sub-1",
         orgName: "Unge Vil",
         deptName: "Design",
         subDepartmentName: "Prosjektlab",
+        isActive: true,
         isCurrentUser: true,
       },
     ]);
@@ -164,6 +168,7 @@ describe("organization helpers", () => {
 
     expect(structure.departments[0]).toMatchObject({
       name: "Design",
+      orgId: "org-1",
       orgName: "Unge Vil",
       subDepartmentCount: 1,
       memberCount: 2,
@@ -171,6 +176,7 @@ describe("organization helpers", () => {
 
     expect(structure.subDepartments[0]).toMatchObject({
       name: "Prosjektlab",
+      deptId: "dept-1",
       departmentName: "Design",
       orgName: "Unge Vil",
       memberCount: 1,

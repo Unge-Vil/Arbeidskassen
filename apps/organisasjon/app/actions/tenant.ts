@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  canManageTenantAdministration,
   createServerClient,
-  getEffectiveRole,
   getTenantContext,
   type Database,
 } from "@arbeidskassen/supabase";
@@ -132,9 +132,7 @@ export async function updateTenantSettingsAction(formData: FormData) {
     );
   }
 
-  const effectiveRole = getEffectiveRole(context);
-
-  if (effectiveRole !== "owner" && effectiveRole !== "admin") {
+  if (!canManageTenantAdministration(context)) {
     redirect(
       `${redirectBase}?error=${getEncodedErrorMessage(
         "Du har ikke tilgang til å endre virksomhetsinnstillingene.",

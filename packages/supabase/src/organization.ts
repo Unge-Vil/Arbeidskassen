@@ -1,4 +1,5 @@
 import { getTenantContext, type TenantRole } from "./auth";
+import { normalizePermissionKeys } from "./permissions";
 import { createServerClient } from "./server";
 import type { Database } from "./types";
 
@@ -7,6 +8,8 @@ type DepartmentRecord = Database["public"]["Tables"]["departments"]["Row"];
 type SubDepartmentRecord = Database["public"]["Tables"]["sub_departments"]["Row"];
 type TenantMembershipRecord = Database["public"]["Tables"]["tenant_members"]["Row"];
 type AuditLogRecord = Database["public"]["Tables"]["audit_logs"]["Row"];
+type CustomRoleRecord = Database["public"]["Tables"]["custom_roles"]["Row"];
+type MemberRoleAssignmentRecord = Database["public"]["Tables"]["member_role_assignments"]["Row"];
 
 type TenantCollections = {
   organizations: OrganizationRecord[];
@@ -21,9 +24,13 @@ export type TenantDirectoryMember = {
   userLabel: string;
   role: TenantRole;
   joinedAt: string;
+  orgId: string | null;
+  deptId: string | null;
+  subDepartmentId: string | null;
   orgName: string | null;
   deptName: string | null;
   subDepartmentName: string | null;
+  isActive: boolean;
   isCurrentUser: boolean;
 };
 
@@ -42,6 +49,7 @@ export type TenantStructureSummary = {
     id: string;
     name: string;
     description: string | null;
+    orgId: string;
     orgName: string | null;
     isArchived: boolean;
     subDepartmentCount: number;
@@ -51,6 +59,7 @@ export type TenantStructureSummary = {
     id: string;
     name: string;
     description: string | null;
+    deptId: string;
     departmentName: string | null;
     orgName: string | null;
     isArchived: boolean;
@@ -64,6 +73,28 @@ export type TenantActivityItem = {
   tableName: string;
   recordId: string;
   createdAt: string;
+};
+
+export type TenantCustomRoleSummary = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  permissionKeys: string[];
+  permissionCount: number;
+  memberCount: number;
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+  assignedMembers: Array<{
+    memberId: string;
+    memberLabel: string;
+  }>;
+  assignments: Array<{
+    id: string;
+    memberId: string;
+    memberLabel: string;
+  }>;
 };
 
 function createRowMap<T extends { id: string }>(rows: T[]): Map<string, T> {
@@ -88,7 +119,6 @@ export function summarizeTenantDirectory({
   const subDepartmentMap = createRowMap(subDepartments);
 
   return memberships
-    .filter((membership) => membership.is_active)
     .map((membership) => {
       const organization = membership.org_id
         ? organizationMap.get(membership.org_id) ?? null
@@ -106,13 +136,20 @@ export function summarizeTenantDirectory({
         userLabel: getMemberLabel(membership.user_id),
         role: membership.role,
         joinedAt: membership.created_at,
+        orgId: membership.org_id,
+        deptId: membership.dept_id,
+        subDepartmentId: membership.sub_department_id,
         orgName: organization?.name ?? null,
         deptName: department?.name ?? null,
         subDepartmentName: subDepartment?.name ?? null,
+        isActive: membership.is_active,
         isCurrentUser: currentUserId === membership.user_id,
       } satisfies TenantDirectoryMember;
     })
-    .sort((left, right) => left.joinedAt.localeCompare(right.joinedAt));
+    .sort(
+      (left, right) =>
+        Number(right.isActive) - Number(left.isActive) || left.joinedAt.localeCompare(right.joinedAt),
+    );
 }
 
 export function summarizeTenantStructure({
@@ -143,6 +180,7 @@ export function summarizeTenantStructure({
       id: department.id,
       name: department.name,
       description: department.description,
+      orgId: department.org_id,
       orgName: organizationMap.get(department.org_id)?.name ?? null,
       isArchived: department.is_archived,
       subDepartmentCount: subDepartments.filter(
@@ -158,6 +196,7 @@ export function summarizeTenantStructure({
         id: subDepartment.id,
         name: subDepartment.name,
         description: subDepartment.description,
+        deptId: subDepartment.dept_id,
         departmentName: department?.name ?? null,
         orgName: organization?.name ?? null,
         isArchived: subDepartment.is_archived,
@@ -177,6 +216,54 @@ export function summarizeTenantActivity(logs: AuditLogRecord[]): TenantActivityI
     recordId: log.record_id,
     createdAt: log.created_at,
   }));
+}
+
+function summarizeTenantCustomRoles({
+  roles,
+  memberships,
+  assignments,
+}: {
+  roles: CustomRoleRecord[];
+  memberships: TenantMembershipRecord[];
+  assignments: MemberRoleAssignmentRecord[];
+}): TenantCustomRoleSummary[] {
+  const membershipMap = createRowMap(memberships);
+
+  return roles
+    .map((role) => {
+      const roleAssignments = assignments.filter(
+        (assignment) => assignment.role_id === role.id && assignment.is_active,
+      );
+      const assignedMembers = roleAssignments.map((assignment) => {
+        const membership = membershipMap.get(assignment.member_id) ?? null;
+
+        return {
+          memberId: assignment.member_id,
+          memberLabel: membership ? getMemberLabel(membership.user_id) : `Medlem ${assignment.member_id.slice(0, 8)}`,
+        };
+      });
+
+      return {
+        id: role.id,
+        slug: role.slug,
+        name: role.name,
+        description: role.description,
+        permissionKeys: normalizePermissionKeys(role.permissions),
+        permissionCount: normalizePermissionKeys(role.permissions).length,
+        memberCount: assignedMembers.length,
+        isArchived: role.is_archived,
+        createdAt: role.created_at,
+        updatedAt: role.updated_at,
+        assignedMembers,
+        assignments: roleAssignments.map((assignment, index) => ({
+          id: assignment.id,
+          memberId: assignment.member_id,
+          memberLabel:
+            assignedMembers[index]?.memberLabel ?? `Medlem ${assignment.member_id.slice(0, 8)}`,
+        })),
+      } satisfies TenantCustomRoleSummary;
+    })
+    .sort((left, right) => left.name.localeCompare(right.name, "no"));
 }
 
 async function getTenantCollections(tenantId: string): Promise<TenantCollections> {
@@ -205,7 +292,6 @@ async function getTenantCollections(tenantId: string): Promise<TenantCollections
           "id, user_id, role, is_active, tenant_id, org_id, dept_id, sub_department_id, module_roles, created_at, updated_at",
         )
         .eq("tenant_id", tenantId)
-        .eq("is_active", true)
         .order("created_at", { ascending: true }),
     ]);
 
@@ -282,4 +368,51 @@ export async function getCurrentTenantActivity(
   }
 
   return summarizeTenantActivity(data ?? []);
+}
+
+export async function getCurrentTenantCustomRoles(): Promise<TenantCustomRoleSummary[] | null> {
+  const context = await getTenantContext();
+
+  if (!context?.currentTenant) {
+    return null;
+  }
+
+  const supabase = await createServerClient();
+  const [rolesResult, assignmentsResult, membershipsResult] = await Promise.all([
+    supabase
+      .from("custom_roles")
+      .select("id, tenant_id, slug, name, description, permissions, is_archived, created_by, created_at, updated_at")
+      .eq("tenant_id", context.currentTenant.id)
+      .order("name", { ascending: true }),
+    supabase
+      .from("member_role_assignments")
+      .select("id, tenant_id, member_id, role_id, is_active, created_by, created_at, updated_at")
+      .eq("tenant_id", context.currentTenant.id)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("tenant_members")
+      .select("id, user_id, role, is_active, tenant_id, org_id, dept_id, sub_department_id, module_roles, created_at, updated_at")
+      .eq("tenant_id", context.currentTenant.id),
+  ]);
+
+  if (rolesResult.error) {
+    console.error("Failed to load custom roles", rolesResult.error);
+    return [];
+  }
+
+  if (assignmentsResult.error) {
+    console.error("Failed to load custom role assignments", assignmentsResult.error);
+    return [];
+  }
+
+  if (membershipsResult.error) {
+    console.error("Failed to load memberships for custom roles", membershipsResult.error);
+    return [];
+  }
+
+  return summarizeTenantCustomRoles({
+    roles: rolesResult.data ?? [],
+    assignments: assignmentsResult.data ?? [],
+    memberships: membershipsResult.data ?? [],
+  });
 }
