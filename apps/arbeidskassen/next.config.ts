@@ -54,7 +54,7 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    return proxiedApps.flatMap((app) => {
+    const externalProxyRewrites = proxiedApps.flatMap((app) => {
       if (typeof app.destination !== "string" || !/^https?:\/\//.test(app.destination)) {
         return [];
       }
@@ -66,6 +66,12 @@ const nextConfig: NextConfig = {
         },
       ];
     });
+
+    return {
+      beforeFiles: externalProxyRewrites,
+      afterFiles: [],
+      fallback: [],
+    };
   },
 };
 

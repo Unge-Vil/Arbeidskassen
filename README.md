@@ -97,6 +97,16 @@ CI=1 pnpm verify
 | TeamArea | `http://localhost:3005/no` | Preview collaboration shell; degrades gracefully without Supabase env vars |
 | Backoffice | `http://localhost:3099/no` | Canonical primary-domain path: `/{locale}/backoffice` |
 
+### Deployment model
+
+The **default product model** is still a **single main app on one primary domain**:
+
+- `/` → public Arbeidskassen landing
+- `/login` → shared authentication
+- `/{locale}/bookdet`, `/{locale}/organisasjon`, `/{locale}/today`, etc. → module entries under the same product
+
+Separate per-module deploys are **optional operational infrastructure**, not a product requirement. If they are configured later through env vars like `BOOKDET_APP_URL`, the same canonical URLs can proxy there without changing what users see.
+
 ### Environment Variables
 
 Copy the example files and fill in your credentials for the Supabase-backed apps:

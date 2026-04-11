@@ -37,7 +37,8 @@ pnpm --filter @arbeidskassen/supabase db:reset
 - The public landing page stays at `/`.
 - Shared auth stays at `/login`.
 - Authenticated module surfaces are localized: `/no/dashboard`, `/no/bookdet`, `/no/organisasjon`, `/no/today`, `/no/teamarea`, `/no/backoffice`, `/no/sales-portal`.
-- In local development, shared navigation resolves cross-app links to separate localhost ports automatically.
+- The intended product model is **one main app on one primary domain**; the module paths above are the canonical URLs users should know.
+- In local development, shared navigation resolves cross-app links to separate localhost ports automatically so each module can still be worked on independently.
 
 ---
 
@@ -69,7 +70,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
 ### Optional cross-app routing overrides
 
-For custom deployments or same-domain setups, the repo supports app URL overrides such as:
+These overrides are **optional**. They are only needed if you want to run or deploy a module on a separate URL for operational reasons while keeping the same canonical main-domain route in the product.
+
+For custom deployments or advanced same-domain proxy setups, the repo supports app URL overrides such as:
 
 - `ARBEIDSKASSEN_APP_URL`
 - `BOOKDET_APP_URL`

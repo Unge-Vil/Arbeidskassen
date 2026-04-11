@@ -291,9 +291,12 @@ The canonical same-domain route is `/{locale}/teamarea`; in local development th
 
 ### Cross-App Route Model
 
-The main `arbeidskassen` app keeps the public landing and shared login at `/` and `/login`. Satellite modules resolve through shared routing helpers so that:
+The main `arbeidskassen` app keeps the public landing and shared login at `/` and `/login`. The **primary product model** is a single coherent app experience on one main domain, with module URLs such as `/no/bookdet`, `/no/today`, `/no/teamarea`, `/no/backoffice`, and `/no/sales-portal`.
 
-- **Production / same-domain deployments** use localized paths such as `/no/bookdet`, `/no/today`, `/no/teamarea`, `/no/backoffice`, and `/no/sales-portal`.
+Shared routing helpers support two operational modes behind that same URL contract:
+
+- **Default / one-project same-domain mode**: the main app owns the canonical module routes directly.
+- **Optional proxy mode**: if a module later runs on its own deployment URL, the same canonical route can proxy there without changing what users see.
 - **Local development** routes the same navigation targets to each app's own localhost port (`3001`, `3004`, `3005`, `3099`, etc.).
 
 ### Free Client-Side Tools
