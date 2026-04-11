@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { DashboardOverlay, ThemeProvider } from "@arbeidskassen/ui";
+import {
+  DashboardOverlay,
+  ThemeProvider,
+  buildArbeidskassenHref,
+  resolveAdminAppHrefs,
+} from "@arbeidskassen/ui";
 import {
   getCurrentUserDashboardsSafe,
   getCurrentUserProfile,
   getTenantContext,
+  updateCurrentUserThemePreference,
   type TenantRole,
 } from "@arbeidskassen/supabase";
 import "@arbeidskassen/ui/globals.css";
@@ -39,23 +46,6 @@ function formatRole(role: TenantRole): string {
   }
 }
 
-function getArbeidskassenHref(locale: string, path: string): string {
-  const configuredBase =
-    process.env.ARBEIDSKASSEN_APP_URL ??
-    process.env.WEB_APP_URL ??
-    process.env.NEXT_PUBLIC_WEB_APP_URL ??
-    (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "");
-
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const trimmedBase = configuredBase.trim().replace(/\/$/, "");
-
-  if (!trimmedBase) {
-    return `/${locale}${normalizedPath}`;
-  }
-
-  return `${trimmedBase}/${locale}${normalizedPath}`;
-}
-
 export default async function RootLayout({
   children,
   params,
@@ -69,13 +59,14 @@ export default async function RootLayout({
     getTenantContext(),
     getCurrentUserProfile(),
   ]);
+  const appHrefs = resolveAdminAppHrefs(locale);
 
   if (!context?.user) {
-    redirect(getArbeidskassenHref(locale, "/login"));
+    redirect(buildArbeidskassenHref(locale, "/login", { returnTo: appHrefs.organization }));
   }
 
   if (!context.currentTenant || context.requiresTenantSelection) {
-    redirect(getArbeidskassenHref(locale, "/select-tenant"));
+    redirect(buildArbeidskassenHref(locale, "/select-tenant", { returnTo: appHrefs.organization }));
   }
 
   const tenantOptions = context.memberships.map((membership) => ({
@@ -84,6 +75,18 @@ export default async function RootLayout({
     secondaryLabel: `${formatRole(membership.role)} · ${membership.tenant.plan}`,
     isCurrent: membership.tenant.id === context.currentTenant?.id,
   }));
+
+  async function updateThemePreferenceAction(formData: FormData) {
+    "use server";
+
+    const result = await updateCurrentUserThemePreference(formData.get("themePreference"));
+
+    if (!result.success) {
+      console.error("Failed to update theme preference", result.error);
+    }
+
+    revalidatePath("/", "layout");
+  }
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -95,9 +98,10 @@ export default async function RootLayout({
               orgName={context.currentTenant.display_name ?? context.currentTenant.name}
               tenantOptions={tenantOptions}
               userInitial={getUserInitial(context.user.email)}
-              profileHref={getArbeidskassenHref(locale, "/profil")}
-              organizationHref={`/${locale}/virksomhet`}
+              profileHref={buildArbeidskassenHref(locale, "/profil")}
+              organizationHref={appHrefs.organization}
               onTenantChange={switchTenantAction}
+              onThemeChange={updateThemePreferenceAction}
               onSignOut={signOutAction}
             >
               {children}

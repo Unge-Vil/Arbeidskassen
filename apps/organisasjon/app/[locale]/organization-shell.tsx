@@ -1,7 +1,14 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { Navbar, cn, type TenantOption } from "@arbeidskassen/ui";
+import { useMemo, type ReactNode } from "react";
+import {
+  Navbar,
+  cn,
+  defaultDisabledModules,
+  resolveActiveAdminModule,
+  resolveAdminAppHrefs,
+  type TenantOption,
+} from "@arbeidskassen/ui";
 import { usePathname } from "next/navigation";
 import { Link } from "../../i18n/routing";
 
@@ -14,6 +21,7 @@ type OrganizationShellProps = {
   profileHref: string;
   organizationHref: string;
   onTenantChange: (formData: FormData) => void | Promise<void>;
+  onThemeChange?: (formData: FormData) => void | Promise<void>;
   onSignOut: (formData: FormData) => void | Promise<void>;
 };
 
@@ -35,10 +43,12 @@ export function OrganizationShell({
   profileHref,
   organizationHref,
   onTenantChange,
+  onThemeChange,
   onSignOut,
 }: OrganizationShellProps) {
   const pathname = usePathname();
-  const [activeModule, setActiveModule] = useState("teamarea");
+  const activeModule = resolveActiveAdminModule(pathname);
+  const moduleHrefs = useMemo(() => resolveAdminAppHrefs(locale), [locale]);
 
   const isActive = (href: string) => {
     const localizedHref = `/${locale}${href}`;
@@ -50,14 +60,23 @@ export function OrganizationShell({
       <Navbar
         workspaceName="Organisasjon"
         workspaceInitial="O"
+        locale={locale}
         orgName={orgName}
         activeModule={activeModule}
-        onModuleChange={setActiveModule}
+        onModuleChange={() => undefined}
+        moduleHrefs={{
+          dashboard: moduleHrefs.dashboard,
+          today: moduleHrefs.today,
+          teamarea: moduleHrefs.teamarea,
+          booking: moduleHrefs.booking,
+        }}
+        disabledModules={[...defaultDisabledModules]}
         tenantOptions={tenantOptions}
         userInitial={userInitial}
         profileHref={profileHref}
         organizationHref={organizationHref}
         onTenantChange={onTenantChange}
+        onThemeChange={onThemeChange}
         onSignOut={onSignOut}
       />
 

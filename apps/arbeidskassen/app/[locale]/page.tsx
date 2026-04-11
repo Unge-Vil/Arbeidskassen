@@ -1,12 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { buildArbeidskassenHref } from "@arbeidskassen/ui";
 import { getCurrentUser } from "@arbeidskassen/supabase";
 
-export default async function HomePage() {
-  const user = await getCurrentUser();
+export default async function HomePage({
+  params,
+}: {
+  params?: Promise<{ locale: string }>;
+}) {
+  const [resolvedParams, user] = await Promise.all([
+    Promise.resolve(params),
+    getCurrentUser(),
+  ]);
+  const locale = resolvedParams?.locale ?? "no";
 
   if (user) {
-    redirect("/dashboard");
+    redirect(buildArbeidskassenHref(locale, "/dashboard"));
   }
 
   return (

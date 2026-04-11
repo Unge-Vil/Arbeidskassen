@@ -22,6 +22,7 @@ export {
   normalizeProfileMetadata,
   sanitizeUserProfileInput,
   updateCurrentUserProfile,
+  updateCurrentUserThemePreference,
   type CurrentUserProfile,
   type NotificationPreferences,
   type ProfileLocale,

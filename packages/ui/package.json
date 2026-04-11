@@ -2,7 +2,9 @@
   "name": "@arbeidskassen/ui",
   "version": "0.0.0",
   "private": true,
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./globals.css": "./src/globals.css"

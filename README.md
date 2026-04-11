@@ -12,10 +12,11 @@ Arbeidskassen ("The Toolbox") is a modular B2B SaaS platform built as a Turborep
 
 | Module | Type | Description |
 | --- | --- | --- |
-| **Arbeidskassen** | Admin Panel | Central dashboard for tenant administration, billing, user management, and module provisioning. |
+| **Arbeidskassen** | Admin Hub | Public landing, shared login, and the main tenant dashboard entry point. |
 | **Organisasjon** | Core Module | Source of Truth for organizational structure, user management, global settings, and cross-module access control. Included in every subscription. |
 | **BookDet** | Paid Module | Full-featured appointment and resource booking system with calendar sync, availability rules, and customer-facing booking pages. |
-| **Today** *(planned)* | Paid Module | Daily operations dashboard — task boards, shift planning, and team communication. |
+| **Today** | Preview Module | Early daily-operations workspace for planning, coordination, and shift/task overviews. Currently shipped as a shared coming-soon shell. |
+| **TeamArea** | Internal Collaboration | Feed-style collaboration workspace for updates and announcements. Currently available as a preview shell in the monorepo. |
 | *Free Tools* | Client-side | Standalone utilities (calculators, converters, templates) that run entirely in the browser with zero authentication required. |
 | **Backoffice** | Internal | Platform owner administration — tenant management, credit grants, system metrics. Strict GDPR data isolation. |
 | **Sales Portal** | Internal | Sales partner interface — customer onboarding, portfolio tracking, commission visibility. |
@@ -41,17 +42,19 @@ Arbeidskassen ("The Toolbox") is a modular B2B SaaS platform built as a Turborep
 ```
 arbeidskassen/
 ├── apps/
-│   ├── arbeidskassen/       # Admin panel & main application (Next.js)
-│   ├── organisasjon/       # Core org structure & user management (Next.js)
+│   ├── arbeidskassen/       # Public landing + main dashboard hub (Next.js)
+│   ├── organisasjon/        # Core org structure & user management (Next.js)
 │   ├── bookdet/             # Booking module (Next.js)
+│   ├── today/               # Daily operations preview surface (Next.js)
+│   ├── teamarea/            # Internal collaboration preview surface (Next.js)
 │   ├── backoffice/          # Platform owner admin — internal only (Next.js)
 │   └── sales-portal/        # Sales & partner portal (Next.js)
 ├── packages/
-│   ├── ui/                  # Shared UI components (shadcn/ui)
-│   ├── supabase/            # Database clients, types, and helpers
+│   ├── ui/                  # Shared UI components, shells, and routing helpers
+│   ├── supabase/            # Shared Supabase clients + local CLI workspace
 │   └── config/              # Shared ESLint, Prettier, TypeScript configs
-├── docs/                    # Architecture and design documentation
-├── _poc-imports/             # Raw prototype code staging area (never deployed)
+├── docs/                    # Architecture, product, and local setup documentation
+├── _poc-imports/            # Raw prototype code staging area (never deployed)
 ├── turbo.json               # Turborepo pipeline configuration
 ├── pnpm-workspace.yaml      # pnpm workspace definition
 └── package.json             # Root scripts and dev dependencies
@@ -79,19 +82,24 @@ pnpm install
 
 # Start all apps in development mode
 pnpm dev
+
+# Run the monorepo quality gate before opening a PR
+CI=1 pnpm verify
 ```
 
-| App | URL |
-| --- | --- |
-| Arbeidskassen (Admin) | `http://localhost:3000` |
-| BookDet (Booking) | `http://localhost:3001` |
-| Organisasjon (Core) | `http://localhost:3002` |
-| Backoffice (Internal) | `http://localhost:3099` |
-| Sales Portal | `http://localhost:3003` |
+| App | URL | Notes |
+| --- | --- | --- |
+| Arbeidskassen | `http://localhost:3000` | Public landing at `/`, shared login at `/login`, dashboard at `/{locale}/dashboard` |
+| BookDet | `http://localhost:3001/no` | Canonical primary-domain path: `/{locale}/bookdet` |
+| Organisasjon | `http://localhost:3002/no` | Canonical primary-domain path: `/{locale}/organisasjon` |
+| Sales Portal | `http://localhost:3003/no` | Canonical primary-domain path: `/{locale}/sales-portal` |
+| Today | `http://localhost:3004/no` | Preview shell for the operations workspace |
+| TeamArea | `http://localhost:3005/no` | Preview collaboration shell; degrades gracefully without Supabase env vars |
+| Backoffice | `http://localhost:3099/no` | Canonical primary-domain path: `/{locale}/backoffice` |
 
 ### Environment Variables
 
-Copy the example files and fill in your credentials:
+Copy the example files and fill in your credentials for the Supabase-backed apps:
 
 ```bash
 cp apps/arbeidskassen/.env.example apps/arbeidskassen/.env.local
@@ -101,7 +109,9 @@ cp apps/backoffice/.env.example apps/backoffice/.env.local
 cp apps/sales-portal/.env.example apps/sales-portal/.env.local
 ```
 
-Required variables are documented in each app's `.env.example`.
+At minimum, these apps expect `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. The `today` and `teamarea` preview surfaces currently run without their own `.env.example` files.
+
+For a fuller setup guide, see [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
 
 ---
 
@@ -110,6 +120,7 @@ Required variables are documented in each app's `.env.example`.
 | Document | Description |
 | --- | --- |
 | [Architecture](docs/ARCHITECTURE.md) | Server/client component strategy, Server Actions, rendering model |
+| [Local Development](docs/LOCAL_DEVELOPMENT.md) | Current ports, routes, env setup, Supabase CLI workflow, and verification commands |
 | [Multi-Tenant Database](docs/DATABASE_MULTI_TENANT.md) | Tenant hierarchy, shared-schema isolation, RLS strategy |
 | [Security & Compliance](docs/SECURITY_AND_COMPLIANCE.md) | Zero Trust architecture, audit logging, cross-tenant collaboration |
 | [Product Vision & Business Logic](docs/PRODUCT_VISION_AND_BUSINESS_LOGIC.md) | Revenue model, free vs paid strategy, UX vision, B2B invoicing |

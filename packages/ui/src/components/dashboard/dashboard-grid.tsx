@@ -5,6 +5,13 @@ import { cn } from "../../lib/utils"
 import { Check, LayoutTemplate, Pencil, PenSquare, Plus, Trash2, X } from "lucide-react"
 import { ResponsiveGridLayout, type Layout, useContainerWidth } from "react-grid-layout"
 import { registerDashboardWidgets } from "./register-dashboard-widgets"
+import {
+  canCreateDashboard,
+  canDeleteDashboard,
+  canRenameDashboard,
+  mergeCreatedDashboard,
+  mergeRenamedDashboard,
+} from "./dashboard-actions"
 import { parseDashboardHotkeyInput } from "./dashboard-hotkeys"
 import { WidgetRegistry, widgetSizeToDimensions } from "./widget-registry"
 import { Button } from "../ui/button"
@@ -52,6 +59,7 @@ interface DashboardGridProps {
   onRenameDashboard?: (dashboardId: string, name: string, hotkey?: number | null) => Promise<Dashboard | null | undefined>
   onDeleteDashboard?: (dashboardId: string) => Promise<unknown>
   isReadOnly?: boolean
+  locale?: string
 }
 
 const cloneProps = (props?: object) => {
@@ -72,6 +80,7 @@ export function DashboardGrid({
   onRenameDashboard,
   onDeleteDashboard,
   isReadOnly = false,
+  locale = "no",
 }: DashboardGridProps) {
   const [dashboards, setDashboards] = React.useState<Dashboard[]>(initialDashboards)
   const [activeDashboardId, setActiveDashboardId] = React.useState<string>(initialDashboards[0]?.id || "")
@@ -90,6 +99,11 @@ export function DashboardGrid({
   const [formName, setFormName] = React.useState("")
   const [formHotkey, setFormHotkey] = React.useState("")
 
+  const resetDashboardForm = React.useCallback(() => {
+    setFormName("")
+    setFormHotkey("")
+  }, [])
+
   const handleHotkeyInputChange = (value: string) => {
     const normalized = value.replace(/\D/g, "").slice(0, 1)
     setFormHotkey(normalized === "0" ? "" : normalized)
@@ -106,6 +120,15 @@ export function DashboardGrid({
   }, [initialDashboards])
 
   const activeDashboard = dashboards.find((dashboard) => dashboard.id === activeDashboardId)
+  const dashboardActionState = {
+    hasCreateHandler: Boolean(onCreateDashboard),
+    hasRenameHandler: Boolean(onRenameDashboard),
+    hasDeleteHandler: Boolean(onDeleteDashboard),
+    hasActiveDashboard: Boolean(activeDashboard),
+    isEditing,
+    isReadOnly,
+    dashboardCount: dashboards.length,
+  }
 
   const broadcastDashboards = React.useCallback(
     (nextDashboards: Dashboard[]) => {
@@ -160,7 +183,7 @@ export function DashboardGrid({
   }
 
   const handleCreateDashboardClick = () => {
-    if (!onCreateDashboard || isEditing || isReadOnly) return
+    if (!canCreateDashboard(dashboardActionState)) return
     setFormName(`Dashbord ${dashboards.length + 1}`)
     setFormHotkey("")
     setCreateDialogOpen(true)
@@ -202,11 +225,15 @@ export function DashboardGrid({
     setIsSaving(true)
     try {
       const createdDashboard = await onCreateDashboard(name, parsedHotkey ?? undefined, starterLayout)
-      if (!createdDashboard) return
+      if (!createdDashboard) {
+        alert("Kunne ikke opprette dashbordet. Prøv igjen.")
+        return
+      }
 
-      setDashboards((previous) => [...previous, createdDashboard])
+      setDashboards((previous) => mergeCreatedDashboard(previous, createdDashboard))
       setActiveDashboardId(createdDashboard.id)
       setCreateDialogOpen(false)
+      resetDashboardForm()
     } catch (err) {
       console.error("Failed to create dashboard", err)
       alert("Kunne ikke opprette dashbordet.")
@@ -216,7 +243,7 @@ export function DashboardGrid({
   }
 
   const handleRenameDashboardClick = () => {
-    if (!onRenameDashboard || !activeDashboard || !isEditing || isReadOnly) return
+    if (!canRenameDashboard(dashboardActionState) || !activeDashboard) return
     setFormName(activeDashboard.name)
     setFormHotkey(activeDashboard.hotkey?.toString() || "")
     setRenameDialogOpen(true)
@@ -238,14 +265,14 @@ export function DashboardGrid({
     setIsSaving(true)
     try {
       const updatedDashboard = await onRenameDashboard(activeDashboard.id, nextName, parsedHotkey)
-      if (!updatedDashboard) return
+      if (!updatedDashboard) {
+        alert("Kunne ikke oppdatere dashbordet. Prøv igjen.")
+        return
+      }
 
-      setDashboards((previous) =>
-        previous.map((dashboard) =>
-          dashboard.id === activeDashboard.id ? { ...dashboard, name: updatedDashboard.name, hotkey: updatedDashboard.hotkey } : dashboard,
-        ),
-      )
+      setDashboards((previous) => mergeRenamedDashboard(previous, updatedDashboard))
       setRenameDialogOpen(false)
+      resetDashboardForm()
     } catch (err) {
       console.error("Failed to rename dashboard", err)
       alert("Kunne ikke gi nytt navn til dashbordet.")
@@ -255,7 +282,7 @@ export function DashboardGrid({
   }
 
   const handleDeleteDashboardClick = () => {
-    if (!onDeleteDashboard || !activeDashboard || dashboards.length <= 1 || !isEditing || isReadOnly) return
+    if (!canDeleteDashboard(dashboardActionState) || !activeDashboard) return
     setDeleteDialogOpen(true)
   }
 
@@ -339,7 +366,8 @@ export function DashboardGrid({
     }
 
     const WidgetComponent = widgetDef.component
-    return <WidgetComponent {...(item.props ?? {})} />
+    const widgetProps = { ...(item.props ?? {}), currentLocale: locale } as Record<string, unknown>
+    return <WidgetComponent {...widgetProps} />
   }
 
   if (!activeDashboard) {
@@ -404,20 +432,20 @@ export function DashboardGrid({
 
         {!isReadOnly && (
           <div className="flex flex-wrap items-center gap-2">
+            {canRenameDashboard(dashboardActionState) ? (
+              <button
+                onClick={handleRenameDashboardClick}
+                disabled={isSaving}
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-3 py-2 text-sm font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <PenSquare className="h-4 w-4" />
+                Gi nytt navn
+              </button>
+            ) : null}
+
             {isEditing ? (
               <>
-                {onRenameDashboard ? (
-                  <button
-                    onClick={handleRenameDashboardClick}
-                    disabled={isSaving}
-                    className="inline-flex items-center gap-2 rounded-lg border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-3 py-2 text-sm font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <PenSquare className="h-4 w-4" />
-                    Gi nytt navn
-                  </button>
-                ) : null}
-
-                {onDeleteDashboard && dashboards.length > 1 ? (
+                {canDeleteDashboard(dashboardActionState) ? (
                   <button
                     onClick={handleDeleteDashboardClick}
                     disabled={isSaving}
@@ -549,7 +577,13 @@ export function DashboardGrid({
         ) : null}
       </div>
 
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+      <Dialog
+        open={createDialogOpen}
+        onOpenChange={(open) => {
+          setCreateDialogOpen(open)
+          if (!open) resetDashboardForm()
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Opprett nytt dashbord</DialogTitle>
@@ -585,7 +619,13 @@ export function DashboardGrid({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+      <Dialog
+        open={renameDialogOpen}
+        onOpenChange={(open) => {
+          setRenameDialogOpen(open)
+          if (!open) resetDashboardForm()
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Endre dashbord</DialogTitle>

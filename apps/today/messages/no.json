@@ -9,7 +9,7 @@
     "title": "Today blir den operative modulen for oppgaver, planlegging og flyt",
     "description": "Første versjon etablerer Today i samme adminunivers som Arbeidskassen, med delt navigasjonsbar, samme designsystem og en tydelig plass i plattformen. Senere bygges selve arbeidsflyten for skift, oppgaver og intern koordinering ut her.",
     "primaryAction": "Åpne Arbeidskassen",
-    "secondaryAction": "Gå til Organisasjon",
+    "secondaryAction": "Åpne TeamArea",
     "status": {
       "shellLabel": "Admin-shell",
       "shellValue": "Klar for Today",

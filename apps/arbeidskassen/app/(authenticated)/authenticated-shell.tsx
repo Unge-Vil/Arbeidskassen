@@ -1,7 +1,14 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { Navbar, type TenantOption } from "@arbeidskassen/ui";
+import { useMemo, type ReactNode } from "react";
+import { useParams, usePathname } from "next/navigation";
+import {
+  Navbar,
+  defaultDisabledModules,
+  resolveActiveAdminModule,
+  resolveAdminAppHrefs,
+  type TenantOption,
+} from "@arbeidskassen/ui";
 
 type AuthenticatedShellProps = {
   children: ReactNode;
@@ -11,6 +18,7 @@ type AuthenticatedShellProps = {
   profileHref: string;
   organizationHref: string;
   onTenantChange: (formData: FormData) => void | Promise<void>;
+  onThemeChange?: (formData: FormData) => void | Promise<void>;
   onSignOut: (formData: FormData) => void | Promise<void>;
 };
 
@@ -22,26 +30,40 @@ export function AuthenticatedShell({
   profileHref,
   organizationHref,
   onTenantChange,
+  onThemeChange,
   onSignOut,
 }: AuthenticatedShellProps) {
-  const [activeModule, setActiveModule] = useState("dashboard");
+  const pathname = usePathname();
+  const activeModule = resolveActiveAdminModule(pathname);
+  const params = useParams<{ locale?: string }>();
+  const locale = typeof params?.locale === "string" ? params.locale : "no";
+  const moduleHrefs = useMemo(() => resolveAdminAppHrefs(locale), [locale]);
 
   return (
-      <div className="flex h-screen w-full select-none flex-col overflow-hidden bg-[var(--ak-bg-main)] font-sans text-[var(--ak-text-main)] transition-colors duration-300">
-        <Navbar
-          workspaceName="Arbeidskassen"
-          workspaceInitial="A"
-          orgName={orgName}
-          activeModule={activeModule}
-          onModuleChange={setActiveModule}
-          tenantOptions={tenantOptions}
-          userInitial={userInitial}
-          profileHref={profileHref}
-          organizationHref={organizationHref}
-          onTenantChange={onTenantChange}
-          onSignOut={onSignOut}
-        />
-        <main className="flex-1 overflow-hidden">{children}</main>
-      </div>
+    <div className="flex h-screen w-full select-none flex-col overflow-hidden bg-[var(--ak-bg-main)] font-sans text-[var(--ak-text-main)] transition-colors duration-300">
+      <Navbar
+        workspaceName="Arbeidskassen"
+        workspaceInitial="A"
+        locale={locale}
+        orgName={orgName}
+        activeModule={activeModule}
+        onModuleChange={() => undefined}
+        moduleHrefs={{
+          dashboard: moduleHrefs.dashboard,
+          today: moduleHrefs.today,
+          teamarea: moduleHrefs.teamarea,
+          booking: moduleHrefs.booking,
+        }}
+        disabledModules={[...defaultDisabledModules]}
+        tenantOptions={tenantOptions}
+        userInitial={userInitial}
+        profileHref={profileHref}
+        organizationHref={organizationHref}
+        onTenantChange={onTenantChange}
+        onThemeChange={onThemeChange}
+        onSignOut={onSignOut}
+      />
+      <main className="flex-1 overflow-hidden">{children}</main>
+    </div>
   );
 }

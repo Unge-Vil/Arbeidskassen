@@ -1,43 +1,5 @@
-import { ModuleComingSoonPage } from "@arbeidskassen/ui";
+import { ModuleComingSoonPage, resolveAdminAppHrefs } from "@arbeidskassen/ui";
 import { getTranslations } from "next-intl/server";
-
-function getArbeidskassenHref(locale: string, path = ""): string {
-  const configuredBase =
-    process.env.ARBEIDSKASSEN_APP_URL ??
-    process.env.WEB_APP_URL ??
-    process.env.NEXT_PUBLIC_WEB_APP_URL ??
-    (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "");
-
-  const normalizedPath = path ? (path.startsWith("/") ? path : `/${path}`) : "";
-  const trimmedBase = configuredBase.trim().replace(/\/$/, "");
-
-  if (!trimmedBase) {
-    return `/${locale}${normalizedPath}`;
-  }
-
-  return `${trimmedBase}/${locale}${normalizedPath}`;
-}
-
-function getOrganisasjonHref(locale: string): string {
-  const configuredBase =
-    process.env.ORGANISASJON_APP_URL ??
-    process.env.ORGANIZATION_APP_URL ??
-    process.env.NEXT_PUBLIC_ORGANISASJON_URL ??
-    process.env.NEXT_PUBLIC_ORGANIZATION_APP_URL ??
-    (process.env.NODE_ENV === "development" ? "http://localhost:3002" : "/organisasjon");
-
-  const trimmedBase = configuredBase.trim().replace(/\/$/, "");
-
-  if (trimmedBase.includes("{locale}")) {
-    return trimmedBase.replace("{locale}", locale);
-  }
-
-  if (trimmedBase.startsWith("http://") || trimmedBase.startsWith("https://")) {
-    return trimmedBase.endsWith(`/${locale}`) ? trimmedBase : `${trimmedBase}/${locale}`;
-  }
-
-  return trimmedBase || "/organisasjon";
-}
 
 export default async function Home({
   params,
@@ -45,6 +7,7 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const [{ locale }, t] = await Promise.all([params, getTranslations("todayHome")]);
+  const appHrefs = resolveAdminAppHrefs(locale)
 
   return (
     <ModuleComingSoonPage
@@ -57,20 +20,17 @@ export default async function Home({
       description={t("description")}
       primaryAction={{
         label: t("primaryAction"),
-        href: getArbeidskassenHref(locale, "/"),
+        href: appHrefs.dashboard,
       }}
       secondaryAction={{
         label: t("secondaryAction"),
-        href: getOrganisasjonHref(locale),
+        href: appHrefs.teamarea,
       }}
       moduleHrefs={{
-        dashboard: getArbeidskassenHref(locale, "/"),
-        booking:
-          process.env.NODE_ENV === "development"
-            ? `http://localhost:3001/${locale}`
-            : "/bookdet",
-        today: `/${locale}`,
-        teamarea: getOrganisasjonHref(locale),
+        dashboard: appHrefs.dashboard,
+        booking: appHrefs.booking,
+        today: appHrefs.today,
+        teamarea: appHrefs.teamarea,
       }}
       statusItems={[
         {

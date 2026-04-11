@@ -169,6 +169,24 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null
   };
 }
 
+export async function updateCurrentUserThemePreference(
+  themePreference: unknown,
+): Promise<{ success: boolean; error?: string; profile?: UserProfile }> {
+  const currentProfile = await getCurrentUserProfile();
+
+  if (!currentProfile) {
+    return {
+      success: false,
+      error: "Du må være logget inn for å oppdatere temaet.",
+    };
+  }
+
+  return updateCurrentUserProfile({
+    ...currentProfile.profile,
+    themePreference: normalizeThemePreference(themePreference),
+  });
+}
+
 export async function updateCurrentUserProfile(
   input: UserProfile,
 ): Promise<{ success: boolean; error?: string; profile?: UserProfile }> {

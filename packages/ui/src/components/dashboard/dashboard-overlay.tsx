@@ -36,6 +36,12 @@ export function DashboardOverlay({
     overlayStateRef.current = { isOpen, activeDashboardIndex }
   }, [isOpen, activeDashboardIndex])
 
+  React.useEffect(() => {
+    if (!isOpen) {
+      hotkeyStateRef.current = createDashboardHotkeyState()
+    }
+  }, [isOpen])
+
   const refreshDashboards = React.useCallback(async () => {
     if (fetchRef.current) {
       try {
@@ -130,10 +136,21 @@ export function DashboardOverlay({
     }
   }, [setDashboardOpen])
 
+  const handleOpenChange = React.useCallback(
+    (open: boolean) => {
+      if (!open) {
+        hotkeyStateRef.current = createDashboardHotkeyState()
+      }
+
+      setDashboardOpen(open)
+    },
+    [setDashboardOpen],
+  )
+
   const currentDashboardName = dashboards[activeDashboardIndex]?.name || `Mitt Dashbord ${activeDashboardIndex + 1}`
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setDashboardOpen}>
+    <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed inset-0 z-50 flex w-full flex-col overflow-y-auto p-6 pt-16 outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">

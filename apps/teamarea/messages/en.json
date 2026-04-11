@@ -1,0 +1,83 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "back": "Back"
+  },
+  "teamareaShell": {
+    "navLabel": "TeamArea",
+    "sections": {
+      "overview": "Overview",
+      "groups": "Your groups"
+    },
+    "nav": {
+      "feed": "News Feed",
+      "saved": "Saved Posts",
+      "announcements": "Announcements"
+    },
+    "groups": {
+      "allHands": "All staff",
+      "designTeam": "Design Team",
+      "operations": "Operations & planning"
+    }
+  },
+  "teamareaHome": {
+    "badge": "Internal feed · MVP",
+    "title": "A calmer place for updates, announcements, and milestones",
+    "description": "The first version of TeamArea brings together quick status updates, important announcements, and progress across the organization and departments in one clean feed.",
+    "composer": {
+      "prompt": "Share an update, milestone, or important note with the team...",
+      "photoVideo": "Photo/Video",
+      "milestone": "Milestone",
+      "post": "Post"
+    },
+    "summary": {
+      "postsTodayLabel": "Posts today",
+      "postsTodayDetail": "Activity across departments",
+      "activeGroupsLabel": "Active groups",
+      "activeGroupsDetail": "Departments with new activity",
+      "announcementsLabel": "Announcements",
+      "announcementsDetail": "Leadership posts this week"
+    },
+    "showingLabel": "Showing:",
+    "showingCount": "visible posts",
+    "emptyState": "No posts match this view yet.",
+    "views": {
+      "feed": "the full feed",
+      "saved": "saved posts",
+      "announcements": "announcements"
+    },
+    "postTypes": {
+      "update": "Update",
+      "announcement": "Announcement",
+      "milestone": "Milestone"
+    },
+    "pinned": "Pinned",
+    "audience": {
+      "orgWide": "Organization-wide",
+      "department": "Department feed",
+      "shift": "Operations team"
+    },
+    "groupLabels": {
+      "allHands": "All staff",
+      "designTeam": "Design Team",
+      "operations": "Operations & planning"
+    },
+    "meta": {
+      "reactions": "reactions",
+      "comments": "comments",
+      "share": "Share"
+    },
+    "posts": {
+      "launchTitle": "We launched the partner portal today 🚀",
+      "launchBody": "Huge thanks to the design and operations teams for a clean final sprint. We will do an internal demo tomorrow at 09:30 and collect feedback directly in TeamArea.",
+      "launchTime": "2 hours ago",
+      "announcementTitle": "New routine for weekly department updates",
+      "announcementBody": "Starting next week, we will use TeamArea for short Monday updates per department. The goal is fewer status meetings and smoother day-to-day communication.",
+      "announcementTime": "yesterday",
+      "opsTitle": "The operations team has Friday covered ✅",
+      "opsBody": "Staffing is now confirmed for Friday. If anyone needs a swap, post it before 14:00 so we can handle it in the same flow.",
+      "opsTime": "4 hours ago"
+    }
+  }
+}

@@ -79,6 +79,7 @@ interface ModuleTabsProps {
   modules?: ModuleTab[];
   activeModule: string;
   onModuleChange: (id: string) => void;
+  disabledModules?: string[];
   className?: string;
 }
 
@@ -86,6 +87,7 @@ export function ModuleTabs({
   modules = defaultModules,
   activeModule,
   onModuleChange,
+  disabledModules = [],
   className,
 }: ModuleTabsProps) {
   return (
@@ -98,16 +100,25 @@ export function ModuleTabs({
     >
       {modules.map((mod) => {
         const isActive = activeModule === mod.id;
+        const isDisabled = disabledModules.includes(mod.id);
 
         return (
           <button
             key={mod.id}
-            onClick={() => onModuleChange(mod.id)}
+            type="button"
+            onClick={() => {
+              if (!isDisabled) {
+                onModuleChange(mod.id)
+              }
+            }}
+            disabled={isDisabled}
+            aria-disabled={isDisabled}
             className={cn(
-              "flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed",
               isActive
                 ? "bg-[var(--ak-accent)] text-[var(--ak-accent-foreground)] shadow-sm border-transparent"
-                : "border-transparent text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)]"
+                : "border-transparent text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)]",
+              isDisabled && "border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] text-[var(--ak-text-muted)] opacity-45 grayscale hover:bg-[var(--ak-bg-main)] hover:text-[var(--ak-text-muted)]"
             )}
           >
             <span
@@ -231,12 +242,14 @@ export function SearchOverlay({
   );
 }
 
-interface AppLauncherItem {
+export interface AppLauncherItem {
   id: string;
   label: string;
   icon: React.ReactNode;
   color: string;
   bg: string;
+  href?: string;
+  disabled?: boolean;
 }
 
 const defaultApps: AppLauncherItem[] = [
@@ -246,6 +259,7 @@ const defaultApps: AppLauncherItem[] = [
     icon: <Users size={22} strokeWidth={1.5} />,
     color: "text-blue-500",
     bg: "bg-blue-500/10",
+    disabled: true,
   },
   {
     id: "calendar",
@@ -253,6 +267,7 @@ const defaultApps: AppLauncherItem[] = [
     icon: <CalendarDays size={22} strokeWidth={1.5} />,
     color: "text-red-500",
     bg: "bg-red-500/10",
+    disabled: true,
   },
   {
     id: "projects",
@@ -260,6 +275,7 @@ const defaultApps: AppLauncherItem[] = [
     icon: <LayoutGrid size={22} strokeWidth={1.5} />,
     color: "text-amber-500",
     bg: "bg-amber-500/10",
+    disabled: true,
   },
   {
     id: "workflows",
@@ -267,6 +283,7 @@ const defaultApps: AppLauncherItem[] = [
     icon: <Zap size={22} strokeWidth={1.5} />,
     color: "text-emerald-500",
     bg: "bg-emerald-500/10",
+    disabled: true,
   },
   {
     id: "crm",
@@ -274,6 +291,7 @@ const defaultApps: AppLauncherItem[] = [
     icon: <User size={22} strokeWidth={1.5} />,
     color: "text-indigo-500",
     bg: "bg-indigo-500/10",
+    disabled: true,
   },
   {
     id: "forms",
@@ -281,6 +299,7 @@ const defaultApps: AppLauncherItem[] = [
     icon: <AlignJustify size={22} strokeWidth={1.5} />,
     color: "text-pink-500",
     bg: "bg-pink-500/10",
+    disabled: true,
   },
 ];
 
@@ -323,12 +342,14 @@ function resolveThemePreference(value: string | undefined): ThemeOptionId {
 }
 
 type ProfileMenuProps = {
+  locale?: string;
   orgName?: string;
   tenantOptions?: TenantOption[];
   userInitial?: string;
   profileHref?: string;
   organizationHref?: string;
   onTenantChange?: (formData: FormData) => void | Promise<void>;
+  onThemeChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
 };
 
@@ -354,40 +375,66 @@ function ActionIconButton({
   );
 }
 
-function AppLauncherContent({ onAction }: { onAction?: () => void }) {
+function AppLauncherContent({
+  onAction,
+  apps = defaultApps,
+}: {
+  onAction?: () => void;
+  apps?: AppLauncherItem[];
+}) {
+  const hasEnabledApps = apps.some((app) => !app.disabled && app.href)
+
   return (
     <>
       <div className="mb-4 border-b border-[var(--ak-border-soft)] px-1 pb-3 text-[11px] font-bold uppercase tracking-wider text-[var(--ak-text-muted)]">
         Dine Verktøy og Apper
       </div>
       <div className="grid grid-cols-3 gap-3">
-        {defaultApps.map((app) => (
-          <button
-            key={app.id}
-            type="button"
-            onClick={onAction}
-            className="flex flex-col items-center justify-center rounded-2xl p-3 transition-all duration-200 hover:scale-[1.02] hover:bg-[var(--ak-bg-hover)] focus-visible:ring-2 focus-visible:ring-[var(--ak-border)] outline-none"
-          >
-            <div
+        {apps.map((app) => {
+          const isDisabled = app.disabled || !app.href;
+
+          return (
+            <button
+              key={app.id}
+              type="button"
+              disabled={isDisabled}
+              onClick={() => {
+                if (isDisabled) return
+                if (app.href && typeof window !== "undefined") {
+                  window.location.assign(app.href)
+                }
+                onAction?.()
+              }}
               className={cn(
-                "mb-2.5 flex h-12 w-12 items-center justify-center rounded-[14px]",
-                app.bg,
-                app.color
+                "flex flex-col items-center justify-center rounded-2xl p-3 text-center outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--ak-border)]",
+                isDisabled
+                  ? "cursor-not-allowed opacity-45 grayscale"
+                  : "hover:scale-[1.02] hover:bg-[var(--ak-bg-hover)]"
               )}
             >
-              {app.icon}
-            </div>
-            <span className="text-center text-[11.5px] font-semibold text-[var(--ak-text-main)]">
-              {app.label}
-            </span>
-          </button>
-        ))}
+              <div
+                className={cn(
+                  "mb-2.5 flex h-12 w-12 items-center justify-center rounded-[14px]",
+                  app.bg,
+                  app.color
+                )}
+              >
+                {app.icon}
+              </div>
+              <span className="text-[11.5px] font-semibold text-[var(--ak-text-main)]">{app.label}</span>
+              <span className="mt-1 text-[10px] font-medium text-[var(--ak-text-muted)]">
+                {isDisabled ? "Kommer snart" : "Åpne"}
+              </span>
+            </button>
+          )
+        })}
       </div>
       <div className="mt-4 flex justify-center border-t border-[var(--ak-border-soft)] pt-3">
         <button
           type="button"
+          disabled={!hasEnabledApps}
           onClick={onAction}
-          className="rounded px-2 py-1 text-[12px] font-bold text-[var(--ak-accent)] transition-colors hover:opacity-80 focus-visible:ring-2 focus-visible:ring-[var(--ak-border)] outline-none"
+          className="rounded px-2 py-1 text-[12px] font-bold text-[var(--ak-accent)] transition-colors hover:opacity-80 focus-visible:ring-2 focus-visible:ring-[var(--ak-border)] outline-none disabled:cursor-not-allowed disabled:opacity-40"
         >
           Utforsk flere
         </button>
@@ -418,19 +465,37 @@ function AppLauncherPopover() {
 }
 
 export function ProfileMenu({
+  locale = "no",
   orgName = "Workspace",
   tenantOptions = [],
   userInitial = "W",
   profileHref = "/profil",
   organizationHref = "/organisasjon",
   onTenantChange,
+  onThemeChange,
   onSignOut,
 }: ProfileMenuProps) {
   const { theme, setTheme } = useTheme();
+  const [isThemePending, startThemeTransition] = React.useTransition();
   const themePreference = resolveThemePreference(theme);
-  const setThemePreference = (value: ThemeOptionId) => setTheme(value);
   const hasTenantSwitcher =
     tenantOptions.length > 1 && typeof onTenantChange === "function";
+
+  const handleThemePreferenceChange = (value: ThemeOptionId) => {
+    setTheme(value);
+
+    if (typeof onThemeChange !== "function") {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set("locale", locale);
+    formData.set("themePreference", value);
+
+    startThemeTransition(() => {
+      void onThemeChange(formData);
+    });
+  };
 
   return (
     <DropdownMenu.Root>
@@ -493,6 +558,7 @@ export function ProfileMenu({
                     {tenantOptions.map((tenant) => (
                       <form key={tenant.id} action={onTenantChange}>
                         <input type="hidden" name="tenantId" value={tenant.id} />
+                        <input type="hidden" name="locale" value={locale} />
                         <button
                           type="submit"
                           className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)]"
@@ -531,8 +597,9 @@ export function ProfileMenu({
                   className="w-48 rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-panel)] p-1 text-[var(--ak-text-main)] shadow-lg outline-none animate-in fade-in-0 zoom-in-95"
                 >
                   <DropdownMenu.Item
-                    onClick={() => setThemePreference("light")}
-                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none"
+                    disabled={isThemePending}
+                    onClick={() => handleThemePreferenceChange("light")}
+                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none data-[disabled]:cursor-wait data-[disabled]:opacity-60"
                   >
                     <div className="flex items-center gap-2.5">
                       <Sun size={14} className="text-[var(--ak-text-muted)]" /> Lys
@@ -542,8 +609,9 @@ export function ProfileMenu({
                     ) : null}
                   </DropdownMenu.Item>
                   <DropdownMenu.Item
-                    onClick={() => setThemePreference("dark")}
-                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none"
+                    disabled={isThemePending}
+                    onClick={() => handleThemePreferenceChange("dark")}
+                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none data-[disabled]:cursor-wait data-[disabled]:opacity-60"
                   >
                     <div className="flex items-center gap-2.5">
                       <Moon size={14} className="text-[var(--ak-text-muted)]" /> Mørk
@@ -553,8 +621,9 @@ export function ProfileMenu({
                     ) : null}
                   </DropdownMenu.Item>
                   <DropdownMenu.Item
-                    onClick={() => setThemePreference("night")}
-                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none"
+                    disabled={isThemePending}
+                    onClick={() => handleThemePreferenceChange("night")}
+                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none data-[disabled]:cursor-wait data-[disabled]:opacity-60"
                   >
                     <div className="flex items-center gap-2.5">
                       <Star size={14} className="text-[var(--ak-text-muted)]" /> Natt
@@ -565,8 +634,9 @@ export function ProfileMenu({
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator className="my-1 h-px bg-[var(--ak-border-soft)]" />
                   <DropdownMenu.Item
-                    onClick={() => setThemePreference("system")}
-                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none"
+                    disabled={isThemePending}
+                    onClick={() => handleThemePreferenceChange("system")}
+                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none data-[disabled]:cursor-wait data-[disabled]:opacity-60"
                   >
                     <div className="flex items-center gap-2.5">
                       <Monitor size={14} className="text-[var(--ak-text-muted)]" /> System
@@ -606,6 +676,7 @@ export function ProfileMenu({
 
             {onSignOut ? (
               <form action={onSignOut}>
+                <input type="hidden" name="locale" value={locale} />
                 <button
                   type="submit"
                   className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium text-red-500 transition-colors hover:bg-[var(--ak-bg-hover)] hover:text-red-600"
@@ -625,15 +696,18 @@ type MobileNavDrawerProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   appName: string;
+  locale: string;
   orgName: string;
   modules: ModuleTab[];
   activeModule: string;
   onModuleChange: (id: string) => void;
+  disabledModules?: string[];
   tenantOptions?: TenantOption[];
   userInitial: string;
   profileHref?: string;
   organizationHref?: string;
   onTenantChange?: (formData: FormData) => void | Promise<void>;
+  onThemeChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
   onSearchOpen: () => void;
 };
@@ -642,23 +716,42 @@ function MobileNavDrawer({
   isOpen,
   onOpenChange,
   appName,
+  locale,
   orgName,
   modules,
   activeModule,
   onModuleChange,
+  disabledModules = [],
   tenantOptions = [],
   userInitial,
   profileHref = "/profil",
   organizationHref = "/organisasjon",
   onTenantChange,
+  onThemeChange,
   onSignOut,
   onSearchOpen,
 }: MobileNavDrawerProps) {
   const { theme, setTheme } = useTheme();
+  const [isThemePending, startThemeTransition] = React.useTransition();
   const themePreference = resolveThemePreference(theme);
-  const setThemePreference = (value: ThemeOptionId) => setTheme(value);
   const hasTenantSwitcher =
     tenantOptions.length > 1 && typeof onTenantChange === "function";
+
+  const handleThemePreferenceChange = (value: ThemeOptionId) => {
+    setTheme(value);
+
+    if (typeof onThemeChange !== "function") {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set("locale", locale);
+    formData.set("themePreference", value);
+
+    startThemeTransition(() => {
+      void onThemeChange(formData);
+    });
+  };
 
   const handleModuleSelect = (id: string) => {
     onModuleChange(id);
@@ -715,17 +808,20 @@ function MobileNavDrawer({
               <div className="space-y-1.5">
                 {modules.map((mod) => {
                   const isActive = activeModule === mod.id;
+                  const isDisabled = disabledModules.includes(mod.id);
 
                   return (
                     <button
                       key={mod.id}
                       type="button"
+                      disabled={isDisabled}
                       onClick={() => handleModuleSelect(mod.id)}
                       className={cn(
-                        "flex min-h-11 w-full items-center gap-3 rounded-xl border px-3 py-2 text-left text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "flex min-h-11 w-full items-center gap-3 rounded-xl border px-3 py-2 text-left text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed",
                         isActive
                           ? "border-[var(--ak-border)] bg-[var(--ak-bg-card)] text-[var(--ak-text-main)]"
-                          : "border-transparent text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)]"
+                          : "border-transparent text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)]",
+                        isDisabled && "border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] text-[var(--ak-text-muted)] opacity-45 grayscale hover:bg-[var(--ak-bg-main)] hover:text-[var(--ak-text-muted)]"
                       )}
                     >
                       <span
@@ -779,7 +875,8 @@ function MobileNavDrawer({
                     <button
                       key={option.id}
                       type="button"
-                      onClick={() => setThemePreference(option.id)}
+                      onClick={() => handleThemePreferenceChange(option.id)}
+                      disabled={isThemePending}
                       className={cn(
                         "flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-[12px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         isActive
@@ -804,6 +901,7 @@ function MobileNavDrawer({
                   {tenantOptions.map((tenant) => (
                     <form key={tenant.id} action={onTenantChange}>
                       <input type="hidden" name="tenantId" value={tenant.id} />
+                      <input type="hidden" name="locale" value={locale} />
                       <button
                         type="submit"
                         className="flex min-h-11 w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] focus-visible:ring-2 focus-visible:ring-ring outline-none"
@@ -843,18 +941,21 @@ function MobileNavDrawer({
                 </div>
               </div>
               <ProfileMenu
+                locale={locale}
                 orgName={orgName}
                 tenantOptions={tenantOptions}
                 userInitial={userInitial}
                 profileHref={profileHref}
                 organizationHref={organizationHref}
                 onTenantChange={onTenantChange}
+                onThemeChange={onThemeChange}
                 onSignOut={onSignOut}
               />
             </div>
 
             {onSignOut ? (
               <form action={onSignOut}>
+                <input type="hidden" name="locale" value={locale} />
                 <button
                   type="submit"
                   className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-[13px] font-semibold text-red-600 transition-colors hover:bg-red-500/10 focus-visible:ring-2 focus-visible:ring-ring outline-none"
@@ -874,13 +975,17 @@ export interface NavbarProps {
   appName?: string;
   workspaceName?: string;
   workspaceInitial?: string;
+  locale?: string;
   orgName?: string;
   modules?: ModuleTab[];
   tenantOptions?: TenantOption[];
   userInitial?: string;
   profileHref?: string;
   organizationHref?: string;
+  moduleHrefs?: Partial<Record<string, string>>;
+  disabledModules?: string[];
   onTenantChange?: (formData: FormData) => void | Promise<void>;
+  onThemeChange?: (formData: FormData) => void | Promise<void>;
   onSignOut?: (formData: FormData) => void | Promise<void>;
   activeModule: string;
   onModuleChange: (id: string) => void;
@@ -890,13 +995,17 @@ export function Navbar({
   appName = "Arbeidskassen",
   workspaceName: _workspaceName = "Workspace",
   workspaceInitial = "W",
+  locale = "no",
   orgName = "Workspace",
   modules,
   tenantOptions = [],
   userInitial = workspaceInitial,
   profileHref = "/profil",
   organizationHref = "/organisasjon",
+  moduleHrefs,
+  disabledModules = [],
   onTenantChange,
+  onThemeChange,
   onSignOut,
   activeModule,
   onModuleChange,
@@ -918,10 +1027,35 @@ export function Navbar({
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
+  useEffect(() => {
+    setIsMobileNavOpen(false);
+  }, [activeModule]);
+
   const openSearch = () => {
     setIsMobileNavOpen(false);
     setIsSearchOpen(true);
   };
+
+  const handleModuleChange = (id: string) => {
+    if (disabledModules.includes(id)) {
+      return;
+    }
+
+    onModuleChange(id);
+
+    const href = moduleHrefs?.[id]
+    if (!href || typeof window === "undefined") {
+      return
+    }
+
+    const targetHref = href.startsWith("http://") || href.startsWith("https://")
+      ? href
+      : new URL(href, window.location.origin).toString()
+
+    if (targetHref !== window.location.href) {
+      window.location.assign(href)
+    }
+  }
 
   return (
     <>
@@ -941,7 +1075,8 @@ export function Navbar({
               <ModuleTabs
                 modules={resolvedModules}
                 activeModule={activeModule}
-                onModuleChange={onModuleChange}
+                onModuleChange={handleModuleChange}
+                disabledModules={disabledModules}
                 className="mx-auto"
               />
             </div>
@@ -976,12 +1111,14 @@ export function Navbar({
 
             <div className="hidden sm:block">
               <ProfileMenu
+                locale={locale}
                 orgName={orgName}
                 tenantOptions={tenantOptions}
                 userInitial={userInitial}
                 profileHref={profileHref}
                 organizationHref={organizationHref}
                 onTenantChange={onTenantChange}
+                onThemeChange={onThemeChange}
                 onSignOut={onSignOut}
               />
             </div>
@@ -1001,7 +1138,8 @@ export function Navbar({
             <ModuleTabs
               modules={resolvedModules}
               activeModule={activeModule}
-              onModuleChange={onModuleChange}
+              onModuleChange={handleModuleChange}
+              disabledModules={disabledModules}
               className="min-w-max"
             />
           </div>
@@ -1012,15 +1150,18 @@ export function Navbar({
         isOpen={isMobileNavOpen}
         onOpenChange={setIsMobileNavOpen}
         appName={appName}
+        locale={locale}
         orgName={orgName}
         modules={resolvedModules}
         activeModule={activeModule}
-        onModuleChange={onModuleChange}
+        onModuleChange={handleModuleChange}
+        disabledModules={disabledModules}
         tenantOptions={tenantOptions}
         userInitial={userInitial}
         profileHref={profileHref}
         organizationHref={organizationHref}
         onTenantChange={onTenantChange}
+        onThemeChange={onThemeChange}
         onSignOut={onSignOut}
         onSearchOpen={openSearch}
       />

@@ -9,7 +9,7 @@
     "title": "Today will become the operational module for tasks, planning, and day-to-day flow",
     "description": "The first version establishes Today inside the same admin universe as Arbeidskassen, with shared navigation, the same design system, and a clear place in the platform. The actual workflow for shifts, tasks, and internal coordination will be built out here next.",
     "primaryAction": "Open Arbeidskassen",
-    "secondaryAction": "Go to Organization",
+    "secondaryAction": "Open TeamArea",
     "status": {
       "shellLabel": "Admin shell",
       "shellValue": "Ready for Today",

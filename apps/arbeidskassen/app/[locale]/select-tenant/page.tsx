@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
+import { buildArbeidskassenHref, normalizeReturnTo } from "@arbeidskassen/ui";
 import { getTenantContext, type TenantRole } from "@arbeidskassen/supabase";
 import { signOutAction, switchTenantAction } from "../../actions/auth";
 
 type SelectTenantPageProps = {
+  params: Promise<{ locale: string }>;
   searchParams?: Promise<{
     error?: string;
+    returnTo?: string;
   }>;
 };
 
@@ -22,12 +25,24 @@ function formatRole(role: TenantRole): string {
 }
 
 export default async function SelectTenantPage({
+  params,
   searchParams,
 }: SelectTenantPageProps) {
-  const context = await getTenantContext();
+  const [{ locale }, context, resolvedSearchParams] = await Promise.all([
+    params,
+    getTenantContext(),
+    Promise.resolve(searchParams),
+  ]);
+  const dashboardPath = buildArbeidskassenHref(locale, "/dashboard");
+  const selectTenantPath = buildArbeidskassenHref(locale, "/select-tenant");
+  const safeReturnTo = normalizeReturnTo(resolvedSearchParams?.returnTo, locale);
 
   if (!context?.user) {
-    redirect("/login");
+    const loginReturnTo = safeReturnTo
+      ? `${selectTenantPath}?returnTo=${encodeURIComponent(safeReturnTo)}`
+      : selectTenantPath;
+
+    redirect(buildArbeidskassenHref(locale, "/login", { returnTo: loginReturnTo }));
   }
 
   if (context.memberships.length === 0) {
@@ -41,6 +56,7 @@ export default async function SelectTenantPage({
           </p>
 
           <form action={signOutAction} className="mt-4">
+            <input type="hidden" name="locale" value={locale} />
             <button
               type="submit"
               className="rounded-lg border border-[var(--ak-border-soft)] px-4 py-2 text-sm font-semibold text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)]"
@@ -54,10 +70,9 @@ export default async function SelectTenantPage({
   }
 
   if (context.memberships.length === 1) {
-    redirect("/dashboard");
+    redirect(safeReturnTo ?? dashboardPath);
   }
 
-  const params = await Promise.resolve(searchParams);
   const currentTenantId = context.currentTenant?.id ?? null;
 
   return (
@@ -75,9 +90,9 @@ export default async function SelectTenantPage({
           </p>
         </div>
 
-        {params?.error ? (
+        {resolvedSearchParams?.error ? (
           <div className="mb-4 rounded-lg border border-[var(--ak-status-stuck)] bg-[var(--ak-status-stuck-bg)] text-[var(--ak-status-stuck)]">
-            {decodeURIComponent(params.error)}
+            {decodeURIComponent(resolvedSearchParams.error)}
           </div>
         ) : null}
 
@@ -89,6 +104,8 @@ export default async function SelectTenantPage({
             return (
               <form key={membership.tenant.id} action={switchTenantAction}>
                 <input type="hidden" name="tenantId" value={membership.tenant.id} />
+                <input type="hidden" name="locale" value={locale} />
+                <input type="hidden" name="returnTo" value={safeReturnTo ?? ""} />
                 <button
                   type="submit"
                   className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition-all ${
@@ -119,6 +136,7 @@ export default async function SelectTenantPage({
         </div>
 
         <form action={signOutAction} className="mt-6 flex justify-center">
+          <input type="hidden" name="locale" value={locale} />
           <button
             type="submit"
             className="rounded-lg border border-[var(--ak-border-soft)] px-4 py-2 text-sm font-semibold text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)]"

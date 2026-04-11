@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import {
   sanitizeUserProfileInput,
   updateCurrentUserProfile,
+  updateCurrentUserThemePreference,
 } from "@arbeidskassen/supabase";
 
 function normalizeLocale(value: FormDataEntryValue | null): "no" | "en" {
@@ -13,6 +14,20 @@ function normalizeLocale(value: FormDataEntryValue | null): "no" | "en" {
 
 function getEncodedErrorMessage(message: string): string {
   return encodeURIComponent(message);
+}
+
+export async function updateThemePreferenceAction(formData: FormData) {
+  const currentLocale = normalizeLocale(formData.get("locale"));
+  const result = await updateCurrentUserThemePreference(formData.get("themePreference"));
+
+  if (!result.success) {
+    console.error("Failed to update theme preference", result.error);
+  }
+
+  revalidatePath(`/${currentLocale}`, "layout");
+  revalidatePath("/", "layout");
+
+  return result;
 }
 
 export async function updateProfileAction(formData: FormData) {

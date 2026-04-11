@@ -1,5 +1,6 @@
 import {
   DashboardGrid,
+  resolveAdminAppHrefs,
   type Dashboard,
   type DashboardItem,
 } from "@arbeidskassen/ui"
@@ -11,7 +12,13 @@ import {
   updateDashboardName,
 } from "../../actions/dashboard"
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  const appHrefs = resolveAdminAppHrefs(locale)
   let dashboards: Dashboard[] = []
   
   try {
@@ -80,16 +87,16 @@ export default async function DashboardPage() {
           props: {
             title: "Hurtighandlinger",
             actions: [
-              { label: "Åpne Backoffice", href: "/backoffice", description: "Administrasjon og drift" },
-              { label: "Åpne Bookdet", href: "/bookdet", description: "Booking og kalender" },
-              { label: "Åpne Sales Portal", href: "/sales-portal", description: "Pipeline og tilbud" },
+              { label: "Åpne Backoffice", href: appHrefs.backoffice, description: "Administrasjon og drift" },
+              { label: "Åpne Bookdet", href: appHrefs.booking, description: "Booking og kalender" },
+              { label: "Åpne Sales Portal", href: appHrefs.salesPortal, description: "Pipeline og tilbud" },
             ],
           },
         },
         { i: "5", widgetId: "Calculator", w: 4, h: 4, x: 0, y: 2 },
-        { i: "6", widgetId: "AppIcon", w: 2, h: 2, x: 4, y: 2, props: { label: "Backoffice", href: "/backoffice" } },
-        { i: "7", widgetId: "AppIcon", w: 2, h: 2, x: 4, y: 4, props: { label: "Bookdet", href: "/bookdet" } },
-        { i: "8", widgetId: "AppIcon", w: 2, h: 2, x: 6, y: 4, props: { label: "Sales", href: "/sales-portal" } },
+        { i: "6", widgetId: "AppIcon", w: 2, h: 2, x: 4, y: 2, props: { label: "Backoffice", href: appHrefs.backoffice } },
+        { i: "7", widgetId: "AppIcon", w: 2, h: 2, x: 4, y: 4, props: { label: "Bookdet", href: appHrefs.booking } },
+        { i: "8", widgetId: "AppIcon", w: 2, h: 2, x: 6, y: 4, props: { label: "Sales", href: appHrefs.salesPortal } },
       ]
       const newDashboard = await createDashboard("Hoveddashbord", undefined, defaultLayout)
       if (newDashboard) dashboards = [newDashboard]
@@ -117,6 +124,7 @@ export default async function DashboardPage() {
 
       {dashboards.length > 0 ? (
         <DashboardGrid
+          locale={locale}
           initialDashboards={dashboards}
           onSaveLayout={updateDashboardLayout}
           onCreateDashboard={createDashboard}

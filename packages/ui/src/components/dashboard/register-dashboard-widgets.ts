@@ -54,7 +54,7 @@ export function registerDashboardWidgets() {
     component: AppIconWidget,
     defaultProps: {
       label: "Ny app",
-      href: "#",
+      disabled: true,
     },
   });
 

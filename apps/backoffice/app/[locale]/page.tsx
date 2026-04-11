@@ -1,10 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { DashboardGrid, Navbar } from "@arbeidskassen/ui";
+import { useMemo } from "react";
+import { useParams, usePathname } from "next/navigation";
+import {
+  DashboardGrid,
+  Navbar,
+  defaultDisabledModules,
+  resolveActiveAdminModule,
+  resolveAdminAppHrefs,
+} from "@arbeidskassen/ui";
 
 export default function Home() {
-  const [activeModule, setActiveModule] = useState("dashboard");
+  const pathname = usePathname();
+  const activeModule = resolveActiveAdminModule(pathname);
+  const params = useParams<{ locale?: string }>();
+  const locale = typeof params?.locale === "string" ? params.locale : "no";
+  const appHrefs = useMemo(() => resolveAdminAppHrefs(locale), [locale]);
 
   const dashboards = useMemo(
     () => [
@@ -68,15 +79,15 @@ export default function Home() {
             props: {
               title: "Adminhandlinger",
               actions: [
-                { label: "Åpne sales portal", href: "/sales-portal", description: "Se pipeline og partnere" },
-                { label: "Åpne Bookdet", href: "/bookdet", description: "Kontroller bookingflyt" },
-                { label: "Til arbeidskassen", href: "/", description: "Gå til operativt dashboard" },
+                { label: "Åpne sales portal", href: appHrefs.salesPortal, description: "Se pipeline og partnere" },
+                { label: "Åpne Bookdet", href: appHrefs.booking, description: "Kontroller bookingflyt" },
+                { label: "Til arbeidskassen", href: appHrefs.dashboard, description: "Gå til operativt dashboard" },
               ],
             },
           },
           { i: "5", widgetId: "Calculator", x: 0, y: 2, w: 4, h: 4 },
-          { i: "6", widgetId: "AppIcon", x: 4, y: 2, w: 2, h: 2, props: { label: "Sales", href: "/sales-portal" } },
-          { i: "7", widgetId: "AppIcon", x: 4, y: 4, w: 2, h: 2, props: { label: "Bookdet", href: "/bookdet" } },
+          { i: "6", widgetId: "AppIcon", x: 4, y: 2, w: 2, h: 2, props: { label: "Sales", href: appHrefs.salesPortal } },
+          { i: "7", widgetId: "AppIcon", x: 4, y: 4, w: 2, h: 2, props: { label: "Bookdet", href: appHrefs.booking } },
         ],
       },
       {
@@ -124,16 +135,16 @@ export default function Home() {
             props: {
               title: "Neste steg",
               actions: [
-                { label: "Gå til kundesaker", href: "#", description: "Filtrer på høy prioritet" },
-                { label: "Opprett intern oppgave", href: "#", description: "Send til produkt eller tech" },
-                { label: "Eksporter oversikt", href: "#", description: "Del med teamet" },
+                { label: "Gå til kundesaker", description: "Kommer snart i backoffice", disabled: true },
+                { label: "Opprett intern oppgave", description: "Kommer snart i backoffice", disabled: true },
+                { label: "Eksporter oversikt", description: "Kommer snart i backoffice", disabled: true },
               ],
             },
           },
         ],
       },
     ],
-    [],
+    [appHrefs],
   );
 
   return (
@@ -143,7 +154,14 @@ export default function Home() {
         workspaceInitial="B"
         orgName="Platform Admin"
         activeModule={activeModule}
-        onModuleChange={setActiveModule}
+        onModuleChange={() => undefined}
+        moduleHrefs={{
+          dashboard: appHrefs.dashboard,
+          today: appHrefs.today,
+          teamarea: appHrefs.teamarea,
+          booking: appHrefs.booking,
+        }}
+        disabledModules={[...defaultDisabledModules]}
       />
 
       <main className="flex-1 overflow-hidden">
@@ -157,7 +175,7 @@ export default function Home() {
             </p>
           </div>
 
-          <DashboardGrid initialDashboards={dashboards} />
+          <DashboardGrid locale={locale} initialDashboards={dashboards} />
         </div>
       </main>
     </div>

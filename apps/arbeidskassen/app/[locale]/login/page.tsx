@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { buildArbeidskassenHref, extractLocaleFromPathname, normalizeReturnTo } from "@arbeidskassen/ui";
 import { createBrowserClient } from "@arbeidskassen/supabase/client";
 
 export default function LoginPage() {
@@ -12,7 +13,10 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const rawReturnTo = searchParams.get("returnTo");
+  const locale = extractLocaleFromPathname(rawReturnTo ?? pathname);
   const visibleError = error || searchParams.get("error") || "";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -35,7 +39,8 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace("/select-tenant");
+    const safeReturnTo = normalizeReturnTo(rawReturnTo, locale);
+    router.replace(buildArbeidskassenHref(locale, "/select-tenant", { returnTo: safeReturnTo }));
     router.refresh();
   }
 

@@ -262,6 +262,40 @@ apps/sales-portal/app/
 
 See [docs/SALES_AND_PARTNERS.md](../docs/SALES_AND_PARTNERS.md) for the full specification, commission logic, and attribution model.
 
+### `apps/today` — Daily Operations Workspace
+
+`today` is currently an early shared shell for planning, coordination, and day-of execution workflows. It is intentionally lightweight while the data model and operational features are still being shaped.
+
+```
+apps/today/app/
+└── [locale]/
+    ├── layout.tsx             # Shared localized shell
+    └── page.tsx               # `ModuleComingSoonPage` preview surface
+```
+
+The canonical same-domain route is `/{locale}/today`; in local development the module runs on `http://localhost:3004/{locale}`.
+
+### `apps/teamarea` — Internal Collaboration Feed
+
+`teamarea` is the collaboration-focused surface for announcements, updates, and cross-team communication. The repo currently includes a preview feed shell that keeps navigation, theming, and localization aligned while backend integration is still evolving.
+
+```
+apps/teamarea/app/
+└── [locale]/
+    ├── layout.tsx             # Shared shell + navbar wiring
+    ├── page.tsx               # Feed-style preview page
+    └── teamarea-shell.tsx     # Left-nav collaboration layout
+```
+
+The canonical same-domain route is `/{locale}/teamarea`; in local development the module runs on `http://localhost:3005/{locale}` and can fall back to preview mode without a live Supabase connection.
+
+### Cross-App Route Model
+
+The main `arbeidskassen` app keeps the public landing and shared login at `/` and `/login`. Satellite modules resolve through shared routing helpers so that:
+
+- **Production / same-domain deployments** use localized paths such as `/no/bookdet`, `/no/today`, `/no/teamarea`, `/no/backoffice`, and `/no/sales-portal`.
+- **Local development** routes the same navigation targets to each app's own localhost port (`3001`, `3004`, `3005`, `3099`, etc.).
+
 ### Free Client-Side Tools
 
 Standalone pages that ship **zero server dependencies**. These are pure Client Components that can be statically generated and served from a CDN.
@@ -335,18 +369,20 @@ Sales Partner (via sales-portal)
 
 ```
 apps/arbeidskassen ──┬── @arbeidskassen/ui
-                     ├── @arbeidskassen/supabase
-                     └── @arbeidskassen/config
-
-apps/bookdet ────────┬── @arbeidskassen/ui
-                     ├── @arbeidskassen/supabase
-                     └── @arbeidskassen/config
+apps/bookdet ────────┤
+apps/organisasjon ───┤
+apps/today ──────────┤
+apps/teamarea ───────┤
+apps/backoffice ─────┤
+apps/sales-portal ───┘
+                      ├── @arbeidskassen/supabase
+                      └── @arbeidskassen/config
 
 @arbeidskassen/ui ───┬── @arbeidskassen/config
                      └── (tailwindcss, clsx, tailwind-merge)
 
 @arbeidskassen/supabase ─┬── @arbeidskassen/config
-                         └── (@supabase/supabase-js, @supabase/ssr)
+                         └── (@supabase/supabase-js, @supabase/ssr, local CLI workspace)
 
 @arbeidskassen/config ───── (eslint, prettier, typescript configs — no runtime deps)
 ```

@@ -3,6 +3,7 @@
 import { ArrowRight, Clock3, Layers3, Sparkles } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
+import { defaultDisabledModules } from "../lib/admin-links";
 import { cn } from "../lib/utils";
 import { Navbar } from "./navbar";
 import { Button } from "./ui/button";
@@ -66,11 +67,6 @@ export function ModuleComingSoonPage({
 
   const handleModuleChange = (nextModule: string) => {
     setCurrentModule(nextModule);
-
-    const href = moduleHrefs?.[nextModule];
-    if (href && typeof window !== "undefined" && href !== window.location.href) {
-      window.location.assign(href);
-    }
   };
 
   return (
@@ -82,6 +78,8 @@ export function ModuleComingSoonPage({
         orgName={orgName}
         activeModule={currentModule}
         onModuleChange={handleModuleChange}
+        moduleHrefs={moduleHrefs}
+        disabledModules={[...defaultDisabledModules]}
       />
 
       <main className="flex-1 overflow-hidden">

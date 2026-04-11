@@ -96,6 +96,54 @@ describe("handleAppSession", () => {
     expect(response.status).toBe(200);
   });
 
+  it("redirects protected routes to root login with a returnTo query", async () => {
+    vi.mocked(createServerClient).mockReturnValue({
+      auth: {
+        getUser: vi.fn(async () => ({
+          data: {
+            user: null,
+          },
+        })),
+      },
+    } as never);
+
+    const request = new NextRequest("https://example.com/no/dashboard?tab=overview");
+    const response = await handleAppSession(
+      request,
+      { loginPath: "/login", protectedPrefixes: ["/no/dashboard"] },
+      NextResponse.next({ request }),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://example.com/login?returnTo=%2Fno%2Fdashboard%3Ftab%3Doverview",
+    );
+  });
+
+  it("prefers a safe returnTo target when an authenticated user visits login", async () => {
+    vi.mocked(createServerClient).mockReturnValue({
+      auth: {
+        getUser: vi.fn(async () => ({
+          data: {
+            user: {
+              id: "user-1",
+            },
+          },
+        })),
+      },
+    } as never);
+
+    const request = new NextRequest("https://example.com/login?returnTo=%2Fno%2Fbookdet%2Foversikt");
+    const response = await handleAppSession(
+      request,
+      { loginPath: "/login", postLoginPath: "/no/select-tenant" },
+      NextResponse.next({ request }),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://example.com/no/bookdet/oversikt");
+  });
+
   it("keeps public routes available when Supabase env is missing", async () => {
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

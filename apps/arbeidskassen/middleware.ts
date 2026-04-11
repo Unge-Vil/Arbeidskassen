@@ -1,12 +1,15 @@
 import createMiddleware from "next-intl/middleware";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { handleAppSession } from "@arbeidskassen/supabase/middleware";
 import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
+const canonicalPublicPaths = new Set(["/", "/login"]);
 
 export async function middleware(request: NextRequest) {
-  const intlResponse = intlMiddleware(request);
+  const response = canonicalPublicPaths.has(request.nextUrl.pathname)
+    ? NextResponse.next({ request })
+    : intlMiddleware(request);
 
   return handleAppSession(
     request,
@@ -15,7 +18,7 @@ export async function middleware(request: NextRequest) {
       postLoginPath: "/select-tenant",
       protectedPrefixes: ["/dashboard", "/select-tenant"],
     },
-    intlResponse,
+    response,
   );
 }
 

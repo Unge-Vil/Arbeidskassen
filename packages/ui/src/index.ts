@@ -4,6 +4,16 @@
 
 export { cn } from "./lib/utils";
 export {
+  buildArbeidskassenHref,
+  buildLocalizedAppHref,
+  defaultDisabledModules,
+  extractLocaleFromPathname,
+  normalizeReturnTo,
+  resolveActiveAdminModule,
+  resolveAdminAppHrefs,
+  resolveInternalAdminHref,
+} from "./lib/admin-links";
+export {
   ThemeProvider,
   useTheme,
   type ThemePreference,
@@ -28,6 +38,7 @@ export {
 export { AppErrorState } from "./components/feedback/app-error-state";
 
 // shadcn/ui components
+export * from "./components/ui/badge";
 export * from "./components/ui/button";
 export * from "./components/ui/card";
 export * from "./components/ui/dialog";
@@ -39,6 +50,7 @@ export * from "./components/ui/popover";
 export * from "./components/ui/select";
 export * from "./components/ui/sheet";
 export * from "./components/ui/sonner";
+export * from "./components/ui/table";
 export * from "./components/ui/tabs";
 export * from "./components/ui/select-native";
 export * from "./components/ui/page-header";

@@ -165,6 +165,88 @@ export type Database = {
           }
         ];
       };
+      bookdet_resources: {
+        Row: {
+          base_price: number | null;
+          capacity: number | null;
+          category: string | null;
+          created_at: string;
+          dept_id: string | null;
+          description: string | null;
+          id: string;
+          images: string[];
+          is_archived: boolean;
+          latitude: number | null;
+          location_id: string | null;
+          longitude: number | null;
+          name: string;
+          org_id: string | null;
+          properties: Json;
+          status: string;
+          tenant_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          base_price?: number | null;
+          capacity?: number | null;
+          category?: string | null;
+          created_at?: string;
+          dept_id?: string | null;
+          description?: string | null;
+          id?: string;
+          images?: string[];
+          is_archived?: boolean;
+          latitude?: number | null;
+          location_id?: string | null;
+          longitude?: number | null;
+          name: string;
+          org_id?: string | null;
+          properties?: Json;
+          status?: string;
+          tenant_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          base_price?: number | null;
+          capacity?: number | null;
+          category?: string | null;
+          created_at?: string;
+          dept_id?: string | null;
+          description?: string | null;
+          id?: string;
+          images?: string[];
+          is_archived?: boolean;
+          latitude?: number | null;
+          location_id?: string | null;
+          longitude?: number | null;
+          name?: string;
+          org_id?: string | null;
+          properties?: Json;
+          status?: string;
+          tenant_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "bookdet_resources_dept_id_fkey";
+            columns: ["dept_id"];
+            referencedRelation: "departments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "bookdet_resources_org_id_fkey";
+            columns: ["org_id"];
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "bookdet_resources_tenant_id_fkey";
+            columns: ["tenant_id"];
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       custom_roles: {
         Row: {
           created_at: string;

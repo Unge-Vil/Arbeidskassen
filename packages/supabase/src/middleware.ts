@@ -18,6 +18,51 @@ function matchesPath(pathname: string, targetPath: string): boolean {
   return pathname === targetPath || pathname.startsWith(`${targetPath}/`);
 }
 
+function isLocalDevelopmentHost(hostname: string) {
+  return /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/i.test(hostname);
+}
+
+function buildLoginRedirectUrl(request: NextRequest, loginPath: string) {
+  const loginUrl = new URL(loginPath, request.url);
+  loginUrl.searchParams.set(
+    "returnTo",
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+  );
+
+  return loginUrl;
+}
+
+function resolveSafeReturnTo(request: NextRequest) {
+  const rawReturnTo = request.nextUrl.searchParams.get("returnTo");
+
+  if (!rawReturnTo) {
+    return null;
+  }
+
+  const trimmedReturnTo = rawReturnTo.trim();
+
+  if (!trimmedReturnTo || trimmedReturnTo.startsWith("//")) {
+    return null;
+  }
+
+  try {
+    const parsedUrl = new URL(trimmedReturnTo, request.url);
+    const isSameOrigin = parsedUrl.origin === request.nextUrl.origin;
+
+    if (!isSameOrigin && !isLocalDevelopmentHost(parsedUrl.hostname)) {
+      return null;
+    }
+
+    if (isSameOrigin) {
+      return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+    }
+
+    return `${parsedUrl.origin}${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+  } catch {
+    return null;
+  }
+}
+
 export async function handleAppSession(
   request: NextRequest,
   {
@@ -41,7 +86,7 @@ export async function handleAppSession(
     console.error(SUPABASE_ENV_ERROR_MESSAGE);
 
     if (!isLoginRoute && isProtectedRoute) {
-      return NextResponse.redirect(new URL(loginPath, request.url));
+      return NextResponse.redirect(buildLoginRedirectUrl(request, loginPath));
     }
 
     return response;
@@ -72,16 +117,17 @@ export async function handleAppSession(
     console.error("Supabase auth session refresh failed in middleware.", error);
 
     if (!isLoginRoute && isProtectedRoute) {
-      return NextResponse.redirect(new URL(loginPath, request.url));
+      return NextResponse.redirect(buildLoginRedirectUrl(request, loginPath));
     }
   }
 
   if (!user && isProtectedRoute) {
-    return NextResponse.redirect(new URL(loginPath, request.url));
+    return NextResponse.redirect(buildLoginRedirectUrl(request, loginPath));
   }
 
   if (user && isLoginRoute) {
-    return NextResponse.redirect(new URL(postLoginPath, request.url));
+    const safeReturnTo = resolveSafeReturnTo(request);
+    return NextResponse.redirect(new URL(safeReturnTo ?? postLoginPath, request.url));
   }
 
   return response;

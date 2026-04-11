@@ -1,0 +1,21 @@
+{
+  "extends": "@arbeidskassen/config/typescript/nextjs",
+  "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./app/*",
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    ".next-build/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

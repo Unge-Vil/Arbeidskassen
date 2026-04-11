@@ -20,6 +20,17 @@ As the Arbeidskassen monorepo grows in apps and contributors, a single careless 
 
 The core rule: **every change must be evaluated for its blast radius before implementation.**
 
+### Local Baseline Commands
+
+Use these commands as the default local workflow:
+
+```bash
+pnpm dev
+CI=1 pnpm verify
+pnpm --filter @arbeidskassen/supabase db:start
+pnpm --filter @arbeidskassen/supabase db:reset
+```
+
 ---
 
 ## Database Migrations
@@ -29,11 +40,13 @@ The core rule: **every change must be evaluated for its blast radius before impl
 All database schema changes — tables, columns, indexes, RLS policies, functions, triggers — are managed exclusively through **Supabase CLI migrations**.
 
 ```bash
-# Create a new migration
+# Create a new migration from the Supabase workspace
+cd packages/supabase
 supabase migration new <descriptive-name>
 
-# Apply migrations locally
-supabase db reset
+# Or run the packaged workflow from the repo root
+pnpm --filter @arbeidskassen/supabase db:reset
+pnpm --filter @arbeidskassen/supabase db:status
 
 # Push to remote (staging/production)
 supabase db push
@@ -53,18 +66,21 @@ supabase db push
 ### Migration File Structure
 
 ```
-supabase/
-├── config.toml              # Supabase project configuration
-├── migrations/
-│   ├── 20260101000000_create_tenants.sql
-│   ├── 20260101000001_create_tenant_members.sql
-│   ├── 20260101000002_rls_tenants.sql
-│   ├── 20260115000000_create_bookings.sql
-│   └── ...
-├── seed.sql                 # Development seed data (never applied in production)
-└── tests/                   # pgTAP tests for RLS policies and functions
-    ├── rls_tenants_test.sql
-    └── rls_bookings_test.sql
+packages/supabase/
+├── package.json             # Workspace scripts (`db:start`, `db:reset`, `generate-types`)
+├── src/                     # Shared clients, middleware, and generated database types
+└── supabase/
+    ├── config.toml          # Supabase project configuration
+    ├── migrations/
+    │   ├── 20260101000000_create_tenants.sql
+    │   ├── 20260101000001_create_tenant_members.sql
+    │   ├── 20260101000002_rls_tenants.sql
+    │   ├── 20260115000000_create_bookings.sql
+    │   └── ...
+    ├── seed.sql             # Development seed data (never applied in production)
+    └── tests/               # pgTAP tests for RLS policies and functions
+        ├── rls_tenants_test.sql
+        └── rls_bookings_test.sql
 ```
 
 ### Safe Schema Change Patterns
@@ -89,10 +105,10 @@ The **blast radius** of a change is the set of all apps, packages, and database 
 ### Shared Code Dependencies
 
 ```
-packages/ui          → consumed by ALL apps (arbeidskassen, bookdet, organisasjon, backoffice, sales-portal)
-packages/supabase    → consumed by ALL apps
-packages/config      → consumed by ALL apps + ALL packages
-supabase/migrations  → affects ALL apps that query the modified tables
+packages/ui                         → consumed by ALL apps (arbeidskassen, bookdet, organisasjon, today, teamarea, backoffice, sales-portal)
+packages/supabase                   → consumed by ALL apps
+packages/config                     → consumed by ALL apps + ALL packages
+packages/supabase/supabase/migrations → affects ALL apps that query the modified tables
 ```
 
 ### Impact Assessment
@@ -161,7 +177,7 @@ When proposing a change to shared code or schema, include a blast radius comment
 ```markdown
 ## Blast Radius
 
-**Changed:** `supabase/migrations/20260409_add_status_to_bookings.sql`
+**Changed:** `packages/supabase/supabase/migrations/20260409_add_status_to_bookings.sql`
 **Consumers:** bookdet (reads/writes `bookings`), arbeidskassen (reads `bookings` for admin view)
 **Impact:** New `status` column with DEFAULT 'pending' — existing rows get default value
 **Breaking:** No — but bookdet queries should be updated to SELECT the new column
@@ -193,10 +209,10 @@ When proposing a change to shared code or schema, include a blast radius comment
 
 | Requirement | Details |
 | --- | --- |
-| **Blast radius comment** | Required for any change to `packages/*` or `supabase/migrations/`. |
+| **Blast radius comment** | Required for any change to `packages/*` or `packages/supabase/supabase/migrations/`. |
 | **Type check passes** | `pnpm build` must succeed (Turborepo builds all apps). |
 | **Lint passes** | `pnpm lint` must pass across the entire monorepo. |
-| **Migration tested** | If the branch includes a migration, `supabase db reset` must succeed with the full migration chain. |
+| **Migration tested** | If the branch includes a migration, `pnpm --filter @arbeidskassen/supabase db:reset` must succeed with the full migration chain. |
 | **Preview deployment** | Vercel deploys a preview for each PR. Verify the affected app(s) work. |
 
 ---
