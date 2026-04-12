@@ -8,12 +8,32 @@ export type AppAuthMiddlewareOptions = {
   protectedPrefixes?: string[];
 };
 
+/**
+ * Default auth policy for the consolidated single-app architecture.
+ * All modules are route groups under (authenticated)/ in the main app.
+ */
+export const CONSOLIDATED_AUTH_POLICY: Required<AppAuthMiddlewareOptions> = {
+  loginPath: "/login",
+  postLoginPath: "/select-tenant",
+  protectedPrefixes: [
+    "/dashboard",
+    "/select-tenant",
+    "/profil",
+    "/bookdet",
+    "/organisasjon",
+    "/teamarea",
+    "/today",
+    "/backoffice",
+    "/sales-portal",
+  ],
+};
+
+/**
+ * @deprecated Use CONSOLIDATED_AUTH_POLICY instead.
+ * Kept for backward compatibility during the transition period.
+ */
 export const APP_AUTH_POLICIES = {
-  arbeidskassen: {
-    loginPath: "/login",
-    postLoginPath: "/select-tenant",
-    protectedPrefixes: ["/dashboard", "/select-tenant"],
-  },
+  arbeidskassen: CONSOLIDATED_AUTH_POLICY,
   backoffice: {
     loginPath: "/login",
     postLoginPath: "/",

@@ -160,144 +160,81 @@ export async function createBooking(formData: FormData) {
 
 ## Application Boundaries
 
-### `apps/arbeidskassen` — Admin Panel
+> **Architecture note:** All modules have been consolidated into a single Next.js app (`apps/arbeidskassen`). Modules are route groups under `app/[locale]/(authenticated)/`. There are no separate apps, ports, or proxy rewrites.
 
-The central hub for tenant administrators. Primarily Server Components with authenticated routes.
+### Single App Structure
 
 ```
 apps/arbeidskassen/app/
-├── (auth)/                  # Auth routes (login, signup, callback)
-│   ├── login/page.tsx
-│   └── callback/route.ts
-├── (dashboard)/             # Authenticated layout group
-│   ├── layout.tsx           # Sidebar, tenant context provider
-│   ├── page.tsx             # Dashboard overview
-│   ├── users/               # User management
-│   ├── billing/             # Stripe integration
-│   └── settings/            # Tenant settings
-└── (marketing)/             # Public pages (pricing, features)
-    └── page.tsx
+├── layout.tsx                        # Root layout (html, body, ThemeProvider)
+├── error.tsx                         # Global error boundary
+├── [locale]/
+│   ├── layout.tsx                    # NextIntlClientProvider
+│   ├── login/page.tsx                # Shared authentication
+│   ├── select-tenant/page.tsx        # Tenant selection
+│   │
+│   ├── (authenticated)/
+│   │   ├── layout.tsx                # Auth guard + Navbar + tenant context
+│   │   ├── dashboard/page.tsx        # Dashboard with module grid
+│   │   ├── profil/page.tsx           # Profile settings
+│   │   │
+│   │   ├── bookdet/                  # Booking module
+│   │   │   ├── layout.tsx            # BookDet sidebar shell
+│   │   │   ├── oversikt/page.tsx
+│   │   │   ├── sok-book/page.tsx
+│   │   │   ├── mine-bookinger/page.tsx
+│   │   │   ├── bookinger/page.tsx
+│   │   │   ├── ressurser/page.tsx
+│   │   │   ├── sjekklister/page.tsx
+│   │   │   └── innstillinger/page.tsx
+│   │   │
+│   │   ├── organisasjon/             # Core organization module
+│   │   │   ├── layout.tsx            # Organization sidebar shell
+│   │   │   ├── virksomhet/page.tsx
+│   │   │   ├── brukere/page.tsx
+│   │   │   ├── roller/page.tsx
+│   │   │   ├── struktur/page.tsx
+│   │   │   ├── fakturering/page.tsx
+│   │   │   └── audit-logg/page.tsx
+│   │   │
+│   │   ├── teamarea/                 # Collaboration feed
+│   │   │   ├── layout.tsx            # TeamArea sidebar shell
+│   │   │   └── page.tsx              # Feed page
+│   │   │
+│   │   ├── today/page.tsx            # Daily operations (coming soon)
+│   │   ├── backoffice/page.tsx       # Platform admin dashboard
+│   │   └── sales-portal/page.tsx     # Sales & partner portal
+│   │
+│   └── (public)/                     # Future: public BookDet pages
+│       └── book/[slug]/page.tsx
+│
+└── actions/                          # Server Actions
+    ├── auth.ts
+    ├── profile.ts
+    ├── dashboard.ts
+    ├── tenant.ts
+    ├── members.ts
+    ├── roles.ts
+    └── structure.ts
 ```
 
-### `apps/bookdet` — Booking Module
+### Module Details
 
-Customer-facing booking pages (public, SSR) and internal management views (authenticated).
+**BookDet** — Full-featured appointment and resource booking system. Route group: `(authenticated)/bookdet/`. Has its own sidebar shell and 7 sub-pages. See [docs/CONSOLIDATION_PLAN.md](../docs/CONSOLIDATION_PLAN.md) for migration details.
 
-```
-apps/bookdet/app/
-├── (public)/                # Public booking pages (SSR/SSG)
-│   └── [slug]/              # Tenant-specific booking page
-│       └── page.tsx
-├── (dashboard)/             # Internal booking management
-│   ├── layout.tsx
-│   ├── calendar/
-│   ├── resources/
-│   └── settings/
-└── api/
-    └── webhooks/            # Stripe webhook handler
-        └── route.ts
-```
+**Organisasjon** — Source of Truth for organizational identity, hierarchy, and user governance. Route group: `(authenticated)/organisasjon/`. Has its own sidebar shell and 6 sub-pages. See [docs/CORE_ORGANIZATION_MODULE.md](../docs/CORE_ORGANIZATION_MODULE.md).
 
-### `apps/organisasjon` — Core Organization Module
+**TeamArea** — Collaboration-focused feed for announcements and cross-team communication. Route group: `(authenticated)/teamarea/`. Preview feed shell.
 
-The system-wide Source of Truth for organizational identity, hierarchy, and user governance. Included in every subscription tier.
+**Today** — Daily operations workspace. Currently a placeholder. Route: `(authenticated)/today/page.tsx`.
 
-```
-apps/organisasjon/app/
-├── (auth)/                  # Auth routes
-│   ├── login/page.tsx
-│   └── callback/route.ts
-├── (dashboard)/             # Authenticated management views
-│   ├── layout.tsx           # Sidebar, org context provider
-│   ├── page.tsx             # Organization overview
-│   ├── structure/           # Org → Dept → Sub-dept hierarchy editor
-│   ├── users/               # User directory, invitations, role assignment
-│   └── settings/            # Global tenant settings (locale, timezone, etc.)
-└── api/
-    └── webhooks/
-        └── route.ts
-```
+**Backoffice** — Platform owner administration. Strict GDPR data isolation. Route: `(authenticated)/backoffice/page.tsx`. See [docs/SUPERADMIN_AND_SUPPORT.md](../docs/SUPERADMIN_AND_SUPPORT.md).
 
-See [docs/CORE_ORGANIZATION_MODULE.md](../docs/CORE_ORGANIZATION_MODULE.md) for the full specification.
+**Sales Portal** — Partner-facing interface for sales partners. Route: `(authenticated)/sales-portal/page.tsx`. See [docs/SALES_AND_PARTNERS.md](../docs/SALES_AND_PARTNERS.md).
 
-### `apps/backoffice` — Platform Owner Administration
+### Middleware
 
-Internal-only tool for platform operators. Strict GDPR data isolation — can manage tenant metadata and system resources but cannot access tenant content.
-
-```
-apps/backoffice/app/
-├── (auth)/                      # Separate auth flow (MFA mandatory)
-│   ├── login/page.tsx
-│   └── mfa/page.tsx
-├── (dashboard)/
-│   ├── layout.tsx               # Backoffice shell
-│   ├── page.tsx                 # System overview (MRR, health)
-│   ├── tenants/                 # Tenant directory (metadata only)
-│   ├── credits/                 # Global credit management
-│   ├── billing/                 # Stripe global view
-│   ├── features/                # Feature flag management
-│   └── logs/                    # Platform audit logs
-```
-
-See [docs/SUPERADMIN_AND_SUPPORT.md](../docs/SUPERADMIN_AND_SUPPORT.md) for the full specification, data isolation rules, and consent-based support access model.
-
-### `apps/sales-portal` — Sales & Partner Portal
-
-Partner-facing app for internal and external salespeople. Provides customer onboarding, portfolio tracking, and commission visibility. Partners cannot access tenant content — only metadata.
-
-```
-apps/sales-portal/app/
-├── (auth)/                      # Partner-specific auth
-│   ├── login/page.tsx
-│   └── callback/route.ts
-├── (dashboard)/
-│   ├── layout.tsx               # Partner shell
-│   ├── page.tsx                 # Portfolio overview (MRR, customers, commission)
-│   ├── customers/               # Referred tenant list (metadata only)
-│   ├── onboard/                 # New customer onboarding wizard
-│   ├── demo/                    # Demo tenant management
-│   ├── commissions/             # Earnings and payouts
-│   └── settings/                # Partner profile, payout details
-```
-
-See [docs/SALES_AND_PARTNERS.md](../docs/SALES_AND_PARTNERS.md) for the full specification, commission logic, and attribution model.
-
-### `apps/today` — Daily Operations Workspace
-
-`today` is currently an early shared shell for planning, coordination, and day-of execution workflows. It is intentionally lightweight while the data model and operational features are still being shaped.
-
-```
-apps/today/app/
-└── [locale]/
-    ├── layout.tsx             # Shared localized shell
-    └── page.tsx               # `ModuleComingSoonPage` preview surface
-```
-
-The canonical same-domain route is `/{locale}/today`; in local development the module runs on `http://localhost:3004/{locale}`.
-
-### `apps/teamarea` — Internal Collaboration Feed
-
-`teamarea` is the collaboration-focused surface for announcements, updates, and cross-team communication. The repo currently includes a preview feed shell that keeps navigation, theming, and localization aligned while backend integration is still evolving.
-
-```
-apps/teamarea/app/
-└── [locale]/
-    ├── layout.tsx             # Shared shell + navbar wiring
-    ├── page.tsx               # Feed-style preview page
-    └── teamarea-shell.tsx     # Left-nav collaboration layout
-```
-
-The canonical same-domain route is `/{locale}/teamarea`; in local development the module runs on `http://localhost:3005/{locale}` and can fall back to preview mode without a live Supabase connection.
-
-### Cross-App Route Model
-
-The main `arbeidskassen` app keeps the public landing and shared login at `/` and `/login`. The **primary product model** is a single coherent app experience on one main domain, with module URLs such as `/no/bookdet`, `/no/today`, `/no/teamarea`, `/no/backoffice`, and `/no/sales-portal`.
-
-Shared routing helpers support two operational modes behind that same URL contract:
-
-- **Default / one-project same-domain mode**: the main app owns the canonical module routes directly.
-- **Optional proxy mode**: if a module later runs on its own deployment URL, the same canonical route can proxy there without changing what users see.
-- **Local development** routes the same navigation targets to each app's own localhost port (`3001`, `3004`, `3005`, `3099`, etc.).
+A single `middleware.ts` at the app root handles all route protection. Protected prefixes include `/dashboard`, `/bookdet`, `/organisasjon`, `/teamarea`, `/today`, `/backoffice`, and `/sales-portal`. No `APP_AUTH_POLICIES` lookup — just an inline list of protected prefixes.
 
 ### Free Client-Side Tools
 
@@ -372,14 +309,8 @@ Sales Partner (via sales-portal)
 
 ```
 apps/arbeidskassen ──┬── @arbeidskassen/ui
-apps/bookdet ────────┤
-apps/organisasjon ───┤
-apps/today ──────────┤
-apps/teamarea ───────┤
-apps/backoffice ─────┤
-apps/sales-portal ───┘
-                      ├── @arbeidskassen/supabase
-                      └── @arbeidskassen/config
+                     ├── @arbeidskassen/supabase
+                     └── @arbeidskassen/config
 
 @arbeidskassen/ui ───┬── @arbeidskassen/config
                      └── (tailwindcss, clsx, tailwind-merge)
@@ -447,7 +378,7 @@ The `Button` component looks different in Admin vs Public contexts because `--pr
 Each app defines its own `globals.css` that overrides the base theme from `packages/ui`:
 
 ```css
-/* apps/arbeidskassen/app/globals.css — Admin Theme */
+/* apps/arbeidskassen/app/[locale]/globals.css — Admin Theme */
 @import "tailwindcss";
 @import "@arbeidskassen/ui/globals.css";
 
@@ -465,39 +396,24 @@ Each app defines its own `globals.css` that overrides the base theme from `packa
 }
 ```
 
-```css
-/* apps/bookdet/app/globals.css — Public Theme */
-@import "tailwindcss";
-@import "@arbeidskassen/ui/globals.css";
-
-@layer base {
-  :root {
-    /* Warm, branded palette for trust and conversion */
-    --primary: 221 83% 53%;            /* Vibrant blue */
-    --primary-foreground: 0 0% 100%;   /* Pure white */
-    --radius: 0.75rem;                 /* Larger radius for friendly feel */
-
-    /* Public-specific tokens */
-    --hero-max-width: 1200px;
-    --section-padding: 4rem;
-  }
-}
-```
+Future public-facing pages (e.g., BookDet booking pages at `(public)/book/[slug]`) will use a separate layout with a branded, spacious theme via CSS variable overrides.
 
 #### Layer 3: App-Specific Layout Components
 
-While atomic components (Button, Input, Card, Badge) are shared, **layout shells are app-specific**:
+While atomic components (Button, Input, Card, Badge) are shared, **module layout shells are colocated with their route groups**:
 
 ```
-packages/ui/src/components/        # Shared: Button, Input, Card, Dialog, Table, Badge, etc.
-apps/arbeidskassen/src/components/ # Admin-only: Sidebar, DashboardGrid, DataTable toolbar
-apps/bookdet/src/components/       # Public-only: HeroSection, FeatureGrid, TestimonialCarousel
+packages/ui/src/components/                                     # Shared: Button, Input, Card, Dialog, Table, Badge, etc.
+apps/arbeidskassen/app/[locale]/(authenticated)/layout.tsx      # Auth guard + Navbar + tenant context
+apps/arbeidskassen/app/[locale]/(authenticated)/bookdet/        # BookDet sidebar shell + pages
+apps/arbeidskassen/app/[locale]/(authenticated)/organisasjon/   # Organization sidebar shell + pages
+apps/arbeidskassen/app/[locale]/(authenticated)/teamarea/       # TeamArea sidebar shell + pages
 ```
 
 This separation ensures that:
-- Admin-specific layout code (sidebar, dense grids) is never shipped to public pages.
-- Public-specific marketing components (hero sections, testimonials) are never shipped to the admin panel.
+- Module-specific layout code (sidebars, shells) lives next to the pages it serves.
 - Shared primitives stay truly shared and theme-agnostic.
+- Future public-facing pages (BookDet booking pages) can use a different layout shell without affecting admin views.
 
 #### Layer 4: Contextual Spacing Utilities
 
@@ -522,8 +438,8 @@ For components that need density-aware spacing, we use a CSS variable-based appr
 // apps/arbeidskassen/app/layout.tsx
 <body className="density-compact">
 
-// apps/bookdet/app/(public)/layout.tsx
-<body className="density-spacious">
+// Future: apps/arbeidskassen/app/[locale]/(public)/layout.tsx
+<div className="density-spacious">
 ```
 
 Shared components that use `gap-[var(--density-spacing)]` or `p-[var(--density-spacing)]` automatically adapt to their context.

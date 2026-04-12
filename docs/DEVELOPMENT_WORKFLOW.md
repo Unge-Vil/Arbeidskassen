@@ -105,17 +105,17 @@ The **blast radius** of a change is the set of all apps, packages, and database 
 ### Shared Code Dependencies
 
 ```
-packages/ui                         → consumed by ALL apps (arbeidskassen, bookdet, organisasjon, today, teamarea, backoffice, sales-portal)
-packages/supabase                   → consumed by ALL apps
-packages/config                     → consumed by ALL apps + ALL packages
-packages/supabase/supabase/migrations → affects ALL apps that query the modified tables
+packages/ui                         → consumed by apps/arbeidskassen (the single app)
+packages/supabase                   → consumed by apps/arbeidskassen
+packages/config                     → consumed by apps/arbeidskassen + ALL packages
+packages/supabase/supabase/migrations → affects all module routes that query the modified tables
 ```
 
 ### Impact Assessment
 
 Before modifying shared code, answer these questions:
 
-1. **What consumes this?** List every `apps/*` that imports from the affected `packages/*`.
+1. **What consumes this?** List every module route group that imports from the affected `packages/*`.
 2. **What breaks if I change this?** If modifying a component's props, function signature, or database column — which call sites break?
 3. **Can I add instead of modify?** Prefer adding new optional props, new columns with defaults, or new functions alongside existing ones.
 4. **Does this need a migration?** If altering database schema, does a SQL migration file exist?
@@ -128,8 +128,8 @@ Before modifying shared code, answer these questions:
 | --- | --- |
 | **Add new component** | Safe — no blast radius. Export it from `index.ts`. |
 | **Add optional prop to existing component** | Safe — existing consumers are unaffected. |
-| **Change required prop** | **DANGEROUS** — blast radius is every app using this component. Must update all call sites in the same PR. |
-| **Remove prop** | **DANGEROUS** — search all `apps/` for usage first. Deprecate before removing. |
+| **Change required prop** | **DANGEROUS** — blast radius includes all module routes using this component. Must update all call sites in the same PR. |
+| **Remove prop** | **DANGEROUS** — search the app for usage first. Deprecate before removing. |
 | **Change visual appearance** | Moderate risk — verify it looks correct in both Admin UI (compact) and Public UI (spacious) contexts. |
 | **Update dependency** | Check all apps for peer dependency conflicts in `pnpm-lock.yaml`. |
 
@@ -138,16 +138,16 @@ Before modifying shared code, answer these questions:
 | Action | Rule |
 | --- | --- |
 | **Add new helper function** | Safe — no blast radius. |
-| **Modify `createServerClient()` signature** | **CRITICAL** — every Server Component and Server Action in every app calls this. |
+| **Modify `createServerClient()` signature** | **CRITICAL** — every Server Component and Server Action calls this. |
 | **Update `Database` types** | Run `supabase gen types` after migration. Type errors reveal blast radius automatically. |
-| **Change cookie handling** | **CRITICAL** — affects authentication across all apps. |
+| **Change cookie handling** | **CRITICAL** — affects authentication across the entire app. |
 
 #### `packages/config`
 
 | Action | Rule |
 | --- | --- |
-| **Add new ESLint rule** | Moderate — may cause lint failures across all apps. Run `pnpm lint` before committing. |
-| **Change TypeScript `strict` settings** | **CRITICAL** — can surface hundreds of type errors across all apps. |
+| **Add new ESLint rule** | Moderate — may cause lint failures across the app. Run `pnpm lint` before committing. |
+| **Change TypeScript `strict` settings** | **CRITICAL** — can surface hundreds of type errors. |
 | **Update Prettier config** | Low risk — run `pnpm format` to auto-fix, but diff may be large. |
 
 ### Rules for Database Schema
@@ -157,7 +157,7 @@ Before modifying shared code, answer these questions:
 | **Add table** | Low risk — no existing queries reference it. Always include RLS. |
 | **Add column with default** | Low risk — existing queries still work. |
 | **Add column without default + NOT NULL** | **DANGEROUS** — breaks inserts that don't include the new column. |
-| **Rename/remove column** | **CRITICAL** — search all `apps/` for `.from("table").select("column")` patterns. |
+| **Rename/remove column** | **CRITICAL** — search the app for `.from("table").select("column")` patterns. |
 | **Modify RLS policy** | **CRITICAL** — can silently lock users out or expose cross-tenant data. Test with pgTAP. |
 | **Add/modify function** | Moderate — check all `.rpc("function_name")` call sites. |
 

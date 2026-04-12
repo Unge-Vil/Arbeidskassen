@@ -42,11 +42,13 @@ Arbeidskassen uses [`next-intl`](https://next-intl.dev/) for all internationaliz
 
 #### File Structure
 
+All i18n configuration and messages are consolidated in the single app:
+
 ```
-apps/bookdet/
+apps/arbeidskassen/
 ├── messages/
-│   ├── no.json          # Norwegian Bokmål (default)
-│   ├── en.json          # English
+│   ├── no.json          # Norwegian Bokmål (default) — all modules
+│   ├── en.json          # English — all modules
 │   ├── sv.json          # Swedish (future)
 │   └── da.json          # Danish (future)
 ├── app/
@@ -57,6 +59,8 @@ apps/bookdet/
     ├── request.ts       # getRequestConfig — resolves locale from URL/cookie
     └── routing.ts       # Locale routing configuration
 ```
+
+Message keys are namespace-prefixed per module (e.g., `bookdetShell`, `bookdetPages`, `teamareaShell`, `organizationShell`) to avoid collisions. The `common` namespace contains shared keys.
 
 #### Message File Format
 
@@ -197,7 +201,7 @@ All colors are defined as HSL values in CSS custom properties. Components refere
 
 #### 2. Theme Provider & Global CSS Import (root layout)
 
-> **CRITICAL RULE**: Next.js apps within this monorepo must ALWAYS import the global CSS from the UI package to correctly inject the CSS custom properties needed for the design system and dashboard widgets.
+> **CRITICAL RULE**: The root layout must ALWAYS import the global CSS from the UI package to correctly inject the CSS custom properties needed for the design system and dashboard widgets.
 
 ```typescript
 // app/layout.tsx

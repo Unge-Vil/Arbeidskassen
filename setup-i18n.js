@@ -1,3 +1,10 @@
+/**
+ * @deprecated This script was used to scaffold i18n boilerplate across 7 separate
+ * Next.js apps. After consolidation (Phase 7), there is only one app
+ * (apps/arbeidskassen) and this script is no longer needed.
+ *
+ * Kept for reference only. Safe to delete.
+ */
 const fs = require('fs');
 const path = require('path');
 

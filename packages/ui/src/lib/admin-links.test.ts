@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import {
   buildArbeidskassenHref,
@@ -10,23 +10,7 @@ import {
 } from "./admin-links"
 
 describe("admin-links", () => {
-  const env = process.env as Record<string, string | undefined>
-  const originalNodeEnv = env.NODE_ENV
-  const originalBookdetUrl = env.NEXT_PUBLIC_BOOKDET_APP_URL
-
-  afterEach(() => {
-    env.NODE_ENV = originalNodeEnv
-    if (typeof originalBookdetUrl === "undefined") {
-      delete env.NEXT_PUBLIC_BOOKDET_APP_URL
-    } else {
-      env.NEXT_PUBLIC_BOOKDET_APP_URL = originalBookdetUrl
-    }
-  })
-
-  it("adds locale to same-domain admin paths in production", () => {
-    env.NODE_ENV = "production"
-    delete env.NEXT_PUBLIC_BOOKDET_APP_URL
-
+  it("returns internal paths for all modules", () => {
     expect(resolveAdminAppHrefs("no")).toMatchObject({
       dashboard: "/no/dashboard",
       today: "/no/today",
@@ -38,16 +22,11 @@ describe("admin-links", () => {
     })
   })
 
-  it("supports absolute app urls when configured", () => {
-    env.NODE_ENV = "production"
-    env.NEXT_PUBLIC_BOOKDET_APP_URL = "https://bookdet.example.com"
-
-    expect(resolveAdminAppHrefs("en").booking).toBe("https://bookdet.example.com/en")
+  it("returns english locale paths", () => {
+    expect(resolveAdminAppHrefs("en").booking).toBe("/en/bookdet")
   })
 
   it("keeps the public Arbeidskassen landing and login at the root", () => {
-    env.NODE_ENV = "production"
-
     expect(buildArbeidskassenHref("no", "/")).toBe("/")
     expect(buildArbeidskassenHref("en", "/login", { returnTo: "/en/bookdet/oversikt" })).toBe(
       "/login?returnTo=%2Fen%2Fbookdet%2Foversikt",
@@ -55,20 +34,18 @@ describe("admin-links", () => {
     expect(buildArbeidskassenHref("en", "/dashboard")).toBe("/en/dashboard")
   })
 
-  it("converts legacy same-domain shortcuts into working localhost app urls in dev", () => {
-    env.NODE_ENV = "development"
-
-    expect(resolveInternalAdminHref("/bookdet", "no")).toBe("http://localhost:3001/no")
-    expect(resolveInternalAdminHref("/bookdet/no", "no")).toBe("http://localhost:3001/no")
-    expect(resolveInternalAdminHref("/no/backoffice", "no")).toBe("http://localhost:3099/no")
-    expect(resolveInternalAdminHref("/sales-portal", "en")).toBe("http://localhost:3003/en")
+  it("resolves internal admin hrefs to localized paths", () => {
+    expect(resolveInternalAdminHref("/bookdet", "no")).toBe("/no/bookdet")
+    expect(resolveInternalAdminHref("/bookdet/no", "no")).toBe("/no/bookdet")
+    expect(resolveInternalAdminHref("/no/backoffice", "no")).toBe("/no/backoffice")
+    expect(resolveInternalAdminHref("/sales-portal", "en")).toBe("/en/sales-portal")
     expect(resolveInternalAdminHref("/organisasjon/en/roller", "no")).toBe(
-      "http://localhost:3002/en/roller",
+      "/en/organisasjon/roller",
     )
   })
 
-  it("replaces {locale} placeholders and preserves nested paths", () => {
-    expect(buildLocalizedAppHref("/organisasjon/{locale}", "no", "/roller")).toBe("/organisasjon/no/roller")
+  it("builds localized app hrefs with base and path", () => {
+    expect(buildLocalizedAppHref("/organisasjon", "no", "/roller")).toBe("/no/organisasjon/roller")
   })
 
   it("extracts a supported locale from direct values and stale nested paths", () => {

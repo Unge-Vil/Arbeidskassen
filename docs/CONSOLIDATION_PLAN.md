@@ -247,26 +247,28 @@ apps/arbeidskassen/
 
 ## Faseoversikt
 
+> **STATUS (oppdatert 2026-04-12):** Alle 9 faser er fullført. Konsolideringen er komplett. Bare `apps/arbeidskassen` gjenstår under `apps/`. Alle moduler er rutegrupper under `(authenticated)/`. 6 gamle app-mapper og `_backup/` er slettet. `CI=1 pnpm verify` verifisert: lint 0 feil, 40 tester grønne, build OK med 4 packages (config, supabase, ui, web). Neste steg: **squash-merge til main**.
+
 ```
-Fase 0 ─── Forberedelse og sikkerhetsnett        [~30 min]
+Fase 0 ─── Forberedelse og sikkerhetsnett        ✅ FULLFØRT
   │
-Fase 1 ─── Konsolider i18n-meldinger             [~30 min]
+Fase 1 ─── Konsolider i18n-meldinger             ✅ FULLFØRT
   │
-Fase 2 ─── Flytt BookDet inn                     [~1-2 timer]
+Fase 2 ─── Flytt BookDet inn                     ✅ FULLFØRT
   │
-Fase 3 ─── Flytt Organisasjon inn                [~1-2 timer]
+Fase 3 ─── Flytt Organisasjon inn                ✅ FULLFØRT
   │
-Fase 4 ─── Flytt TeamArea inn                    [~30 min]
+Fase 4 ─── Flytt TeamArea inn                    ✅ FULLFØRT
   │
-Fase 5 ─── Flytt Today, Backoffice, Sales Portal [~30 min]
+Fase 5 ─── Flytt Today, Backoffice, Sales Portal ✅ FULLFØRT
   │
-Fase 6 ─── Konsolider middleware og navigasjon    [~1-2 timer]
+Fase 6 ─── Konsolider middleware og navigasjon    ✅ FULLFØRT
   │
-Fase 7 ─── Rydd opp i packages og config         [~30 min]
+Fase 7 ─── Rydd opp i packages og config         ✅ FULLFØRT
   │
-Fase 8 ─── Oppdater dokumentasjon og deployment   [~1-2 timer]
+Fase 8 ─── Oppdater dokumentasjon og deployment   ✅ FULLFØRT
   │
-Fase 9 ─── Sletting og verifisering              [~30 min]
+Fase 9 ─── Sletting og verifisering              ✅ FULLFØRT
 ```
 
 Hver fase er designet for å kunne utføres av en agent eller manuelt, bekreftes med `CI=1 pnpm verify`, og committes separat.
@@ -274,6 +276,8 @@ Hver fase er designet for å kunne utføres av en agent eller manuelt, bekreftes
 ---
 
 ## Fase 0: Forberedelse og sikkerhetsnett
+
+> ✅ **FULLFØRT** — Branch `consolidate/single-app` opprettet. `CI=1 pnpm verify` grønt. Backup i `_backup/`. Middleware-fiks: inlinet `defaultMiddlewareMatcher` i alle 7 apper (Next.js krever statisk config.matcher).
 
 **Mål:** Sikre at vi har et trygt utgangspunkt med alt grønt.
 
@@ -320,6 +324,8 @@ Hver fase er designet for å kunne utføres av en agent eller manuelt, bekreftes
 ---
 
 ## Fase 1: Konsolider i18n-meldinger
+
+> ✅ **FULLFØRT** — `no.json` og `en.json` i arbeidskassen inneholder nå: common, bookdetHome, bookdetShell, bookdetPages, teamareaShell, teamareaHome, todayHome. De andre appenes messages-filer er urørt.
 
 **Mål:** Slå sammen alle `messages/no.json` og `messages/en.json` fra de 7 appene til én fil i `apps/arbeidskassen/messages/`.
 
@@ -368,6 +374,8 @@ Alle apper har samme `common`-nøkler. Modul-spesifikke nøkler er namespace-pre
 ---
 
 ## Fase 2: Flytt BookDet inn i hovedappen
+
+> ✅ **FULLFØRT** — Alle BookDet-sider under `(authenticated)/bookdet/`. Shell forenklet (ingen Navbar/auth). Import-stier og alle hrefs oppdatert med `/bookdet/`-prefiks. Build verifisert.
 
 **Mål:** Flytt all BookDet-funksjonalitet til `apps/arbeidskassen/app/[locale]/(authenticated)/bookdet/`.
 
@@ -491,6 +499,8 @@ apps/bookdet/app/[locale]/
 
 ## Fase 3: Flytt Organisasjon inn i hovedappen
 
+> ✅ **FULLFØRT** — Alle 6 organisasjon-sider + server-actions (tenant, members, roles, structure) under `(authenticated)/organisasjon/` og `app/actions/`. Shell forenklet. Import-stier oppdatert.
+
 **Mål:** Flytt all Organisasjon-funksjonalitet til `apps/arbeidskassen/app/[locale]/(authenticated)/organisasjon/`.
 
 ### Organisasjons nåværende struktur
@@ -583,6 +593,8 @@ apps/organisasjon/app/actions/
 
 ## Fase 4: Flytt TeamArea inn i hovedappen
 
+> ✅ **FULLFØRT** — TeamArea-feed + shell under `(authenticated)/teamarea/`. Shell forenklet (sidebar-only). Build verifisert.
+
 **Mål:** Flytt TeamArea til `apps/arbeidskassen/app/[locale]/(authenticated)/teamarea/`.
 
 ### TeamAreas nåværende struktur
@@ -651,6 +663,8 @@ apps/teamarea/app/actions/
 
 ## Fase 5: Flytt Today, Backoffice og Sales Portal
 
+> ✅ **FULLFØRT** — Alle 3 sider kopiert til `(authenticated)/today/`, `backoffice/`, `sales-portal/`. Backoffice: fjernet standalone Navbar. Build verifisert.
+
 **Mål:** Flytt de tre minste appene (som er placeholders / minimale) inn i hovedappen.
 
 ### Disse appene er enkle
@@ -696,6 +710,8 @@ apps/teamarea/app/actions/
 ---
 
 ## Fase 6: Konsolider middleware og navigasjon
+
+> ✅ **FULLFØRT** — Middleware bruker nå inline policy med alle modul-prefixes (ingen `APP_AUTH_POLICIES`-import). `admin-links.ts` forenklet: alle env-var-oppslag, `getEnv()`, `isDevelopmentRuntime()`, `pickConfiguredBase()` fjernet — alt er nå rene interne paths. `next.config.ts` renset for proxy/rewrite. `[module]/[[...path]]/page.tsx` fallback-rute slettet. Tester oppdatert. Build, lint og 51 tester grønne.
 
 **Mål:** Forenkle middleware til én policy, oppdater navigasjonssystemet til å bruke interne paths.
 
@@ -832,6 +848,8 @@ Slett hele mappen: `apps/arbeidskassen/app/[locale]/[module]/`.
 
 ## Fase 7: Rydd opp i packages og config
 
+> ✅ **FULLFØRT** — `CONSOLIDATED_AUTH_POLICY` eksportert fra `packages/supabase/src/middleware.ts` med alle modul-prefixes. `APP_AUTH_POLICIES` markert `@deprecated` (arbeidskassen-entry peker til consolidated policy). `.env.example` renset for `ORGANIZATION_APP_URL`. `setup-i18n.js` markert `@deprecated`. Middleware-test oppdatert med ny `CONSOLIDATED_AUTH_POLICY`-test. 52 tester grønne. Build, lint verifisert.
+
 **Mål:** Fjern app-spesifikke referanser fra delte pakker og rydd opp.
 
 ### Steg
@@ -950,6 +968,8 @@ Fjern: 7-port-matrise, proxy-forklaring, cross-app-navigasjon.
 ---
 
 ## Fase 9: Sletting og verifisering
+
+> ✅ **FULLFØRT** — 6 gamle app-mapper (bookdet, organisasjon, teamarea, today, backoffice, sales-portal) og `_backup/` slettet. `pnpm install` kjørt. `CI=1 pnpm verify` verifisert: lint 0 feil, 40 tester grønne, build OK. Bare `apps/arbeidskassen` gjenstår. Gjenstår: squash-merge til main.
 
 **Mål:** Slett de 6 app-mappene og verifiser at alt fortsatt fungerer.
 

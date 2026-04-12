@@ -189,10 +189,10 @@ Organisasjon is the **single point of control** for all billing operations. No o
 
 ### Webhook Handler
 
-All Stripe webhooks are processed by a single endpoint in the Organisasjon app:
+All Stripe webhooks are processed by a single endpoint in the main app:
 
 ```
-apps/organisasjon/app/api/webhooks/stripe/route.ts
+apps/arbeidskassen/app/api/webhooks/stripe/route.ts
 ```
 
 This handler is the **only place** in the codebase that uses the `service_role` key (see [SECURITY_AND_COMPLIANCE.md](./SECURITY_AND_COMPLIANCE.md)). It processes the following events:

@@ -17,7 +17,7 @@
 
 ## Overview
 
-The `apps/backoffice` application is the **internal tool for platform owners** (the team that builds and operates Arbeidskassen). It is completely separate from any customer-facing app and is deployed on a private URL that is never exposed to tenants.
+The Backoffice module (route group `(authenticated)/backoffice/`) is the **internal tool for platform owners** (the team that builds and operates Arbeidskassen). It shares authentication with the main app but is restricted to platform admin roles.
 
 The core principle: **platform owners can manage the system but cannot read customer content.** This is not just a policy — it is enforced at the database level via RLS and dedicated service-role scoping.
 
@@ -126,7 +126,7 @@ CREATE POLICY "platform_admin_read_credits" ON ai_credits
 Even on tables the backoffice can read, sensitive columns are excluded at the application layer:
 
 ```typescript
-// apps/backoffice — tenant list query
+// backoffice route group — tenant list query
 // ONLY selects metadata columns, never content
 const { data: tenants } = await supabase
   .from("tenants")
@@ -317,30 +317,27 @@ CREATE POLICY "tenant_read_support_logs" ON support_session_logs
 
 ---
 
-## Backoffice App Architecture
+## Backoffice Route Architecture (Target)
+
+> **Note:** The backoffice is currently a minimal dashboard page at `(authenticated)/backoffice/page.tsx`. The route structure below is the target architecture.
 
 ```
-apps/backoffice/app/
-├── (auth)/                      # Backoffice-specific auth (MFA required)
-│   ├── login/page.tsx
-│   └── mfa/page.tsx
-├── (dashboard)/                 # Main backoffice views
-│   ├── layout.tsx               # Backoffice shell (no tenant-specific navigation)
-│   ├── page.tsx                 # System overview (tenant count, MRR, health)
-│   ├── tenants/                 # Tenant directory (metadata only)
-│   │   ├── page.tsx             # List all tenants
-│   │   └── [id]/
-│   │       ├── page.tsx         # Tenant detail (plan, credits, status)
-│   │       └── support/
-│   │           └── page.tsx     # Active support grants, session entry
-│   ├── credits/                 # Global credit management
-│   │   └── page.tsx             # Grant credits, view platform-wide usage
-│   ├── billing/                 # Stripe global view
-│   │   └── page.tsx             # Failed payments, MRR dashboard
-│   ├── features/                # Feature flag management
-│   │   └── page.tsx
-│   └── logs/                    # Platform audit logs (backoffice actions only)
-│       └── page.tsx
+apps/arbeidskassen/app/[locale]/(authenticated)/backoffice/
+├── page.tsx                     # System overview (tenant count, MRR, health)
+├── tenants/                     # Tenant directory (metadata only)
+│   ├── page.tsx                 # List all tenants
+│   └── [id]/
+│       ├── page.tsx             # Tenant detail (plan, credits, status)
+│       └── support/
+│           └── page.tsx         # Active support grants, session entry
+├── credits/                     # Global credit management
+│   └── page.tsx                 # Grant credits, view platform-wide usage
+├── billing/                     # Stripe global view
+│   └── page.tsx                 # Failed payments, MRR dashboard
+├── features/                    # Feature flag management
+│   └── page.tsx
+└── logs/                        # Platform audit logs (backoffice actions only)
+    └── page.tsx
 ```
 
 ---

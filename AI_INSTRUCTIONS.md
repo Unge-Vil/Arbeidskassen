@@ -44,16 +44,20 @@ You are an expert in Next.js 15+ (App Router), React 19, TypeScript 5, Tailwind 
 
 ## Project Structure
 
-This is a Turborepo monorepo with pnpm workspaces. See [README.md](README.md) for the full structure.
+This is a Turborepo monorepo with pnpm workspaces, **consolidated into a single Next.js app**. See [README.md](README.md) for the full structure.
 
-- `apps/arbeidskassen` — Admin panel (port 3000)
-- `apps/bookdet` — Booking module (port 3001)
-- `apps/organisasjon` — Core organization module (port 3002)
-- `apps/backoffice` — Platform owner admin (port 3099)
-- `apps/sales-portal` — Sales & partner portal (port 3003)
+- `apps/arbeidskassen` — The single Next.js app containing all modules as route groups
+  - `(authenticated)/bookdet/` — Booking module
+  - `(authenticated)/organisasjon/` — Core organization module
+  - `(authenticated)/teamarea/` — Internal collaboration feed
+  - `(authenticated)/today/` — Daily operations workspace
+  - `(authenticated)/backoffice/` — Platform owner admin
+  - `(authenticated)/sales-portal/` — Sales & partner portal
 - `packages/ui` — Shared shadcn/ui components
 - `packages/supabase` — Database clients and types
 - `packages/config` — Shared ESLint, Prettier, TypeScript configs
+
+One dev server (port 3000), one middleware, one build. No proxy rewrites.
 
 Detailed architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
@@ -218,7 +222,7 @@ When designing new features or data flows, ALWAYS refer to [docs/PRODUCT_VISION_
 
 ## Global Core Context
 
-The `Organisasjon` app (`apps/organisasjon`) is the **master authority** for organizational structure, user identity, and business operations. See [docs/CORE_ORGANIZATION_MODULE.md](docs/CORE_ORGANIZATION_MODULE.md) for the full specification.
+The Organisasjon module (`apps/arbeidskassen/app/[locale]/(authenticated)/organisasjon/`) is the **master authority** for organizational structure, user identity, and business operations. See [docs/CORE_ORGANIZATION_MODULE.md](docs/CORE_ORGANIZATION_MODULE.md) for the full specification.
 
 - The hierarchy (Tenant → Organization → Department → Sub-department) is defined and managed exclusively in Organisasjon.
 - All feature modules (BookDet, Today, etc.) **reference** Organisasjon entities via foreign keys — they never duplicate or independently manage orgs, departments, or user roles.
@@ -231,9 +235,9 @@ The `Organisasjon` app (`apps/organisasjon`) is the **master authority** for org
 
 ## Backoffice & Privacy
 
-The `backoffice` app (`apps/backoffice`) is for platform owners only. See [docs/SUPERADMIN_AND_SUPPORT.md](docs/SUPERADMIN_AND_SUPPORT.md) for the full specification.
+The Backoffice module (`apps/arbeidskassen/app/[locale]/(authenticated)/backoffice/`) is for platform owners only. See [docs/SUPERADMIN_AND_SUPPORT.md](docs/SUPERADMIN_AND_SUPPORT.md) for the full specification.
 
-- Code in `apps/backoffice` must **only** interact with metadata and system tables (`tenants`, `ai_credits`, `platform_admins`, `platform_audit_logs`, `support_access_grants`).
+- Code in the backoffice route group must **only** interact with metadata and system tables (`tenants`, `ai_credits`, `platform_admins`, `platform_audit_logs`, `support_access_grants`).
 - **Never** write queries in backoffice that fetch PII or content from tenant-owned tables (`bookings`, `resources`, `tasks`, `chat_messages`, `profiles`, `audit_logs.old_data`/`new_data`).
 - **Never** implement silent impersonation or "login as tenant" features.
 - Support access to tenant data requires **explicit tenant admin consent** via the Consent-Based Support Access model: time-limited, scope-restricted, read-only, and heavily audited.
@@ -242,7 +246,7 @@ The `backoffice` app (`apps/backoffice`) is for platform owners only. See [docs/
 
 ## Sales & Partnerships
 
-The `sales-portal` app (`apps/sales-portal`) is for internal and external sales partners. See [docs/SALES_AND_PARTNERS.md](docs/SALES_AND_PARTNERS.md) for the full specification.
+The Sales Portal module (`apps/arbeidskassen/app/[locale]/(authenticated)/sales-portal/`) is for internal and external sales partners. See [docs/SALES_AND_PARTNERS.md](docs/SALES_AND_PARTNERS.md) for the full specification.
 
 - When working on tenant creation or billing logic, always consider the `referred_by_partner_id` context.
 - **Demo Tenants** (`is_demo = true`) owned by Sales Partners must be bypass-checked in all billing logic — never charge or create Stripe subscriptions for demo tenants.

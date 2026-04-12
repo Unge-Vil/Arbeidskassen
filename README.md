@@ -42,13 +42,24 @@ Arbeidskassen ("The Toolbox") is a modular B2B SaaS platform built as a Turborep
 ```
 arbeidskassen/
 ├── apps/
-│   ├── arbeidskassen/       # Public landing + main dashboard hub (Next.js)
-│   ├── organisasjon/        # Core org structure & user management (Next.js)
-│   ├── bookdet/             # Booking module (Next.js)
-│   ├── today/               # Daily operations preview surface (Next.js)
-│   ├── teamarea/            # Internal collaboration preview surface (Next.js)
-│   ├── backoffice/          # Platform owner admin — internal only (Next.js)
-│   └── sales-portal/        # Sales & partner portal (Next.js)
+│   └── arbeidskassen/           # Single Next.js app with all modules
+│       ├── middleware.ts         # Unified auth middleware
+│       ├── next.config.ts       # No proxy rewrites
+│       ├── i18n/                # Single i18n config
+│       ├── messages/            # Consolidated translations (all modules)
+│       └── app/
+│           └── [locale]/
+│               ├── login/
+│               ├── select-tenant/
+│               └── (authenticated)/
+│                   ├── dashboard/
+│                   ├── profil/
+│                   ├── bookdet/         # Booking module
+│                   ├── organisasjon/    # Core org module
+│                   ├── teamarea/        # Collaboration feed
+│                   ├── today/           # Daily operations
+│                   ├── backoffice/      # Platform admin
+│                   └── sales-portal/    # Sales & partners
 ├── packages/
 │   ├── ui/                  # Shared UI components, shells, and routing helpers
 │   ├── supabase/            # Shared Supabase clients + local CLI workspace
@@ -80,48 +91,42 @@ cd arbeidskassen
 # Install all dependencies
 pnpm install
 
-# Start all apps in development mode
-pnpm dev
+# Start the database
+pnpm --filter @arbeidskassen/supabase db:start
+
+# Start the app
+pnpm --filter @arbeidskassen/web dev
+
+# Open http://localhost:3000
 
 # Run the monorepo quality gate before opening a PR
 CI=1 pnpm verify
 ```
 
-| App | URL | Notes |
-| --- | --- | --- |
-| Arbeidskassen | `http://localhost:3000` | Public landing at `/`, shared login at `/login`, dashboard at `/{locale}/dashboard` |
-| BookDet | `http://localhost:3001/no` | Canonical primary-domain path: `/{locale}/bookdet` |
-| Organisasjon | `http://localhost:3002/no` | Canonical primary-domain path: `/{locale}/organisasjon` |
-| Sales Portal | `http://localhost:3003/no` | Canonical primary-domain path: `/{locale}/sales-portal` |
-| Today | `http://localhost:3004/no` | Preview shell for the operations workspace |
-| TeamArea | `http://localhost:3005/no` | Preview collaboration shell; degrades gracefully without Supabase env vars |
-| Backoffice | `http://localhost:3099/no` | Canonical primary-domain path: `/{locale}/backoffice` |
+All modules are accessible under a single dev server:
 
-### Deployment model
-
-The **default product model** is still a **single main app on one primary domain**:
-
-- `/` → public Arbeidskassen landing
-- `/login` → shared authentication
-- `/{locale}/bookdet`, `/{locale}/organisasjon`, `/{locale}/today`, etc. → module entries under the same product
-
-Separate per-module deploys are **optional operational infrastructure**, not a product requirement. If they are configured later through env vars like `BOOKDET_APP_URL`, the same canonical URLs can proxy there without changing what users see.
+| Route | Description |
+| --- | --- |
+| `http://localhost:3000` | Public landing page |
+| `http://localhost:3000/no/login` | Shared login |
+| `http://localhost:3000/no/select-tenant` | Tenant selection |
+| `http://localhost:3000/no/dashboard` | Dashboard |
+| `http://localhost:3000/no/bookdet` | Booking module |
+| `http://localhost:3000/no/organisasjon` | Core organization module |
+| `http://localhost:3000/no/teamarea` | Collaboration feed |
+| `http://localhost:3000/no/today` | Daily operations |
+| `http://localhost:3000/no/backoffice` | Platform admin |
+| `http://localhost:3000/no/sales-portal` | Sales & partner portal |
 
 ### Environment Variables
 
-Copy the example files and fill in your credentials for the Supabase-backed apps:
+Copy the example file and fill in your credentials:
 
 ```bash
 cp apps/arbeidskassen/.env.example apps/arbeidskassen/.env.local
-cp apps/organisasjon/.env.example apps/organisasjon/.env.local
-cp apps/bookdet/.env.example apps/bookdet/.env.local
-cp apps/backoffice/.env.example apps/backoffice/.env.local
-cp apps/sales-portal/.env.example apps/sales-portal/.env.local
-cp apps/today/.env.example apps/today/.env.local
-cp apps/teamarea/.env.example apps/teamarea/.env.local
 ```
 
-At minimum, these apps expect `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+At minimum, you need `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
 For a fuller setup guide, see [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
 

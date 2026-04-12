@@ -26,7 +26,7 @@ The Sales & Partner layer enables Arbeidskassen to grow through a network of **s
 2. **Onboard new customers** via a guided flow in the Sales Portal.
 3. **Track portfolio performance** — MRR contribution, commission earned, customer health.
 
-All commission rules are configured centrally in the Backoffice by platform admins. Partners interact exclusively through the `apps/sales-portal` application.
+All commission rules are configured centrally in the Backoffice by platform admins. Partners interact exclusively through the Sales Portal module (route group `(authenticated)/sales-portal/`).
 
 ---
 
@@ -176,35 +176,32 @@ When processing Stripe webhook events (`invoice.paid`, `subscription.updated`, e
 
 ---
 
-## Sales Portal App
+## Sales Portal Module
 
-The `apps/sales-portal` application is the partner-facing interface.
+The Sales Portal is a route group under the main app at `(authenticated)/sales-portal/`.
 
-### Route Structure
+### Route Structure (Target)
 
 ```
-apps/sales-portal/app/
-├── (auth)/                      # Partner-specific auth
-│   ├── login/page.tsx
-│   └── callback/route.ts
-├── (dashboard)/
-│   ├── layout.tsx               # Partner shell (portfolio context)
-│   ├── page.tsx                 # Portfolio overview (MRR, customers, commission)
-│   ├── customers/               # Referred tenant list
-│   │   ├── page.tsx             # All referred tenants (status, MRR, plan)
-│   │   └── [id]/
-│   │       └── page.tsx         # Individual tenant health (metadata only)
-│   ├── onboard/                 # New customer onboarding wizard
-│   │   └── page.tsx             # Step-by-step: company info → plan → payment → provisioning
-│   ├── demo/                    # Demo tenant management
-│   │   └── page.tsx             # Demo tenant overview, request data reset
-│   ├── commissions/             # Earnings and payouts
-│   │   ├── page.tsx             # Commission history, pending payouts
-│   │   └── rules/
-│   │       └── page.tsx         # View applicable commission rules (read-only)
-│   └── settings/                # Partner profile, payout details
-│       └── page.tsx
+apps/arbeidskassen/app/[locale]/(authenticated)/sales-portal/
+├── page.tsx                     # Portfolio overview (MRR, customers, commission)
+├── customers/                   # Referred tenant list
+│   ├── page.tsx                 # All referred tenants (status, MRR, plan)
+│   └── [id]/
+│       └── page.tsx             # Individual tenant health (metadata only)
+├── onboard/                     # New customer onboarding wizard
+│   └── page.tsx                 # Step-by-step: company info → plan → payment → provisioning
+├── demo/                        # Demo tenant management
+│   └── page.tsx                 # Demo tenant overview, request data reset
+├── commissions/                 # Earnings and payouts
+│   ├── page.tsx                 # Commission history, pending payouts
+│   └── rules/
+│       └── page.tsx             # View applicable commission rules (read-only)
+└── settings/                    # Partner profile, payout details
+    └── page.tsx
 ```
+
+> **Note:** The Sales Portal is currently a minimal placeholder. The route structure above is the target architecture.
 
 ### Capabilities
 
