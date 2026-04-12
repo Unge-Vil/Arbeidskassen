@@ -117,9 +117,11 @@ cp apps/organisasjon/.env.example apps/organisasjon/.env.local
 cp apps/bookdet/.env.example apps/bookdet/.env.local
 cp apps/backoffice/.env.example apps/backoffice/.env.local
 cp apps/sales-portal/.env.example apps/sales-portal/.env.local
+cp apps/today/.env.example apps/today/.env.local
+cp apps/teamarea/.env.example apps/teamarea/.env.local
 ```
 
-At minimum, these apps expect `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. The `today` and `teamarea` preview surfaces currently run without their own `.env.example` files.
+At minimum, these apps expect `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
 For a fuller setup guide, see [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
 
@@ -140,6 +142,7 @@ For a fuller setup guide, see [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT
 | [Sales & Partners](docs/SALES_AND_PARTNERS.md) | Sales partner model, commission logic, attribution, demo tenants |
 | [POC Ingestion Workflow](docs/POC_INGESTION_WORKFLOW.md) | How to integrate external AI prototypes into the production monorepo |
 | [Development Workflow](docs/DEVELOPMENT_WORKFLOW.md) | Database migrations, blast radius analysis, branching strategy, deployment |
+| [Deployment Runbook](docs/DEPLOYMENT.md) | Operational deployment guide, env matrix, rollout and rollback checklist |
 
 ---
 

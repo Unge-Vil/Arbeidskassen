@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-import { handleAppSession } from "./middleware";
+import { APP_AUTH_POLICIES, handleAppSession } from "./middleware";
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(),
@@ -158,5 +158,26 @@ describe("handleAppSession", () => {
 
     expect(createServerClient).not.toHaveBeenCalled();
     expect(response.status).toBe(200);
+  });
+});
+
+describe("APP_AUTH_POLICIES", () => {
+  it("defines all app policy presets", () => {
+    expect(Object.keys(APP_AUTH_POLICIES).sort()).toEqual([
+      "arbeidskassen",
+      "backoffice",
+      "bookdet",
+      "organisasjon",
+      "salesPortal",
+      "teamarea",
+      "today",
+    ]);
+  });
+
+  it("requires login path and protected prefixes for every app", () => {
+    Object.values(APP_AUTH_POLICIES).forEach((policy) => {
+      expect(policy.loginPath).toBe("/login");
+      expect(policy.protectedPrefixes.length).toBeGreaterThan(0);
+    });
   });
 });

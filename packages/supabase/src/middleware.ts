@@ -8,6 +8,44 @@ export type AppAuthMiddlewareOptions = {
   protectedPrefixes?: string[];
 };
 
+export const APP_AUTH_POLICIES = {
+  arbeidskassen: {
+    loginPath: "/login",
+    postLoginPath: "/select-tenant",
+    protectedPrefixes: ["/dashboard", "/select-tenant"],
+  },
+  backoffice: {
+    loginPath: "/login",
+    postLoginPath: "/",
+    protectedPrefixes: ["/"],
+  },
+  bookdet: {
+    loginPath: "/login",
+    postLoginPath: "/",
+    protectedPrefixes: ["/dashboard"],
+  },
+  organisasjon: {
+    loginPath: "/login",
+    postLoginPath: "/",
+    protectedPrefixes: ["/"],
+  },
+  salesPortal: {
+    loginPath: "/login",
+    postLoginPath: "/",
+    protectedPrefixes: ["/"],
+  },
+  teamarea: {
+    loginPath: "/login",
+    postLoginPath: "/",
+    protectedPrefixes: ["/dashboard"],
+  },
+  today: {
+    loginPath: "/login",
+    postLoginPath: "/",
+    protectedPrefixes: ["/dashboard"],
+  },
+} satisfies Record<string, Required<AppAuthMiddlewareOptions>>;
+
 type CookieToSet = {
   name: string;
   value: string;

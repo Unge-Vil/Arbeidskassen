@@ -5,6 +5,7 @@ import {
   getCurrentUserDashboardsSafe,
   getCurrentUserProfile,
 } from "@arbeidskassen/supabase";
+import { getLocale } from "next-intl/server";
 import "@arbeidskassen/ui/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,10 +20,13 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const currentProfile = await getCurrentUserProfile();
+  const [currentProfile, locale] = await Promise.all([
+    getCurrentUserProfile(),
+    getLocale(),
+  ]);
 
   return (
-    <html lang="no" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider initialThemePreference={currentProfile?.profile.themePreference}>
           {children}

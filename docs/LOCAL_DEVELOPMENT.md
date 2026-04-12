@@ -44,7 +44,7 @@ pnpm --filter @arbeidskassen/supabase db:reset
 
 ## Environment Setup
 
-Copy the `.env.example` files for the apps that currently require Supabase-backed auth/data:
+Copy the `.env.example` files for all apps:
 
 ```bash
 cp apps/arbeidskassen/.env.example apps/arbeidskassen/.env.local
@@ -52,11 +52,13 @@ cp apps/organisasjon/.env.example apps/organisasjon/.env.local
 cp apps/bookdet/.env.example apps/bookdet/.env.local
 cp apps/backoffice/.env.example apps/backoffice/.env.local
 cp apps/sales-portal/.env.example apps/sales-portal/.env.local
+cp apps/today/.env.example apps/today/.env.local
+cp apps/teamarea/.env.example apps/teamarea/.env.local
 ```
 
 ### Minimum variables
 
-At minimum, these apps expect:
+All apps expect:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=

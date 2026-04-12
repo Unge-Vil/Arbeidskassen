@@ -1,6 +1,10 @@
 import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
-import { handleAppSession } from "@arbeidskassen/supabase/middleware";
+import {
+  APP_AUTH_POLICIES,
+  defaultMiddlewareMatcher,
+  handleAppSession,
+} from "@arbeidskassen/supabase/middleware";
 import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
@@ -13,17 +17,11 @@ export async function middleware(request: NextRequest) {
 
   return handleAppSession(
     request,
-    {
-      loginPath: "/login",
-      postLoginPath: "/select-tenant",
-      protectedPrefixes: ["/dashboard", "/select-tenant"],
-    },
+    APP_AUTH_POLICIES.arbeidskassen,
     response,
   );
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: defaultMiddlewareMatcher,
 };
