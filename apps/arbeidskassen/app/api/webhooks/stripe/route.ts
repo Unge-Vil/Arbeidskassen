@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@arbeidskassen/supabase";
 
@@ -53,7 +53,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   if (error) {
     console.error("checkout.session.completed: failed to update tenant", error);
-    throw error;
+    return;
   }
 }
 
@@ -81,7 +81,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       "customer.subscription.updated: failed to update tenant",
       error,
     );
-    throw error;
+    return;
   }
 }
 
@@ -101,7 +101,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       "customer.subscription.deleted: failed to update tenant",
       error,
     );
-    throw error;
+    return;
   }
 }
 
@@ -121,11 +121,11 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
   if (error) {
     console.error("invoice.payment_failed: failed to update tenant", error);
-    throw error;
+    return;
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
@@ -182,10 +182,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error(`Stripe webhook handler error for ${event.type}:`, error);
-    return NextResponse.json(
-      { error: "Webhook handler failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ received: true });
   }
 
   return NextResponse.json({ received: true });

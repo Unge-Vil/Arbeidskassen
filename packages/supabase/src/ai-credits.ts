@@ -93,8 +93,8 @@ export async function consumeCredits(
     };
   }
 
-  // Log the transaction
-  await supabase.from("ai_credit_transactions").insert({
+  // Log the transaction (non-fatal — credit was already deducted)
+  const { error: txLogError } = await supabase.from("ai_credit_transactions").insert({
     tenant_id: credit.tenant_id,
     credit_balance_id: credit.id,
     kind: "usage",
@@ -104,6 +104,10 @@ export async function consumeCredits(
     note: input.note ?? null,
     created_by: user.id,
   } as never);
+
+  if (txLogError) {
+    console.error("Failed to log credit transaction:", txLogError);
+  }
 
   return { success: true, balanceAfter: newBalance };
 }
@@ -170,7 +174,8 @@ export async function addCredits(
     };
   }
 
-  await supabase.from("ai_credit_transactions").insert({
+  // Log the transaction (non-fatal — credits already added)
+  const { error: txLogError } = await supabase.from("ai_credit_transactions").insert({
     tenant_id: credit.tenant_id,
     credit_balance_id: credit.id,
     kind: input.kind,
@@ -180,6 +185,10 @@ export async function addCredits(
     note: input.note ?? null,
     created_by: user.id,
   } as never);
+
+  if (txLogError) {
+    console.error("Failed to log credit transaction:", txLogError);
+  }
 
   return { success: true, balanceAfter: newBalance };
 }

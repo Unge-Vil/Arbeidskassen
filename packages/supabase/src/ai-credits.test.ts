@@ -123,6 +123,23 @@ describe("consumeCredits", () => {
       expect(result.error).toContain("Prøv igjen");
     }
   });
+
+  it("still succeeds when transaction log insert fails", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockInsertResult = { error: { message: "Insert failed" } };
+
+    const result = await consumeCredits({
+      amount: 5,
+      source: "test",
+    });
+
+    expect(result).toEqual({ success: true, balanceAfter: 95 });
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Failed to log credit transaction:",
+      expect.objectContaining({ message: "Insert failed" }),
+    );
+    consoleSpy.mockRestore();
+  });
 });
 
 describe("addCredits", () => {
@@ -189,6 +206,24 @@ describe("addCredits", () => {
         lifetime_purchased: 200,
       }),
     );
+  });
+
+  it("still succeeds when transaction log insert fails", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockInsertResult = { error: { message: "Insert failed" } };
+
+    const result = await addCredits({
+      amount: 25,
+      kind: "manual_adjustment",
+      source: "admin",
+    });
+
+    expect(result).toEqual({ success: true, balanceAfter: 125 });
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Failed to log credit transaction:",
+      expect.objectContaining({ message: "Insert failed" }),
+    );
+    consoleSpy.mockRestore();
   });
 });
 

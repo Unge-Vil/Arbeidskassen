@@ -89,10 +89,15 @@ export async function createDashboard(
   }
 
   if (hotkey) {
-    await getDashboardTable(supabase)
+    const { error: clearError } = await getDashboardTable(supabase)
       .update({ hotkey: null } as never)
       .eq("user_id", userResponse.user.id)
       .eq("hotkey", hotkey);
+
+    if (clearError) {
+      console.error("Error clearing conflicting hotkey:", clearError);
+      throw new Error("Failed to clear conflicting hotkey");
+    }
   }
 
   const { data: existingDashboards } = await getDashboardTable(supabase)
@@ -179,10 +184,15 @@ export async function updateDashboardName(
     updatePayload.hotkey = hotkey ?? null;
 
     if (hotkey) {
-      await getDashboardTable(supabase)
+      const { error: clearError } = await getDashboardTable(supabase)
         .update({ hotkey: null } as never)
         .eq("user_id", userResponse.user.id)
         .eq("hotkey", hotkey);
+
+      if (clearError) {
+        console.error("Error clearing conflicting hotkey:", clearError);
+        throw new Error("Failed to clear conflicting hotkey");
+      }
     }
   }
 

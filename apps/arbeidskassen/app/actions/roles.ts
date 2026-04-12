@@ -18,6 +18,9 @@ type RoleAdminContext = TenantContext & {
   currentMembership: NonNullable<TenantContext["currentMembership"]>;
 };
 
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function getEncodedErrorMessage(message: string): string {
   return encodeURIComponent(message);
 }
@@ -112,7 +115,7 @@ export async function createCustomRoleAction(formData: FormData) {
     redirectWithError(locale, "Navnet eller beskrivelsen er for lang.");
   }
 
-  const slug = explicitSlug ?? normalizeSlug(name) ?? `role-${Date.now()}`;
+  const slug = explicitSlug ?? normalizeSlug(name) ?? `role-${crypto.randomUUID().slice(0, 8)}`;
   const supabase = await createServerClient();
   const { error } = await supabase.from("custom_roles").insert(
     {
@@ -151,6 +154,10 @@ export async function updateCustomRoleAction(formData: FormData) {
 
   if (!roleId || !name) {
     redirectWithError(locale, "Rollen må ha et navn for å kunne lagres.");
+  }
+
+  if (!uuidPattern.test(roleId)) {
+    redirectWithError(locale, "Rolle-ID må være en gyldig UUID.");
   }
 
   if (!validateLength(name, 80) || !validateLength(description, 240)) {
@@ -197,6 +204,10 @@ export async function toggleCustomRoleArchiveAction(formData: FormData) {
     redirectWithError(locale, "Kunne ikke finne rollen som skulle oppdateres.");
   }
 
+  if (!uuidPattern.test(roleId)) {
+    redirectWithError(locale, "Rolle-ID må være en gyldig UUID.");
+  }
+
   const supabase = await createServerClient();
   const { error } = await supabase
     .from("custom_roles")
@@ -227,7 +238,37 @@ export async function assignCustomRoleAction(formData: FormData) {
     redirectWithError(locale, "Velg både medlem og rolle før du lagrer.");
   }
 
+  if (!uuidPattern.test(memberId) || !uuidPattern.test(roleId)) {
+    redirectWithError(locale, "Medlem- og rolle-ID må være gyldige UUID-er.");
+  }
+
   const supabase = await createServerClient();
+  const [{ data: memberRecord, error: memberError }, { data: roleRecord, error: roleError }] =
+    await Promise.all([
+      supabase
+        .from("tenant_members")
+        .select("id")
+        .eq("tenant_id", context.currentTenant.id)
+        .eq("id", memberId)
+        .eq("is_active", true)
+        .maybeSingle(),
+      supabase
+        .from("custom_roles")
+        .select("id")
+        .eq("tenant_id", context.currentTenant.id)
+        .eq("id", roleId)
+        .eq("is_archived", false)
+        .maybeSingle(),
+    ]);
+
+  if (memberError || !memberRecord) {
+    redirectWithError(locale, "Kunne ikke finne et aktivt medlem i denne workspacen.");
+  }
+
+  if (roleError || !roleRecord) {
+    redirectWithError(locale, "Kunne ikke finne en aktiv custom rolle i denne workspacen.");
+  }
+
   const { data: existingAssignmentRecord } = await supabase
     .from("member_role_assignments")
     .select("id")
@@ -278,6 +319,10 @@ export async function revokeCustomRoleAction(formData: FormData) {
 
   if (!assignmentId) {
     redirectWithError(locale, "Kunne ikke finne rolletildelingen som skulle fjernes.");
+  }
+
+  if (!uuidPattern.test(assignmentId)) {
+    redirectWithError(locale, "Tildelings-ID må være en gyldig UUID.");
   }
 
   const supabase = await createServerClient();

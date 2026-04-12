@@ -186,7 +186,7 @@ describe("Stripe webhook handler", () => {
     expect(mockUpdate).not.toHaveBeenCalled();
   });
 
-  it("returns 500 when a handler throws", async () => {
+  it("acknowledges with 200 when a handler fails", async () => {
     mockEq.mockResolvedValue({ error: { message: "DB error" } });
     mockConstructEvent.mockReturnValue(
       makeStripeEvent("customer.subscription.deleted", {
@@ -197,7 +197,7 @@ describe("Stripe webhook handler", () => {
 
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const response = await POST(makeRequest("body", "valid-sig"));
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(200);
     consoleSpy.mockRestore();
   });
 
