@@ -50,8 +50,8 @@ The `NOTES.md` file must include:
 | Field | Example |
 | --- | --- |
 | **Source tool** | v0.dev |
-| **Target app** | `apps/today` |
-| **Target route** | `(dashboard)/shifts/page.tsx` |
+| **Target app** | `apps/arbeidskassen` |
+| **Target route** | `(authenticated)/today/shifts/page.tsx` |
 | **Intent** | Weekly shift planner with drag-and-drop, color-coded by department |
 | **What to keep** | Layout structure, drag interaction pattern, card visual design |
 | **What to discard** | Fake employee data, hardcoded colors, inline event handlers |

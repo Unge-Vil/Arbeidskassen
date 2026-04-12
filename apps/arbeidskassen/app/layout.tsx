@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { DashboardOverlay, ThemeProvider } from "@arbeidskassen/ui";
+import { DashboardOverlay, ThemeProvider, Toaster } from "@arbeidskassen/ui";
 import {
   getCurrentUserDashboardsSafe,
   getCurrentUserProfile,
@@ -30,6 +30,7 @@ export default async function AppLayout({
       <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider initialThemePreference={currentProfile?.profile.themePreference}>
           {children}
+          <Toaster />
           <DashboardOverlay fetchDashboards={getCurrentUserDashboardsSafe} />
         </ThemeProvider>
       </body>

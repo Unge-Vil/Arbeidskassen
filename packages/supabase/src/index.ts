@@ -1,3 +1,13 @@
+export { createAdminClient } from "./admin";
+export {
+  addCredits,
+  consumeCredits,
+  getCreditBalance,
+  type AddCreditsInput,
+  type ConsumeCreditsInput,
+  type CreditBalance,
+  type CreditOperationResult,
+} from "./ai-credits";
 export { createBrowserClient } from "./client";
 export { createServerClient } from "./server";
 export {

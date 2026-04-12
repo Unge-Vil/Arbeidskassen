@@ -5,6 +5,7 @@
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
+    "./admin": "./src/admin.ts",
     "./auth": "./src/auth.ts",
     "./client": "./src/client.ts",
     "./middleware": "./src/middleware.ts",
@@ -18,7 +19,8 @@
     "db:start": "supabase start",
     "db:reset": "supabase db reset",
     "db:status": "supabase status",
-    "generate-types": "supabase gen types typescript --local > src/types/database.ts"
+    "generate-types": "supabase gen types typescript --local > src/types/database.ts",
+    "check-types-fresh": "supabase gen types typescript --local | diff - src/types/database.ts > /dev/null || (echo '❌ database.ts is out of sync — run: pnpm --filter @arbeidskassen/supabase generate-types' && exit 1)"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.0",

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-import { APP_AUTH_POLICIES, CONSOLIDATED_AUTH_POLICY, handleAppSession } from "./middleware";
+import { CONSOLIDATED_AUTH_POLICY, handleAppSession } from "./middleware";
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(),
@@ -181,20 +181,4 @@ describe("CONSOLIDATED_AUTH_POLICY", () => {
   });
 });
 
-describe("APP_AUTH_POLICIES (deprecated)", () => {
-  it("still defines all legacy app policy presets", () => {
-    expect(Object.keys(APP_AUTH_POLICIES).sort()).toEqual([
-      "arbeidskassen",
-      "backoffice",
-      "bookdet",
-      "organisasjon",
-      "salesPortal",
-      "teamarea",
-      "today",
-    ]);
-  });
 
-  it("arbeidskassen entry points to the consolidated policy", () => {
-    expect(APP_AUTH_POLICIES.arbeidskassen).toBe(CONSOLIDATED_AUTH_POLICY);
-  });
-});

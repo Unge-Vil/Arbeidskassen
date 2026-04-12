@@ -28,43 +28,7 @@ export const CONSOLIDATED_AUTH_POLICY: Required<AppAuthMiddlewareOptions> = {
   ],
 };
 
-/**
- * @deprecated Use CONSOLIDATED_AUTH_POLICY instead.
- * Kept for backward compatibility during the transition period.
- */
-export const APP_AUTH_POLICIES = {
-  arbeidskassen: CONSOLIDATED_AUTH_POLICY,
-  backoffice: {
-    loginPath: "/login",
-    postLoginPath: "/",
-    protectedPrefixes: ["/"],
-  },
-  bookdet: {
-    loginPath: "/login",
-    postLoginPath: "/",
-    protectedPrefixes: ["/dashboard"],
-  },
-  organisasjon: {
-    loginPath: "/login",
-    postLoginPath: "/",
-    protectedPrefixes: ["/"],
-  },
-  salesPortal: {
-    loginPath: "/login",
-    postLoginPath: "/",
-    protectedPrefixes: ["/"],
-  },
-  teamarea: {
-    loginPath: "/login",
-    postLoginPath: "/",
-    protectedPrefixes: ["/dashboard"],
-  },
-  today: {
-    loginPath: "/login",
-    postLoginPath: "/",
-    protectedPrefixes: ["/dashboard"],
-  },
-} satisfies Record<string, Required<AppAuthMiddlewareOptions>>;
+
 
 type CookieToSet = {
   name: string;

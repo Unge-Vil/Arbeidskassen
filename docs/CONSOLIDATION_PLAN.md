@@ -1,5 +1,7 @@
 # Konsolideringsplan: 7 apper → 1 app
 
+> **✅ FULLFØRT 2026-04-12** — Denne planen er gjennomført og beholdes kun som historisk referanse. Se [ARCHITECTURE.md](ARCHITECTURE.md) for gjeldende arkitektur.
+
 > Detaljert faseplan for å konsolidere alle 7 Next.js-apper til én enkelt app (`apps/arbeidskassen`), med moduler som rutegrupper i stedet for separate prosjekter.
 
 ---

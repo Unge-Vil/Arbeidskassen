@@ -7,21 +7,26 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
     "clean": "rm -rf .next .next-build node_modules .turbo"
   },
   "dependencies": {
     "@arbeidskassen/supabase": "workspace:*",
     "@arbeidskassen/ui": "workspace:*",
+    "@sentry/nextjs": "^10.48.0",
     "@supabase/ssr": "^0.5.0",
     "lucide-react": "^1.8.0",
     "next": "^15.1.0",
     "next-intl": "^4.9.0",
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "stripe": "^22.0.1"
   },
   "devDependencies": {
     "@arbeidskassen/config": "workspace:*",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",

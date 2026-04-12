@@ -2,11 +2,59 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { handleAppSession } from "@arbeidskassen/supabase/middleware";
 import { routing } from "./i18n/routing";
+import { checkRateLimit, type RateLimitConfig } from "./lib/rate-limit";
 
 const intlMiddleware = createMiddleware(routing);
 const canonicalPublicPaths = new Set(["/", "/login"]);
 
+// Rate limit: 10 requests per 60 seconds per IP for sensitive routes
+const authRateLimit: RateLimitConfig = { maxRequests: 10, windowMs: 60_000 };
+// Rate limit: 30 requests per 60 seconds per IP for webhooks
+const webhookRateLimit: RateLimitConfig = { maxRequests: 30, windowMs: 60_000 };
+
+const rateLimitedPrefixes: Array<{ prefix: string; config: RateLimitConfig }> =
+  [
+    { prefix: "/login", config: authRateLimit },
+    { prefix: "/select-tenant", config: authRateLimit },
+    { prefix: "/api/webhooks/", config: webhookRateLimit },
+  ];
+
+function getRateLimitConfig(pathname: string): RateLimitConfig | null {
+  for (const { prefix, config } of rateLimitedPrefixes) {
+    if (pathname === prefix || pathname.startsWith(prefix + "/") || pathname.startsWith(prefix)) {
+      return config;
+    }
+  }
+  return null;
+}
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "unknown"
+  );
+}
+
 export async function middleware(request: NextRequest) {
+  // ── Rate limiting on sensitive routes ─────────────────────────
+  const rlConfig = getRateLimitConfig(request.nextUrl.pathname);
+  if (rlConfig) {
+    const ip = getClientIp(request);
+    const key = `${ip}:${request.nextUrl.pathname}`;
+    const result = checkRateLimit(key, rlConfig);
+
+    if (!result.allowed) {
+      return new NextResponse("Too Many Requests", {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((result.retryAfterMs ?? 0) / 1000)),
+        },
+      });
+    }
+  }
+
+  // ── Routing & auth ────────────────────────────────────────────
   const response = canonicalPublicPaths.has(request.nextUrl.pathname)
     ? NextResponse.next({ request })
     : intlMiddleware(request);

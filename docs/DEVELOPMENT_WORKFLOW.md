@@ -262,8 +262,8 @@ Each PR generates a preview URL per app. Turborepo's `affected` filter ensures o
 # and deploys only those apps to preview URLs.
 
 # Example:
-# PR changes packages/ui → all apps rebuilt (shared dependency)
-# PR changes apps/bookdet only → only bookdet rebuilt
+# PR changes packages/ui → full rebuild (shared dependency)
+# PR changes app/[locale]/(authenticated)/bookdet only → single app rebuild
 ```
 
 ### Production Deployment
