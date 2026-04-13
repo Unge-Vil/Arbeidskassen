@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import {
   resolveAdminAppHrefs,
   type Dashboard,
@@ -12,26 +11,7 @@ import {
   updateDashboardName,
 } from "../../actions/dashboard"
 import { getLocale } from "next-intl/server"
-
-const DashboardGrid = dynamic(
-  () => import("@arbeidskassen/ui").then((m) => ({ default: m.DashboardGrid })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="p-6">
-        <div className="mb-6 h-7 w-48 animate-pulse rounded bg-[var(--ak-border)]" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-32 animate-pulse rounded-xl border border-[var(--ak-border)] bg-[var(--ak-bg-panel)]"
-            />
-          ))}
-        </div>
-      </div>
-    ),
-  },
-)
+import { DashboardGridClient } from "./dashboard-grid-client"
 
 export default async function DashboardPage() {
   const locale = await getLocale()
@@ -140,7 +120,7 @@ export default async function DashboardPage() {
       </div>
 
       {dashboards.length > 0 ? (
-        <DashboardGrid
+        <DashboardGridClient
           locale={locale}
           initialDashboards={dashboards}
           onSaveLayout={updateDashboardLayout}

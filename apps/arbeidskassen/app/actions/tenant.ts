@@ -17,10 +17,6 @@ function getEncodedErrorMessage(message: string): string {
   return encodeURIComponent(message);
 }
 
-function normalizeAppLocale(value: FormDataEntryValue | null): SupportedLocale {
-  return value === "en" ? "en" : "no";
-}
-
 function getOptionalString(value: FormDataEntryValue | null): string | null {
   if (typeof value !== "string") {
     return null;

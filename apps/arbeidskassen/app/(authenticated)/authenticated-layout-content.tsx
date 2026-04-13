@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import {
@@ -11,11 +10,7 @@ import { resolveAdminAppHrefs } from "@arbeidskassen/ui";
 import { signOutAction, switchTenantAction } from "../actions/auth";
 import { updateThemePreferenceAction } from "../actions/profile";
 import { AuthenticatedShell } from "./authenticated-shell";
-
-const DashboardOverlay = dynamic(
-  () => import("@arbeidskassen/ui").then((m) => ({ default: m.DashboardOverlay })),
-  { ssr: false },
-);
+import { DashboardOverlayClient } from "./dashboard-overlay-client";
 
 function getUserInitial(email?: string | null): string {
   return email?.trim().charAt(0).toUpperCase() || "A";
@@ -76,7 +71,7 @@ export default async function AuthenticatedLayoutContent({
       onSignOut={signOutAction}
     >
       {children}
-      <DashboardOverlay fetchDashboards={getCurrentUserDashboardsSafe} />
+      <DashboardOverlayClient fetchDashboards={getCurrentUserDashboardsSafe} />
     </AuthenticatedShell>
   );
 }
