@@ -86,7 +86,7 @@ export async function middleware(request: NextRequest) {
 
   // Expose pathname to Server Components via request header so that
   // i18n/request.ts can load only the relevant module namespace.
-  response.headers.set("x-middleware-request-x-pathname", pathname);
+  response.headers.set("x-pathname", pathname);
 
   return handleAppSession(request, authPolicy, response);
 }
