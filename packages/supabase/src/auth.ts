@@ -295,6 +295,99 @@ export async function requireTenantContext(): Promise<TenantContext> {
   return context;
 }
 
+// Lett kontekst: brukes av authenticated shell-layout.
+// Gjør kun getUser() + tenant_members-query — ingen role-assignment-queries.
+// Sparer 2 DB-kall (member_role_assignments + custom_roles) per request.
+export type ShellContext = {
+  user: User;
+  memberships: Array<{
+    id: string;
+    tenant_id: string;
+    role: TenantRole;
+    tenant: TenantSummary;
+  }>;
+  currentTenant: TenantSummary | null;
+  selectedTenantId: string | null;
+  requiresTenantSelection: boolean;
+};
+
+export const getShellContext = cache(async function getShellContext(): Promise<ShellContext | null> {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("tenant_members")
+    .select(
+      `
+        id,
+        tenant_id,
+        role,
+        tenants (
+          id,
+          name,
+          display_name,
+          slug,
+          logo_url,
+          plan,
+          plan_status,
+          primary_color
+        )
+      `,
+    )
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Failed to load tenant memberships for shell context", error);
+    return {
+      user,
+      memberships: [],
+      currentTenant: null,
+      selectedTenantId: getSelectedTenantId(user),
+      requiresTenantSelection: false,
+    };
+  }
+
+  const memberships = ((data ?? []) as TenantQueryRow[])
+    .map((row) => {
+      const tenant = normalizeTenant(row.tenants);
+      if (!tenant) return null;
+      return {
+        id: row.id,
+        tenant_id: row.tenant_id,
+        role: row.role,
+        tenant,
+      };
+    })
+    .filter((m): m is NonNullable<typeof m> => m !== null);
+
+  const selectedTenantId = getSelectedTenantId(user);
+  const hasExplicitSelection =
+    selectedTenantId !== null &&
+    memberships.some((m) => m.tenant_id === selectedTenantId);
+
+  const currentMembership =
+    memberships.find((m) => m.tenant_id === selectedTenantId) ??
+    memberships[0] ??
+    null;
+
+  return {
+    user,
+    memberships,
+    currentTenant: currentMembership?.tenant ?? null,
+    selectedTenantId,
+    requiresTenantSelection: memberships.length > 1 && !hasExplicitSelection,
+  };
+});
+
 export async function switchTenant(
   tenantId: string,
 ): Promise<{ success: boolean; error?: string }> {

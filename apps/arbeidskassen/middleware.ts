@@ -37,11 +37,13 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
   // ── Rate limiting on sensitive routes ─────────────────────────
-  const rlConfig = getRateLimitConfig(request.nextUrl.pathname);
+  const rlConfig = getRateLimitConfig(pathname);
   if (rlConfig) {
     const ip = getClientIp(request);
-    const key = `${ip}:${request.nextUrl.pathname}`;
+    const key = `${ip}:${pathname}`;
     const result = checkRateLimit(key, rlConfig);
 
     if (!result.allowed) {
@@ -54,10 +56,35 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ── Routing & auth ────────────────────────────────────────────
-  const response = canonicalPublicPaths.has(request.nextUrl.pathname)
+  // ── Skip locale routing for API routes ───────────────────────
+  // API routes handle their own response format — intlMiddleware
+  // is only needed for page routes to do locale prefix detection.
+  if (pathname.startsWith("/api/")) {
+    return handleAppSession(request, {
+      loginPath: "/login",
+      postLoginPath: "/select-tenant",
+      protectedPrefixes: [
+        "/dashboard",
+        "/select-tenant",
+        "/profil",
+        "/bookdet",
+        "/organisasjon",
+        "/teamarea",
+        "/today",
+        "/backoffice",
+        "/sales-portal",
+      ],
+    });
+  }
+
+  // ── Locale routing & auth for page routes ────────────────────
+  const response = canonicalPublicPaths.has(pathname)
     ? NextResponse.next({ request })
     : intlMiddleware(request);
+
+  // Expose pathname to Server Components via request header so that
+  // i18n/request.ts can load only the relevant module namespace.
+  response.headers.set("x-middleware-request-x-pathname", pathname);
 
   return handleAppSession(
     request,

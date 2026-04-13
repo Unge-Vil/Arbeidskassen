@@ -58,8 +58,8 @@ function normalizeSlug(value: FormDataEntryValue | null): string | null {
     .slice(0, 64);
 }
 
-function getRolesRedirectBase(locale: SupportedLocale): string {
-  return `/${locale}/organisasjon/roller`;
+function getRolesRedirectBase(_locale: SupportedLocale): string {
+  return `/organisasjon/roller`;
 }
 
 function redirectWithError(locale: SupportedLocale, message: string): never {
@@ -70,10 +70,10 @@ function redirectWithSuccess(locale: SupportedLocale, message: string): never {
   redirect(`${getRolesRedirectBase(locale)}?saved=1&message=${getEncodedErrorMessage(message)}`);
 }
 
-function revalidateRolePaths(locale: SupportedLocale): void {
-  revalidatePath(getRolesRedirectBase(locale));
-  revalidatePath(`/${locale}/organisasjon/brukere`);
-  revalidatePath(`/${locale}/organisasjon/audit-logg`);
+function revalidateRolePaths(_locale: SupportedLocale): void {
+  revalidatePath(`/organisasjon/roller`);
+  revalidatePath(`/organisasjon/brukere`);
+  revalidatePath(`/organisasjon/audit-logg`);
 }
 
 async function requireRoleAdmin(locale: SupportedLocale): Promise<RoleAdminContext> {

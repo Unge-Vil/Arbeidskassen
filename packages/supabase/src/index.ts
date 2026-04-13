@@ -16,12 +16,14 @@ export {
   getEffectivePermissions,
   getEffectiveRole,
   getSelectedTenantId,
+  getShellContext,
   getTenantContext,
   hasAnyTenantRole,
   hasPermission,
   requireTenantContext,
   signOut,
   switchTenant,
+  type ShellContext,
   type TenantContext,
   type TenantMembership,
   type TenantRole,
@@ -68,4 +70,10 @@ export {
   type PlatformPermissionDefinition,
   type PlatformPermissionKey,
 } from "./permissions";
+export {
+  getEnabledModules,
+  isModuleEnabled,
+  type AppModule,
+  type TenantPlan,
+} from "./modules";
 export type { Database } from "./types";

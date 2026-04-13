@@ -8,31 +8,19 @@ import {
   updateCurrentUserThemePreference,
 } from "@arbeidskassen/supabase";
 
-function normalizeLocale(value: FormDataEntryValue | null): "no" | "en" {
-  return value === "en" ? "en" : "no";
-}
-
 function getEncodedErrorMessage(message: string): string {
   return encodeURIComponent(message);
 }
 
 export async function updateThemePreferenceAction(formData: FormData) {
-  const currentLocale = normalizeLocale(formData.get("locale"));
   const result = await updateCurrentUserThemePreference(formData.get("themePreference"));
 
   if (!result.success) {
     console.error("Failed to update theme preference", result.error);
   }
-
-  revalidatePath(`/${currentLocale}`, "layout");
-  revalidatePath("/", "layout");
-
-  return result;
 }
 
 export async function updateProfileAction(formData: FormData) {
-  const currentLocale = normalizeLocale(formData.get("locale"));
-
   const profileInput = sanitizeUserProfileInput({
     displayName: formData.get("displayName"),
     phone: formData.get("phone"),
@@ -46,7 +34,7 @@ export async function updateProfileAction(formData: FormData) {
 
   if (profileInput.displayName.length > 80 || profileInput.jobTitle.length > 80) {
     redirect(
-      `/${currentLocale}/profil?error=${getEncodedErrorMessage("Navn eller stilling er for lang.")}`,
+      `/profil?error=${getEncodedErrorMessage("Navn eller stilling er for lang.")}`,
     );
   }
 
@@ -54,19 +42,13 @@ export async function updateProfileAction(formData: FormData) {
 
   if (!result.success) {
     redirect(
-      `/${currentLocale}/profil?error=${getEncodedErrorMessage(
+      `/profil?error=${getEncodedErrorMessage(
         result.error ?? "Kunne ikke lagre profilen akkurat nå.",
       )}`,
     );
   }
 
-  const targetLocale = profileInput.preferredLocale;
+  revalidatePath("/profil");
 
-  revalidatePath(`/${currentLocale}/profil`);
-  revalidatePath(`/${targetLocale}/profil`);
-  revalidatePath(`/${currentLocale}/dashboard`);
-  revalidatePath(`/${targetLocale}/dashboard`);
-  revalidatePath("/", "layout");
-
-  redirect(`/${targetLocale}/profil?saved=1`);
+  redirect(`/profil?saved=1`);
 }

@@ -52,8 +52,8 @@ function normalizeRole(value: FormDataEntryValue | null): TenantRole {
   return "viewer";
 }
 
-function getMembersRedirectBase(locale: SupportedLocale): string {
-  return `/${locale}/organisasjon/brukere`;
+function getMembersRedirectBase(_locale: SupportedLocale): string {
+  return `/organisasjon/brukere`;
 }
 
 function redirectWithError(locale: SupportedLocale, message: string): never {
@@ -64,9 +64,9 @@ function redirectWithSuccess(locale: SupportedLocale, message: string): never {
   redirect(`${getMembersRedirectBase(locale)}?saved=1&message=${getEncodedErrorMessage(message)}`);
 }
 
-function revalidateMemberPaths(locale: SupportedLocale): void {
-  revalidatePath(getMembersRedirectBase(locale));
-  revalidatePath(`/${locale}/organisasjon/audit-logg`);
+function revalidateMemberPaths(_locale: SupportedLocale): void {
+  revalidatePath(`/organisasjon/brukere`);
+  revalidatePath(`/organisasjon/audit-logg`);
 }
 
 async function requireMemberAdmin(locale: SupportedLocale): Promise<MemberAdminContext> {

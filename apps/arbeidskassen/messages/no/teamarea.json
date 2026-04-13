@@ -1,0 +1,78 @@
+{
+  "teamareaShell": {
+    "navLabel": "TeamArea",
+    "sections": {
+      "overview": "Oversikt",
+      "groups": "Dine grupper"
+    },
+    "nav": {
+      "feed": "News Feed",
+      "saved": "Saved Posts",
+      "announcements": "Announcements"
+    },
+    "groups": {
+      "allHands": "Alle ansatte",
+      "designTeam": "Design Team",
+      "operations": "Drift og planlegging"
+    }
+  },
+  "teamareaHome": {
+    "badge": "Intern feed · MVP",
+    "title": "Et roligere sted for oppdateringer, kunngjøringer og milepæler",
+    "description": "Første versjon av TeamArea samler små statusoppdateringer, viktige kunngjøringer og fremdrift på tvers av organisasjon og avdelinger — i en enkel feed uten unødvendig støy.",
+    "composer": {
+      "prompt": "Del en oppdatering, milepæl eller viktig beskjed med teamet...",
+      "photoVideo": "Photo/Video",
+      "milestone": "Milestone",
+      "post": "Post"
+    },
+    "summary": {
+      "postsTodayLabel": "Innlegg i dag",
+      "postsTodayDetail": "Aktivitet på tvers av avdelinger",
+      "activeGroupsLabel": "Aktive grupper",
+      "activeGroupsDetail": "Avdelinger med ny aktivitet",
+      "announcementsLabel": "Kunngjøringer",
+      "announcementsDetail": "Ledelsesmeldinger denne uken"
+    },
+    "showingLabel": "Viser:",
+    "showingCount": "synlige innlegg",
+    "emptyState": "Ingen innlegg matcher dette utvalget ennå.",
+    "views": {
+      "feed": "hele feeden",
+      "saved": "lagrede innlegg",
+      "announcements": "kunngjøringer"
+    },
+    "postTypes": {
+      "update": "Oppdatering",
+      "announcement": "Kunngjøring",
+      "milestone": "Milepæl"
+    },
+    "pinned": "Festet",
+    "audience": {
+      "orgWide": "Hele organisasjonen",
+      "department": "Avdelingsfeed",
+      "shift": "Driftsteam"
+    },
+    "groupLabels": {
+      "allHands": "Alle ansatte",
+      "designTeam": "Design Team",
+      "operations": "Drift og planlegging"
+    },
+    "meta": {
+      "reactions": "reaksjoner",
+      "comments": "kommentarer",
+      "share": "Del"
+    },
+    "posts": {
+      "launchTitle": "Vi lanserte partnerportalen i dag 🚀",
+      "launchBody": "Stor takk til design- og driftsteamet for en ryddig siste sprint. Vi tar en intern demo i morgen kl. 09:30 og samler tilbakemeldinger direkte i TeamArea.",
+      "launchTime": "for 2 timer siden",
+      "announcementTitle": "Ny rutine for ukentlige avdelingsoppdateringer",
+      "announcementBody": "Fra neste uke bruker vi TeamArea til korte mandagsoppdateringer per avdeling. Målet er mindre statusmøter og bedre flyt i hverdagen.",
+      "announcementTime": "i går",
+      "opsTitle": "Driftsteamet dekker fredagsskiftet ✅",
+      "opsBody": "Nå er bemanningen på plass for fredag. Hvis noen trenger bytte, legg det inn før kl. 14 så tar vi det i samme flyt.",
+      "opsTime": "for 4 timer siden"
+    }
+  }
+}

@@ -27,7 +27,7 @@ export function resolveActiveAdminModule(pathname?: string) {
   return "dashboard"
 }
 
-export function normalizeReturnTo(returnTo: string | null | undefined, locale = "no") {
+export function normalizeReturnTo(returnTo: string | null | undefined, _locale = "no") {
   if (typeof returnTo !== "string") {
     return null
   }
@@ -56,7 +56,7 @@ export function normalizeReturnTo(returnTo: string | null | undefined, locale = 
     return null
   }
 
-  const normalizedHref = resolveInternalAdminHref(trimmedReturnTo, locale)
+  const normalizedHref = resolveInternalAdminHref(trimmedReturnTo)
 
   if (normalizedHref.startsWith("/")) {
     return normalizedHref
@@ -79,37 +79,33 @@ function appendReturnTo(href: string, returnTo: string | null | undefined, local
 }
 
 export function buildArbeidskassenHref(
-  locale: string,
+  _locale: string,
   path = "/",
   options: { returnTo?: string | null } = {},
 ) {
   const normalizedPath = path ? (path.startsWith("/") ? path : `/${path}`) : "/"
 
-  if (normalizedPath === "/" || normalizedPath === "/login") {
-    return appendReturnTo(normalizedPath, options.returnTo, locale)
-  }
-
-  return appendReturnTo(`/${locale}${normalizedPath}`, options.returnTo, locale)
+  return appendReturnTo(normalizedPath, options.returnTo, _locale)
 }
 
-export function buildLocalizedAppHref(base: string, locale: string, path = "") {
+export function buildLocalizedAppHref(_base: string, _locale: string, path = "") {
   const normalizedPath = path ? (path.startsWith("/") ? path : `/${path}`) : ""
-  return `/${locale}${base}${normalizedPath}`
+  return `${_base}${normalizedPath}`
 }
 
-export function resolveAdminAppHrefs(locale: string) {
+export function resolveAdminAppHrefs(_locale?: string) {
   return {
-    dashboard: `/${locale}/dashboard`,
-    today: `/${locale}/today`,
-    booking: `/${locale}/bookdet`,
-    organization: `/${locale}/organisasjon`,
-    teamarea: `/${locale}/teamarea`,
-    backoffice: `/${locale}/backoffice`,
-    salesPortal: `/${locale}/sales-portal`,
+    dashboard: "/dashboard",
+    today: "/today",
+    booking: "/bookdet",
+    organization: "/organisasjon",
+    teamarea: "/teamarea",
+    backoffice: "/backoffice",
+    salesPortal: "/sales-portal",
   }
 }
 
-export function resolveInternalAdminHref(href: string, locale = "no") {
+export function resolveInternalAdminHref(href: string, _locale = "no") {
   if (
     !href ||
     /^(?:[a-z][a-z\d+\-.]*:)?\/\//i.test(href) ||
@@ -122,9 +118,9 @@ export function resolveInternalAdminHref(href: string, locale = "no") {
   const parsedHref = new URL(href, "http://arbeidskassen.local")
   const segments = parsedHref.pathname.split("/").filter(Boolean)
 
-  let resolvedLocale = supportedLocales.has(locale) ? locale : "no"
+  // Strip locale prefix from path if present (backward compat with old bookmarks)
   if (segments[0] && supportedLocales.has(segments[0])) {
-    resolvedLocale = segments.shift() ?? resolvedLocale
+    segments.shift()
   }
 
   const [rootSegment, ...restSegments] = segments
@@ -132,13 +128,7 @@ export function resolveInternalAdminHref(href: string, locale = "no") {
     return href
   }
 
-  let normalizedRestSegments = restSegments
-  if (normalizedRestSegments[0] && supportedLocales.has(normalizedRestSegments[0])) {
-    resolvedLocale = normalizedRestSegments[0]
-    normalizedRestSegments = normalizedRestSegments.slice(1)
-  }
-
-  const appHrefs = resolveAdminAppHrefs(resolvedLocale)
+  const appHrefs = resolveAdminAppHrefs()
   const baseHref = {
     dashboard: appHrefs.dashboard,
     today: appHrefs.today,
@@ -153,6 +143,8 @@ export function resolveInternalAdminHref(href: string, locale = "no") {
     return href
   }
 
-  const suffix = normalizedRestSegments.length > 0 ? `/${normalizedRestSegments.join("/")}` : ""
+  // Also strip any stale locale segment that appears within the path
+  const cleanedRestSegments = restSegments.filter((seg) => !supportedLocales.has(seg))
+  const suffix = cleanedRestSegments.length > 0 ? `/${cleanedRestSegments.join("/")}` : ""
   return `${baseHref}${suffix}${parsedHref.search}${parsedHref.hash}`
 }

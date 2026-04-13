@@ -53,8 +53,8 @@ function normalizeSlug(value: FormDataEntryValue | null): string | null {
     .slice(0, 64);
 }
 
-function getStructureRedirectBase(locale: SupportedLocale): string {
-  return `/${locale}/organisasjon/struktur`;
+function getStructureRedirectBase(_locale: SupportedLocale): string {
+  return `/organisasjon/struktur`;
 }
 
 function redirectWithError(locale: SupportedLocale, message: string): never {
@@ -67,10 +67,10 @@ function redirectWithSuccess(locale: SupportedLocale, message: string): never {
   );
 }
 
-function revalidateStructurePaths(locale: SupportedLocale): void {
-  revalidatePath(getStructureRedirectBase(locale));
-  revalidatePath(`/${locale}/organisasjon/brukere`);
-  revalidatePath(`/${locale}/organisasjon/audit-logg`);
+function revalidateStructurePaths(_locale: SupportedLocale): void {
+  revalidatePath(`/organisasjon/struktur`);
+  revalidatePath(`/organisasjon/brukere`);
+  revalidatePath(`/organisasjon/audit-logg`);
 }
 
 async function requireStructureAdmin(locale: SupportedLocale): Promise<StructureAdminContext> {

@@ -118,9 +118,7 @@ function normalizeWorkingHours(
 }
 
 export async function updateTenantSettingsAction(formData: FormData) {
-  const currentLocale = normalizeAppLocale(formData.get("currentLocale"));
-  const tenantLocale = normalizeTenantLocale(formData.get("tenantLocale"));
-  const redirectBase = `/${currentLocale}/organisasjon/virksomhet`;
+  const redirectBase = `/organisasjon/virksomhet`;
 
   const context = await getTenantContext();
 
@@ -147,6 +145,7 @@ export async function updateTenantSettingsAction(formData: FormData) {
   const website = normalizeUrl(formData.get("website"));
   const logoUrl = normalizeUrl(formData.get("logoUrl"), { allowRelative: true });
   const billingEmail = normalizeEmail(formData.get("billingEmail"));
+  const tenantLocale = normalizeTenantLocale(formData.get("tenantLocale"));
   const workingHoursSummary = getOptionalString(formData.get("workingHoursSummary"));
 
   if (
@@ -222,13 +221,7 @@ export async function updateTenantSettingsAction(formData: FormData) {
     );
   }
 
-  const targetLocale = tenantLocale === "en" ? "en" : "no";
+  revalidatePath(`/organisasjon/virksomhet`);
 
-  revalidatePath(`/${currentLocale}/organisasjon/virksomhet`);
-  revalidatePath(`/${targetLocale}/organisasjon/virksomhet`);
-  revalidatePath(`/${currentLocale}`);
-  revalidatePath(`/${targetLocale}`);
-  revalidatePath("/", "layout");
-
-  redirect(`/${targetLocale}/organisasjon/virksomhet?saved=1`);
+  redirect(`/organisasjon/virksomhet?saved=1`);
 }

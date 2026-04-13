@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, type ReactNode } from "react";
-import { useParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useLocale } from "next-intl";
 import {
   Navbar,
   defaultDisabledModules,
@@ -35,8 +36,7 @@ export function AuthenticatedShell({
 }: AuthenticatedShellProps) {
   const pathname = usePathname();
   const activeModule = resolveActiveAdminModule(pathname);
-  const params = useParams<{ locale?: string }>();
-  const locale = typeof params?.locale === "string" ? params.locale : "no";
+  const locale = useLocale();
   const moduleHrefs = useMemo(() => resolveAdminAppHrefs(locale), [locale]);
 
   return (

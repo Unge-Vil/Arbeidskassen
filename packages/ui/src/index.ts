@@ -20,6 +20,11 @@ export {
   type ResolvedTheme,
 } from "./components/theme-provider";
 export {
+  normalizeThemePreference,
+  THEME_PREFERENCE_COOKIE,
+  THEME_PREFERENCE_STORAGE_KEY,
+} from "./components/theme-utils";
+export {
   Navbar,
   ModuleTabs,
   SearchOverlay,

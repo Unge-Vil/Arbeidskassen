@@ -1,5 +1,7 @@
 "use server";
 
+import { unstable_cache } from "next/cache";
+import { createAdminClient } from "./admin";
 import { createServerClient } from "./server";
 
 export type DashboardItem = {
@@ -34,10 +36,6 @@ type DashboardRow = {
   updated_at?: string | null;
 };
 
-function getDashboardTable(supabase: Awaited<ReturnType<typeof createServerClient>>) {
-  return supabase.from("user_dashboards" as never);
-}
-
 function mapDashboardRow(row: DashboardRow): UserDashboard {
   return {
     id: row.id,
@@ -46,6 +44,29 @@ function mapDashboardRow(row: DashboardRow): UserDashboard {
     layout_config: row.layout_config ?? [],
   };
 }
+
+// Cached across requests — uses admin client (no request-time cookies).
+// Cache key includes userId so each user gets their own cache entry.
+const fetchDashboardsForUser = unstable_cache(
+  async (userId: string): Promise<UserDashboard[]> => {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("user_dashboards" as never)
+      .select("*")
+      .eq("user_id", userId)
+      .order("order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Failed to fetch dashboards for user", error);
+      return [];
+    }
+
+    return ((data ?? []) as unknown as DashboardRow[]).map(mapDashboardRow);
+  },
+  ["user-dashboards"],
+  { tags: ["dashboards"], revalidate: 30 },
+);
 
 export async function getCurrentUserDashboardsSafe(): Promise<UserDashboard[]> {
   try {
@@ -64,18 +85,7 @@ export async function getCurrentUserDashboardsSafe(): Promise<UserDashboard[]> {
       return [];
     }
 
-    const { data, error } = await getDashboardTable(supabase)
-      .select("*")
-      .eq("user_id", user.id)
-      .order("order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      console.error("Failed to fetch dashboards safely", error);
-      return [];
-    }
-
-    return ((data ?? []) as unknown as DashboardRow[]).map(mapDashboardRow);
+    return fetchDashboardsForUser(user.id);
   } catch (error) {
     console.error("Unexpected safe dashboard fetch error", error);
     return [];
