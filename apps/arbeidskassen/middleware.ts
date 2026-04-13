@@ -1,11 +1,6 @@
-import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { handleAppSession } from "@arbeidskassen/supabase/middleware";
-import { routing } from "./i18n/routing";
 import { checkRateLimit, type RateLimitConfig } from "./lib/rate-limit";
-
-const intlMiddleware = createMiddleware(routing);
-const canonicalPublicPaths = new Set(["/", "/login"]);
 
 const authPolicy = {
   loginPath: "/login",
@@ -72,21 +67,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ── Skip locale routing for API routes ───────────────────────
-  // API routes handle their own response format — intlMiddleware
-  // is only needed for page routes to do locale prefix detection.
-  if (pathname.startsWith("/api/")) {
-    return handleAppSession(request, authPolicy);
-  }
-
-  // ── Locale routing & auth for page routes ────────────────────
-  const response = canonicalPublicPaths.has(pathname)
-    ? NextResponse.next({ request })
-    : intlMiddleware(request);
+  // ── Page routes: forward pathname header + auth ──────────────
+  // Locale is resolved from cookie/Accept-Language in i18n/request.ts.
+  // No intlMiddleware rewrite needed since routes have no [locale] segment.
+  const response = NextResponse.next({ request });
 
   // Expose pathname to Server Components via request header so that
   // i18n/request.ts can load only the relevant module namespace.
-  response.headers.set("x-pathname", pathname);
+  if (!pathname.startsWith("/api/")) {
+    response.headers.set("x-pathname", pathname);
+  }
 
   return handleAppSession(request, authPolicy, response);
 }

@@ -44,6 +44,17 @@ function isLocalDevelopmentHost(hostname: string) {
   return /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/i.test(hostname);
 }
 
+function isPrefetchRequest(request: NextRequest): boolean {
+  return (
+    request.headers.get("purpose") === "prefetch" ||
+    request.headers.has("next-router-prefetch")
+  );
+}
+
+function isRscNavigationRequest(request: NextRequest): boolean {
+  return request.headers.has("rsc") || request.headers.has("next-router-state-tree");
+}
+
 function buildLoginRedirectUrl(request: NextRequest, loginPath: string) {
   const loginUrl = new URL(loginPath, request.url);
   loginUrl.searchParams.set(
@@ -101,6 +112,25 @@ export async function handleAppSession(
   const isProtectedRoute = protectedPrefixes.some((prefix) =>
     prefix === "/" ? pathname === "/" : matchesPath(pathname, prefix),
   );
+
+  // Skip auth round-trips for unrelated routes. Protected routes and login
+  // still go through session checks.
+  if (!isProtectedRoute && !isLoginRoute) {
+    return response;
+  }
+
+  // Router prefetch requests should stay lightweight; server components will
+  // still enforce auth and redirect when needed.
+  if (isPrefetchRequest(request)) {
+    return response;
+  }
+
+  // Client-side App Router transitions request RSC payloads. Those requests
+  // are already protected by server components/layouts, so skipping the
+  // middleware auth refresh avoids duplicate getUser() work per navigation.
+  if (isProtectedRoute && isRscNavigationRequest(request)) {
+    return response;
+  }
 
   const { url: supabaseUrl, key: supabaseKey } = resolveSupabaseEnv();
 

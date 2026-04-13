@@ -1,6 +1,8 @@
 import { getRequestConfig } from "next-intl/server";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { routing } from "./routing";
+
+const NEXT_LOCALE_COOKIE = "NEXT_LOCALE";
 
 /** Map each module's URL prefix to its namespace file. */
 const MODULE_NAMESPACE_MAP: Record<string, string> = {
@@ -19,13 +21,20 @@ function resolveModuleNamespace(pathname: string): string | null {
 }
 
 export default getRequestConfig(async ({ requestLocale }) => {
+  // Resolve locale: middleware hint → NEXT_LOCALE cookie → default
   let locale = await requestLocale;
 
   if (
     !locale ||
     !routing.locales.includes(locale as (typeof routing.locales)[number])
   ) {
-    locale = routing.defaultLocale;
+    const cookieStore = await cookies();
+    const cookieLocale = cookieStore.get(NEXT_LOCALE_COOKIE)?.value;
+    locale =
+      cookieLocale &&
+      routing.locales.includes(cookieLocale as (typeof routing.locales)[number])
+        ? cookieLocale
+        : routing.defaultLocale;
   }
 
   // Read the pathname set by middleware so we only load the relevant module

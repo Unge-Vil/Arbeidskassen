@@ -81,7 +81,7 @@ describe("handleAppSession", () => {
       },
     } as never);
 
-    const request = new NextRequest("https://example.com/");
+    const request = new NextRequest("https://example.com/login");
     const response = await handleAppSession(
       request,
       { protectedPrefixes: ["/dashboard"] },
@@ -118,6 +118,23 @@ describe("handleAppSession", () => {
     expect(response.headers.get("location")).toBe(
       "https://example.com/login?returnTo=%2Fno%2Fdashboard%3Ftab%3Doverview",
     );
+  });
+
+  it("skips middleware auth refresh for protected RSC navigation requests", async () => {
+    const request = new NextRequest("https://example.com/dashboard", {
+      headers: {
+        rsc: "1",
+      },
+    });
+
+    const response = await handleAppSession(
+      request,
+      { protectedPrefixes: ["/dashboard"] },
+      NextResponse.next({ request }),
+    );
+
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
   });
 
   it("prefers a safe returnTo target when an authenticated user visits login", async () => {
