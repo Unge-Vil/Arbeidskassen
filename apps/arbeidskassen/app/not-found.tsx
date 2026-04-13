@@ -2,68 +2,24 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <html lang="nb">
-      <body style={{ margin: 0 }}>
-        <div
-          className="flex min-h-screen items-center justify-center px-4"
-          style={{
-            background: "#f4f5f5",
-            fontFamily:
-              'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-          }}
-        >
-          <div
-            style={{
-              maxWidth: "28rem",
-              textAlign: "center",
-              padding: "2rem",
-              borderRadius: "1rem",
-              border: "1px solid #e5e7eb",
-              background: "#fdfdfd",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-            }}
+    <div className="flex min-h-screen items-center justify-center bg-[var(--ak-bg-main)] px-4">
+      <div className="w-full max-w-md rounded-2xl border border-[var(--ak-border)] bg-[var(--ak-bg-card)] p-8 text-center shadow-sm">
+        <p className="text-5xl font-bold text-[var(--ak-text-muted)]">404</p>
+        <h1 className="mt-2 text-xl font-semibold text-[var(--ak-text-main)]">
+          Siden finnes ikke
+        </h1>
+        <p className="mt-2 text-sm text-[var(--ak-text-muted)]">
+          Sjekk at adressen er riktig, eller gå tilbake til forsiden.
+        </p>
+        <div className="mt-6">
+          <Link
+            href="/"
+            className="inline-block rounded-lg bg-[var(--ak-accent)] px-5 py-2 text-sm font-medium text-[var(--ak-accent-foreground)] transition-colors hover:bg-[var(--ak-accent-hover)]"
           >
-            <p
-              style={{
-                fontSize: "3rem",
-                fontWeight: 700,
-                color: "#64748b",
-                margin: "0 0 0.5rem",
-              }}
-            >
-              404
-            </p>
-            <h1
-              style={{
-                fontSize: "1.25rem",
-                fontWeight: 600,
-                color: "#1a1f2e",
-                margin: "0 0 0.5rem",
-              }}
-            >
-              Siden finnes ikke
-            </h1>
-            <p style={{ fontSize: "0.875rem", color: "#64748b", margin: "0 0 1.5rem" }}>
-              Sjekk at adressen er riktig, eller gå tilbake til forsiden.
-            </p>
-            <Link
-              href="/"
-              style={{
-                display: "inline-block",
-                padding: "0.5rem 1.25rem",
-                borderRadius: "0.5rem",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                color: "#ffffff",
-                background: "#4F5DD6",
-                textDecoration: "none",
-              }}
-            >
-              Gå til forsiden
-            </Link>
-          </div>
+            Gå til forsiden
+          </Link>
         </div>
-      </body>
-    </html>
+      </div>
+    </div>
   );
 }
