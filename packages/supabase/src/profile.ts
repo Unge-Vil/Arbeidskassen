@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 
+import { cache } from "react";
 import { createServerClient } from "./server";
 
 export type ProfileLocale = "no" | "en";
@@ -147,7 +148,7 @@ export function sanitizeUserProfileInput(
   };
 }
 
-export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null> {
+export const getCurrentUserProfile = cache(async function getCurrentUserProfile(): Promise<CurrentUserProfile | null> {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -167,7 +168,7 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null
     user,
     profile: normalizeProfileMetadata(user.user_metadata),
   };
-}
+});
 
 export async function updateCurrentUserThemePreference(
   themePreference: unknown,

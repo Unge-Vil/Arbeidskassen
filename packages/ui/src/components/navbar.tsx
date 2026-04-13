@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Search,
   CheckSquare,
@@ -531,20 +533,20 @@ export function ProfileMenu({
 
           <div className="space-y-0.5 p-2">
             <DropdownMenu.Item asChild>
-              <a
+              <Link
                 href={profileHref}
                 className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none"
               >
                 <User size={14} className="text-[var(--ak-text-muted)]" /> Min profil
-              </a>
+              </Link>
             </DropdownMenu.Item>
             <DropdownMenu.Item asChild>
-              <a
+              <Link
                 href={organizationHref}
                 className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors hover:bg-[var(--ak-bg-hover)] focus:bg-[var(--ak-bg-hover)] outline-none"
               >
                 <Building2 size={14} className="text-[var(--ak-text-muted)]" /> Organisasjon
-              </a>
+              </Link>
             </DropdownMenu.Item>
 
             {hasTenantSwitcher ? (
@@ -1011,6 +1013,7 @@ export function Navbar({
   onModuleChange,
 }: NavbarProps) {
   const resolvedModules = modules ?? defaultModules;
+  const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
@@ -1044,16 +1047,14 @@ export function Navbar({
     onModuleChange(id);
 
     const href = moduleHrefs?.[id]
-    if (!href || typeof window === "undefined") {
+    if (!href) {
       return
     }
 
-    const targetHref = href.startsWith("http://") || href.startsWith("https://")
-      ? href
-      : new URL(href, window.location.origin).toString()
-
-    if (targetHref !== window.location.href) {
+    if (href.startsWith("http://") || href.startsWith("https://")) {
       window.location.assign(href)
+    } else {
+      router.push(href)
     }
   }
 

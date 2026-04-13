@@ -6,7 +6,6 @@ import {
   getCurrentUserProfile,
 } from "@arbeidskassen/supabase";
 import { getLocale } from "next-intl/server";
-import "@arbeidskassen/ui/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

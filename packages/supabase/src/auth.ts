@@ -6,6 +6,7 @@ import {
   type PermissionMap,
   type PlatformPermissionKey,
 } from "./permissions";
+import { cache } from "react";
 import { createServerClient } from "./server";
 import type { Database } from "./types";
 
@@ -116,7 +117,7 @@ export async function getCurrentUser(): Promise<User | null> {
   return user;
 }
 
-export async function getTenantContext(): Promise<TenantContext | null> {
+export const getTenantContext = cache(async function getTenantContext(): Promise<TenantContext | null> {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -282,7 +283,7 @@ export async function getTenantContext(): Promise<TenantContext | null> {
     hasExplicitTenantSelection,
     requiresTenantSelection: memberships.length > 1 && !hasExplicitTenantSelection,
   };
-}
+});
 
 export async function requireTenantContext(): Promise<TenantContext> {
   const context = await getTenantContext();

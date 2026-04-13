@@ -7,6 +7,9 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const nextConfig: NextConfig = {
   distDir: process.env.NODE_ENV === "production" ? ".next-build" : ".next",
   transpilePackages: ["@arbeidskassen/ui", "@arbeidskassen/supabase"],
+  experimental: {
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-dropdown-menu", "@radix-ui/react-popover", "@radix-ui/react-dialog"],
+  },
 };
 
 export default withSentryConfig(withNextIntl(nextConfig), {
