@@ -8,11 +8,10 @@ export interface AppIconWidgetProps {
   iconUrl?: string
   href?: string
   disabled?: boolean
-  currentLocale?: string
 }
 
-export function AppIconWidget({ label, iconUrl, href, disabled, currentLocale = "no" }: AppIconWidgetProps) {
-  const resolvedHref = href ? resolveInternalAdminHref(href, currentLocale) : href
+export function AppIconWidget({ label, iconUrl, href, disabled }: AppIconWidgetProps) {
+  const resolvedHref = href ? resolveInternalAdminHref(href) : href
   const isDisabled = disabled || !resolvedHref || resolvedHref === "#"
   const content = (
     <>

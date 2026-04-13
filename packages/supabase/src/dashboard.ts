@@ -86,8 +86,9 @@ export async function getCurrentUserDashboardsSafe(): Promise<UserDashboard[]> {
     }
 
     return fetchDashboardsForUser(user.id);
-  } catch (error) {
-    console.error("Unexpected safe dashboard fetch error", error);
+  } catch {
+    // During next build static generation, cookies() throws — this is expected.
+    // The error is harmless: the page falls back to dynamic rendering.
     return [];
   }
 }

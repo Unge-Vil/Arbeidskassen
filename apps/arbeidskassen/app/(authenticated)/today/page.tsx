@@ -1,9 +1,9 @@
 import { ModuleComingSoonPage, resolveAdminAppHrefs } from "@arbeidskassen/ui";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 export default async function Home() {
-  const [locale, t] = await Promise.all([getLocale(), getTranslations("todayHome")]);
-  const appHrefs = resolveAdminAppHrefs(locale)
+  const t = await getTranslations("todayHome");
+  const appHrefs = resolveAdminAppHrefs()
 
   return (
     <ModuleComingSoonPage

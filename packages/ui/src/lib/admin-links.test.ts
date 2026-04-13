@@ -11,7 +11,7 @@ import {
 
 describe("admin-links", () => {
   it("returns locale-less internal paths for all modules", () => {
-    expect(resolveAdminAppHrefs("no")).toMatchObject({
+    expect(resolveAdminAppHrefs()).toMatchObject({
       dashboard: "/dashboard",
       today: "/today",
       booking: "/bookdet",
@@ -23,29 +23,29 @@ describe("admin-links", () => {
   })
 
   it("returns same paths regardless of locale argument", () => {
-    expect(resolveAdminAppHrefs("en").booking).toBe("/bookdet")
+    expect(resolveAdminAppHrefs().booking).toBe("/bookdet")
   })
 
   it("keeps the public Arbeidskassen landing and login at the root", () => {
-    expect(buildArbeidskassenHref("no", "/")).toBe("/")
-    expect(buildArbeidskassenHref("en", "/login", { returnTo: "/bookdet/oversikt" })).toBe(
+    expect(buildArbeidskassenHref("/")).toBe("/")
+    expect(buildArbeidskassenHref("/login", { returnTo: "/bookdet/oversikt" })).toBe(
       "/login?returnTo=%2Fbookdet%2Foversikt",
     )
-    expect(buildArbeidskassenHref("en", "/dashboard")).toBe("/dashboard")
+    expect(buildArbeidskassenHref("/dashboard")).toBe("/dashboard")
   })
 
   it("resolves internal admin hrefs to locale-less paths (strips stale locale prefix)", () => {
-    expect(resolveInternalAdminHref("/bookdet", "no")).toBe("/bookdet")
-    expect(resolveInternalAdminHref("/bookdet/no", "no")).toBe("/bookdet")
-    expect(resolveInternalAdminHref("/no/backoffice", "no")).toBe("/backoffice")
-    expect(resolveInternalAdminHref("/sales-portal", "en")).toBe("/sales-portal")
-    expect(resolveInternalAdminHref("/organisasjon/en/roller", "no")).toBe(
+    expect(resolveInternalAdminHref("/bookdet")).toBe("/bookdet")
+    expect(resolveInternalAdminHref("/bookdet/no")).toBe("/bookdet")
+    expect(resolveInternalAdminHref("/no/backoffice")).toBe("/backoffice")
+    expect(resolveInternalAdminHref("/sales-portal")).toBe("/sales-portal")
+    expect(resolveInternalAdminHref("/organisasjon/en/roller")).toBe(
       "/organisasjon/roller",
     )
   })
 
   it("builds app hrefs with base and path (no locale prefix)", () => {
-    expect(buildLocalizedAppHref("/organisasjon", "no", "/roller")).toBe("/organisasjon/roller")
+    expect(buildLocalizedAppHref("/organisasjon", "/roller")).toBe("/organisasjon/roller")
   })
 
   it("extracts a supported locale from direct values and stale nested paths", () => {

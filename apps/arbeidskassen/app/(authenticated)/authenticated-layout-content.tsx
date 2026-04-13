@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
 import {
   getShellContext,
   getCurrentUserDashboardsSafe,
@@ -41,8 +40,8 @@ export default async function AuthenticatedLayoutContent({
 }: {
   children: ReactNode;
 }) {
-  const [locale, context] = await Promise.all([getLocale(), getShellContext()]);
-  const appHrefs = resolveAdminAppHrefs(locale);
+  const context = await getShellContext();
+  const appHrefs = resolveAdminAppHrefs();
 
   if (!context?.user) {
     redirect(`/login?returnTo=${encodeURIComponent(appHrefs.dashboard)}`);

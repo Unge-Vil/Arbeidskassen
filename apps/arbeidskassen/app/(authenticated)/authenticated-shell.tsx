@@ -37,7 +37,7 @@ export function AuthenticatedShell({
   const pathname = usePathname();
   const activeModule = resolveActiveAdminModule(pathname);
   const locale = useLocale();
-  const moduleHrefs = useMemo(() => resolveAdminAppHrefs(locale), [locale]);
+  const moduleHrefs = useMemo(() => resolveAdminAppHrefs(), []);
 
   return (
     <div className="flex h-screen w-full select-none flex-col overflow-hidden bg-[var(--ak-bg-main)] font-sans text-[var(--ak-text-main)] transition-colors duration-300">

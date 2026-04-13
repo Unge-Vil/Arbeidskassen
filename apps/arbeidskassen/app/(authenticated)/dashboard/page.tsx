@@ -10,12 +10,13 @@ import {
   updateDashboardLayout,
   updateDashboardName,
 } from "../../actions/dashboard"
-import { getLocale } from "next-intl/server"
 import { DashboardGridClient } from "./dashboard-grid-client"
 
+// This page always requires auth (cookies) — skip static generation attempt.
+export const dynamic = "force-dynamic"
+
 export default async function DashboardPage() {
-  const locale = await getLocale()
-  const appHrefs = resolveAdminAppHrefs(locale)
+  const appHrefs = resolveAdminAppHrefs()
   let dashboards: Dashboard[] = []
   
   try {
@@ -121,7 +122,6 @@ export default async function DashboardPage() {
 
       {dashboards.length > 0 ? (
         <DashboardGridClient
-          locale={locale}
           initialDashboards={dashboards}
           onSaveLayout={updateDashboardLayout}
           onCreateDashboard={createDashboard}

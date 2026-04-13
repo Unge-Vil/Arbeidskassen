@@ -1,15 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { useLocale } from "next-intl";
 import {
   DashboardGrid,
   resolveAdminAppHrefs,
 } from "@arbeidskassen/ui";
 
 export default function Home() {
-  const locale = useLocale();
-  const appHrefs = useMemo(() => resolveAdminAppHrefs(locale), [locale]);
+  const appHrefs = useMemo(() => resolveAdminAppHrefs(), []);
 
   const dashboards = useMemo(
     () => [
@@ -153,7 +151,7 @@ export default function Home() {
           </p>
         </div>
 
-        <DashboardGrid locale={locale} initialDashboards={dashboards} />
+        <DashboardGrid initialDashboards={dashboards} />
       </div>
     </main>
   );

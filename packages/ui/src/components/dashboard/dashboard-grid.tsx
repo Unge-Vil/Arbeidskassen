@@ -59,7 +59,6 @@ interface DashboardGridProps {
   onRenameDashboard?: (dashboardId: string, name: string, hotkey?: number | null) => Promise<Dashboard | null | undefined>
   onDeleteDashboard?: (dashboardId: string) => Promise<unknown>
   isReadOnly?: boolean
-  locale?: string
 }
 
 const cloneProps = (props?: object) => {
@@ -80,7 +79,6 @@ export function DashboardGrid({
   onRenameDashboard,
   onDeleteDashboard,
   isReadOnly = false,
-  locale = "no",
 }: DashboardGridProps) {
   const [dashboards, setDashboards] = React.useState<Dashboard[]>(initialDashboards)
   const [activeDashboardId, setActiveDashboardId] = React.useState<string>(initialDashboards[0]?.id || "")
@@ -366,7 +364,7 @@ export function DashboardGrid({
     }
 
     const WidgetComponent = widgetDef.component
-    const widgetProps = { ...(item.props ?? {}), currentLocale: locale } as Record<string, unknown>
+    const widgetProps = { ...(item.props ?? {}) } as Record<string, unknown>
     return <WidgetComponent {...widgetProps} />
   }
 

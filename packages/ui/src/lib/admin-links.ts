@@ -27,7 +27,7 @@ export function resolveActiveAdminModule(pathname?: string) {
   return "dashboard"
 }
 
-export function normalizeReturnTo(returnTo: string | null | undefined, _locale = "no") {
+export function normalizeReturnTo(returnTo: string | null | undefined) {
   if (typeof returnTo !== "string") {
     return null
   }
@@ -65,8 +65,8 @@ export function normalizeReturnTo(returnTo: string | null | undefined, _locale =
   return null
 }
 
-function appendReturnTo(href: string, returnTo: string | null | undefined, locale: string) {
-  const normalizedReturnTo = normalizeReturnTo(returnTo, locale)
+function appendReturnTo(href: string, returnTo: string | null | undefined) {
+  const normalizedReturnTo = normalizeReturnTo(returnTo)
 
   if (!normalizedReturnTo) {
     return href
@@ -79,21 +79,20 @@ function appendReturnTo(href: string, returnTo: string | null | undefined, local
 }
 
 export function buildArbeidskassenHref(
-  _locale: string,
   path = "/",
   options: { returnTo?: string | null } = {},
 ) {
   const normalizedPath = path ? (path.startsWith("/") ? path : `/${path}`) : "/"
 
-  return appendReturnTo(normalizedPath, options.returnTo, _locale)
+  return appendReturnTo(normalizedPath, options.returnTo)
 }
 
-export function buildLocalizedAppHref(_base: string, _locale: string, path = "") {
+export function buildLocalizedAppHref(base: string, path = "") {
   const normalizedPath = path ? (path.startsWith("/") ? path : `/${path}`) : ""
-  return `${_base}${normalizedPath}`
+  return `${base}${normalizedPath}`
 }
 
-export function resolveAdminAppHrefs(_locale?: string) {
+export function resolveAdminAppHrefs() {
   return {
     dashboard: "/dashboard",
     today: "/today",
@@ -105,7 +104,7 @@ export function resolveAdminAppHrefs(_locale?: string) {
   }
 }
 
-export function resolveInternalAdminHref(href: string, _locale = "no") {
+export function resolveInternalAdminHref(href: string) {
   if (
     !href ||
     /^(?:[a-z][a-z\d+\-.]*:)?\/\//i.test(href) ||

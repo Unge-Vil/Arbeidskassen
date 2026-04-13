@@ -15,7 +15,6 @@ export interface QuickActionItem {
 export interface QuickActionsWidgetProps {
   title?: string;
   actions?: QuickActionItem[];
-  currentLocale?: string;
 }
 
 const defaultActions: QuickActionItem[] = [
@@ -27,7 +26,6 @@ const defaultActions: QuickActionItem[] = [
 export function QuickActionsWidget({
   title = "Hurtighandlinger",
   actions = defaultActions,
-  currentLocale = "no",
 }: QuickActionsWidgetProps) {
   return (
     <div className="flex h-full flex-col rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] p-4">
@@ -44,7 +42,7 @@ export function QuickActionsWidget({
       <div className="flex flex-1 flex-col gap-2">
         {actions.map((action) => {
           const resolvedHref = action.href
-            ? resolveInternalAdminHref(action.href, currentLocale)
+            ? resolveInternalAdminHref(action.href)
             : action.href
           const isDisabled = action.disabled || !resolvedHref || resolvedHref === "#"
 

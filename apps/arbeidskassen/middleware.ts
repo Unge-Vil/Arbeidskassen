@@ -7,6 +7,22 @@ import { checkRateLimit, type RateLimitConfig } from "./lib/rate-limit";
 const intlMiddleware = createMiddleware(routing);
 const canonicalPublicPaths = new Set(["/", "/login"]);
 
+const authPolicy = {
+  loginPath: "/login",
+  postLoginPath: "/select-tenant",
+  protectedPrefixes: [
+    "/dashboard",
+    "/select-tenant",
+    "/profil",
+    "/bookdet",
+    "/organisasjon",
+    "/teamarea",
+    "/today",
+    "/backoffice",
+    "/sales-portal",
+  ],
+};
+
 // Rate limit: 10 requests per 60 seconds per IP for sensitive routes
 const authRateLimit: RateLimitConfig = { maxRequests: 10, windowMs: 60_000 };
 // Rate limit: 30 requests per 60 seconds per IP for webhooks
@@ -60,21 +76,7 @@ export async function middleware(request: NextRequest) {
   // API routes handle their own response format — intlMiddleware
   // is only needed for page routes to do locale prefix detection.
   if (pathname.startsWith("/api/")) {
-    return handleAppSession(request, {
-      loginPath: "/login",
-      postLoginPath: "/select-tenant",
-      protectedPrefixes: [
-        "/dashboard",
-        "/select-tenant",
-        "/profil",
-        "/bookdet",
-        "/organisasjon",
-        "/teamarea",
-        "/today",
-        "/backoffice",
-        "/sales-portal",
-      ],
-    });
+    return handleAppSession(request, authPolicy);
   }
 
   // ── Locale routing & auth for page routes ────────────────────
@@ -86,25 +88,7 @@ export async function middleware(request: NextRequest) {
   // i18n/request.ts can load only the relevant module namespace.
   response.headers.set("x-middleware-request-x-pathname", pathname);
 
-  return handleAppSession(
-    request,
-    {
-      loginPath: "/login",
-      postLoginPath: "/select-tenant",
-      protectedPrefixes: [
-        "/dashboard",
-        "/select-tenant",
-        "/profil",
-        "/bookdet",
-        "/organisasjon",
-        "/teamarea",
-        "/today",
-        "/backoffice",
-        "/sales-portal",
-      ],
-    },
-    response,
-  );
+  return handleAppSession(request, authPolicy, response);
 }
 
 export const config = {
