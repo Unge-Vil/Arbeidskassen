@@ -113,7 +113,7 @@ export default async function RessurserPage() {
         {stats.map((stat) => (
           <Card
             key={stat.label}
-            className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]"
+            className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]"
           >
             <CardContent className="space-y-2 px-5 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ak-text-muted)]">
@@ -126,7 +126,7 @@ export default async function RessurserPage() {
         ))}
       </section>
 
-      <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+      <section className="overflow-hidden rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div className="flex flex-col gap-2 border-b border-[var(--ak-border-soft)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm font-medium text-[var(--ak-text-main)]">{t("tableTitle")}</p>
           <p className="text-xs text-[var(--ak-text-muted)]">{t("tableDescription")}</p>

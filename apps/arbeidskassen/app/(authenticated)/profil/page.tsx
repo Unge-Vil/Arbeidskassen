@@ -1,4 +1,4 @@
-import { Button, Input, Label, SelectNative } from "@arbeidskassen/ui";
+import { Alert, AlertDescription, AlertTitle, Button, Input, Label, PageHeader, SelectNative } from "@arbeidskassen/ui";
 import {
   getCurrentUserProfile,
   getEffectiveRole,
@@ -55,7 +55,7 @@ type PreferenceRowProps = {
 
 function PreferenceRow({ name, title, description, defaultChecked }: PreferenceRowProps) {
   return (
-    <label className="flex items-start gap-3 rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
+    <label className="flex items-start gap-3 rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
       <input
         type="checkbox"
         name={name}
@@ -95,31 +95,28 @@ export default async function ProfilePage({
   const profile = currentProfile.profile;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 text-[var(--ak-text-main)]">
+    <div className="mx-auto max-w-5xl space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-8 text-[var(--ak-text-main)]">
+      <PageHeader category="Innstillinger" title="Min profil" description="Oppdater informasjonen om kontoen din her." />
+
       {saved ? (
-        <div className="rounded-[12px] border border-[var(--ak-status-done)] bg-[var(--ak-status-done-bg)] text-[var(--ak-status-done)]">
-          Profilen din ble lagret.
-        </div>
+        <Alert variant="success">
+          <AlertTitle>Lagret</AlertTitle>
+          <AlertDescription>Profilen din ble lagret uten problemer.</AlertDescription>
+        </Alert>
       ) : null}
 
       {errorMessage ? (
-        <div className="rounded-[12px] border border-[var(--ak-status-stuck)] bg-[var(--ak-status-stuck-bg)] text-[var(--ak-status-stuck)]">
-          {errorMessage}
-        </div>
+        <Alert variant="destructive">
+          <AlertTitle>Kunne ikke lagre profil</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       ) : null}
 
-      <form action={updateProfileAction}>
+      <form action={updateProfileAction} className="space-y-6">
         <input type="hidden" name="locale" value={locale} />
 
-        <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
-          <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
-            <h1 className="text-[18px] font-semibold text-[var(--ak-text-main)]">Min profil</h1>
-            <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
-              Oppdater informasjonen om kontoen din her.
-            </p>
-          </div>
-
-          <div className="space-y-6 px-6 py-5">
+        <section className="overflow-hidden rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-sm">
+          <div className="space-y-6 p-6 sm:p-8">
             <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_260px]">
               <div className="space-y-1.5">
                 <Label htmlFor="displayName">Navn</Label>
@@ -233,23 +230,23 @@ export default async function ProfilePage({
             </p>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
+              <div className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
                 <p className="text-sm text-[var(--ak-text-muted)]">Workspace</p>
                 <p className="mt-1 text-sm font-medium text-[var(--ak-text-main)]">
                   {tenantName ?? "Ikke valgt"}
                 </p>
               </div>
-              <div className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
+              <div className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
                 <p className="text-sm text-[var(--ak-text-muted)]">Tilgang</p>
                 <p className="mt-1 text-sm font-medium text-[var(--ak-text-main)]">{roleLabel}</p>
               </div>
-              <div className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
+              <div className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
                 <p className="text-sm text-[var(--ak-text-muted)]">Opprettet konto</p>
                 <p className="mt-1 text-sm font-medium text-[var(--ak-text-main)]">
                   {formatDate(currentProfile.user.created_at)}
                 </p>
               </div>
-              <div className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
+              <div className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-hover)] p-4">
                 <p className="text-sm text-[var(--ak-text-muted)]">Sist innlogget</p>
                 <p className="mt-1 text-sm font-medium text-[var(--ak-text-main)]">
                   {formatDate(currentProfile.user.last_sign_in_at)}

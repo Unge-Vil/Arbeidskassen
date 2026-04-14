@@ -78,18 +78,18 @@ export default async function RollerPage({
   return (
     <div className="mx-auto max-w-6xl space-y-4">
       {saved ? (
-        <div className="rounded-[12px] border border-[var(--ak-status-done)] bg-[var(--ak-status-done-bg)] px-3 py-2 text-sm text-[var(--ak-status-done)]">
+        <div className="rounded-xl border border-[var(--ak-status-done)] bg-[var(--ak-status-done-bg)] px-3 py-2 text-sm text-[var(--ak-status-done)]">
           {successMessage}
         </div>
       ) : null}
 
       {errorMessage ? (
-        <div className="rounded-[12px] border border-[var(--ak-status-stuck)] bg-[var(--ak-status-stuck-bg)] px-3 py-2 text-sm text-[var(--ak-status-stuck)]">
+        <div className="rounded-xl border border-[var(--ak-status-stuck)] bg-[var(--ak-status-stuck-bg)] px-3 py-2 text-sm text-[var(--ak-status-stuck)]">
           {errorMessage}
         </div>
       ) : null}
 
-      <section className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-6 py-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+      <section className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] px-6 py-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="text-[18px] font-semibold text-[var(--ak-text-main)]">Roller og tilganger</h1>
@@ -121,12 +121,12 @@ export default async function RollerPage({
       </section>
 
       {!canManageRoles ? (
-        <div className="rounded-[12px] border border-[var(--ak-status-working)] bg-[var(--ak-status-working-bg)] px-3 py-2 text-sm text-[var(--ak-status-working)]">
+        <div className="rounded-xl border border-[var(--ak-status-working)] bg-[var(--ak-status-working-bg)] px-3 py-2 text-sm text-[var(--ak-status-working)]">
           Du kan se rollemodellen, men bare eier eller admin kan opprette custom roller og endre tilganger.
         </div>
       ) : null}
 
-      <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+      <section className="overflow-hidden rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
           <h2 className="text-base font-semibold text-[var(--ak-text-main)]">Standardroller</h2>
           <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
@@ -159,7 +159,7 @@ export default async function RollerPage({
       </section>
 
       <fieldset disabled={!canManageRoles}>
-        <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <section className="overflow-hidden rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
           <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
             <h2 className="text-base font-semibold text-[var(--ak-text-main)]">Opprett custom rolle</h2>
             <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
@@ -213,7 +213,7 @@ export default async function RollerPage({
         </section>
       </fieldset>
 
-      <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+      <section className="overflow-hidden rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
           <h2 className="text-base font-semibold text-[var(--ak-text-main)]">Eksisterende custom roller</h2>
           <p className="mt-1 text-sm text-[var(--ak-text-muted)]">

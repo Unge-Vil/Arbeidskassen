@@ -7,10 +7,7 @@ import {
   updateCurrentUserProfile,
   updateCurrentUserThemePreference,
 } from "@arbeidskassen/supabase";
-
-function getEncodedErrorMessage(message: string): string {
-  return encodeURIComponent(message);
-}
+import { getEncodedErrorMessage } from "./shared";
 
 export async function updateThemePreferenceAction(formData: FormData) {
   const result = await updateCurrentUserThemePreference(formData.get("themePreference"));

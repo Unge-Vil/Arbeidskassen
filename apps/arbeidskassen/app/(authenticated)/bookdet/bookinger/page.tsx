@@ -109,7 +109,7 @@ export default async function BookingerPage() {
         {stats.map((stat) => (
           <Card
             key={stat.label}
-            className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]"
+            className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]"
           >
             <CardContent className="space-y-2 px-5 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ak-text-muted)]">
@@ -122,7 +122,7 @@ export default async function BookingerPage() {
         ))}
       </section>
 
-      <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+      <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
         <CardContent className="space-y-4 px-0 py-0">
           <div className="flex flex-col gap-3 border-b border-[var(--ak-border-soft)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>

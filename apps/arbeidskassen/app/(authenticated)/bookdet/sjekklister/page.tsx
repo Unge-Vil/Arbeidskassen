@@ -37,7 +37,7 @@ export default async function SjekklisterPage() {
       </section>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_340px]">
-        <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+        <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
           <CardHeader className="border-b border-[var(--ak-border-soft)] pb-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
@@ -96,7 +96,7 @@ export default async function SjekklisterPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+        <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
           <CardHeader className="pb-3">
             <CardTitle>{t("sidebarTitle")}</CardTitle>
           </CardHeader>

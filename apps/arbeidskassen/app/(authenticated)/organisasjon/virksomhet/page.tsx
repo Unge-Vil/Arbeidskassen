@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "@arbeidskassen/ui";
+import { Alert, AlertDescription, AlertTitle, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, PageHeader } from "@arbeidskassen/ui";
 import {
   createServerClient,
   getEffectiveRole,
@@ -129,26 +129,33 @@ export default async function VirksomhetPage({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 text-[var(--ak-text-main)]">
+    <div className="mx-auto max-w-5xl space-y-6 lg:space-y-8 p-4 sm:p-6 lg:p-8 text-[var(--ak-text-main)]">
+      <PageHeader category="Organisasjon" title="Virksomhet" description="Oppdater informasjonen om virksomheten din her." />
+
       {saved ? (
-        <div className="rounded-[12px] border border-[var(--ak-status-done)] bg-[var(--ak-status-done-bg)] text-[var(--ak-status-done)]">
-          Virksomhetsinformasjonen ble lagret.
-        </div>
+        <Alert variant="success">
+          <AlertTitle>Lagret</AlertTitle>
+          <AlertDescription>Virksomhetsinformasjonen ble lagret.</AlertDescription>
+        </Alert>
       ) : null}
 
       {errorMessage ? (
-        <div className="rounded-[12px] border border-[var(--ak-status-stuck)] bg-[var(--ak-status-stuck-bg)] text-[var(--ak-status-stuck)]">
-          {errorMessage}
-        </div>
+        <Alert variant="destructive">
+          <AlertTitle>Noe gikk galt</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       ) : null}
 
       {!canManageSettings ? (
-        <div className="rounded-[12px] border border-[var(--ak-status-working)] bg-[var(--ak-status-working-bg)] text-[var(--ak-status-working)]">
-          Du har {roleLabel.toLowerCase()} og kan se informasjonen, men bare eier eller admin kan lagre endringer.
-        </div>
+        <Alert variant="warning">
+          <AlertTitle>Begrenset tilgang</AlertTitle>
+          <AlertDescription>
+            Du har {roleLabel.toLowerCase()} og kan se informasjonen, men bare eier eller admin kan lagre endringer.
+          </AlertDescription>
+        </Alert>
       ) : null}
 
-      <form action={updateTenantSettingsAction}>
+      <form action={updateTenantSettingsAction} className="space-y-6">
         <input type="hidden" name="currentLocale" value={locale} />
         <input type="hidden" name="displayName" value={tenant.display_name ?? tenant.name} />
         <input type="hidden" name="phone" value={tenant.phone ?? ""} />
@@ -168,15 +175,8 @@ export default async function VirksomhetPage({
         />
 
         <fieldset disabled={!canManageSettings}>
-          <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
-            <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
-              <h1 className="text-[18px] font-semibold text-[var(--ak-text-main)]">Selskapsinformasjon</h1>
-              <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
-                Oppdater informasjonen om virksomheten din her.
-              </p>
-            </div>
-
-            <div className="space-y-6 px-6 py-5">
+          <section className="overflow-hidden rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-sm">
+            <div className="space-y-6 p-6 sm:p-8">
               <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_260px]">
                 <div className="space-y-1.5">
                   <Label htmlFor="legalName">Selskapsnavn</Label>
@@ -222,7 +222,7 @@ export default async function VirksomhetPage({
                 />
               </div>
 
-              <div className="flex justify-end pt-2">
+              <div className="flex justify-end border-t border-[var(--ak-border-soft)] pt-6">
                 <Button
                   type="submit"
                   className="min-w-40 bg-[var(--ak-accent)] text-[var(--ak-accent-foreground)] hover:opacity-90"

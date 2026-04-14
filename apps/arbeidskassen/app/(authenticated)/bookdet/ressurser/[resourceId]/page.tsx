@@ -40,7 +40,7 @@ export default async function RessursDetaljerPage({
         </div>
       </section>
 
-      <div className="flex items-center justify-between rounded-[12px] border border-[var(--ak-status-done)] bg-[var(--ak-status-done-bg)] px-4 py-3">
+      <div className="flex items-center justify-between rounded-xl border border-[var(--ak-status-done)] bg-[var(--ak-status-done-bg)] px-4 py-3">
         <div>
           <p className="text-sm font-semibold text-[var(--ak-status-done)]">{t("publishedTitle")}</p>
           <p className="text-sm text-[var(--ak-text-muted)]">{t("publishedDescription")}</p>
@@ -48,7 +48,7 @@ export default async function RessursDetaljerPage({
         <Badge className="bg-[var(--ak-bg-card)] text-[var(--ak-text-main)]">{t("visible")}</Badge>
       </div>
 
-      <div className="flex flex-wrap gap-2 rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] p-2">
+      <div className="flex flex-wrap gap-2 rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] p-2">
         <span className="rounded-[8px] bg-[var(--ak-bg-main)] px-3 py-2 text-sm font-medium text-[var(--ak-text-main)]">
           {t("tabs.general")}
         </span>
@@ -57,7 +57,7 @@ export default async function RessursDetaljerPage({
         <span className="rounded-[8px] px-3 py-2 text-sm text-[var(--ak-text-muted)]">{t("tabs.slots")}</span>
       </div>
 
-      <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+      <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
         <CardContent className="space-y-5 px-6 py-6">
           <div className="grid gap-4 md:grid-cols-[minmax(0,1.3fr)_160px_160px]">
             <div className="space-y-2">
@@ -86,13 +86,13 @@ export default async function RessursDetaljerPage({
           <div className="space-y-3">
             <Label>{t("fields.images")}</Label>
             <div className="grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)]">
-              <div className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)]">
+              <div className="overflow-hidden rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)]">
                 <div className="aspect-[4/3] bg-[linear-gradient(135deg,rgba(79,93,214,0.16),rgba(79,93,214,0.04))]" />
                 <div className="border-t border-[var(--ak-border-soft)] px-3 py-2 text-xs text-[var(--ak-text-muted)]">
                   {t("mainImage")}
                 </div>
               </div>
-              <div className="flex min-h-[220px] items-center justify-center rounded-[12px] border border-dashed border-[var(--ak-border)] bg-[var(--ak-bg-main)] px-4 py-6 text-center text-sm text-[var(--ak-text-muted)]">
+              <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-[var(--ak-border)] bg-[var(--ak-bg-main)] px-4 py-6 text-center text-sm text-[var(--ak-text-muted)]">
                 {t("uploadPlaceholder")}
               </div>
             </div>

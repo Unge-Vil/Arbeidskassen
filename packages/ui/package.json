@@ -7,7 +7,21 @@
   ],
   "exports": {
     ".": "./src/index.ts",
-    "./globals.css": "./src/globals.css"
+    "./globals.css": "./src/globals.css",
+    "./components/ui/*": "./src/components/ui/*.tsx",
+    "./components/navbar": "./src/components/navbar.tsx",
+    "./components/theme-provider": "./src/components/theme-provider.tsx",
+    "./components/theme-utils": "./src/components/theme-utils.ts",
+    "./components/module-coming-soon": "./src/components/module-coming-soon.tsx",
+    "./components/feedback/app-error-state": "./src/components/feedback/app-error-state.tsx",
+    "./components/dashboard/dashboard-grid": "./src/components/dashboard/dashboard-grid.tsx",
+    "./components/dashboard/dashboard-overlay": "./src/components/dashboard/dashboard-overlay.tsx",
+    "./components/dashboard/dashboard-store": "./src/components/dashboard/dashboard-store.ts",
+    "./components/dashboard/widget-registry": "./src/components/dashboard/widget-registry.ts",
+    "./components/dashboard/register-dashboard-widgets": "./src/components/dashboard/register-dashboard-widgets.ts",
+    "./components/dashboard/widgets/*": "./src/components/dashboard/widgets/*.tsx",
+    "./lib/utils": "./src/lib/utils.ts",
+    "./lib/admin-links": "./src/lib/admin-links.ts"
   },
   "scripts": {
     "build": "tsc",

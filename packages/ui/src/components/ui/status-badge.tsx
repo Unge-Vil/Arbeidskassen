@@ -11,9 +11,9 @@ interface StatusBadgeProps {
 }
 
 const variantStyles: Record<StatusVariant, string> = {
-  working: "bg-[var(--ak-status-working)] text-[#1e293b]",
-  stuck: "bg-[var(--ak-status-stuck)] text-[#1e293b]",
-  done: "bg-[var(--ak-status-done)] text-[#1e293b]",
+  working: "bg-[var(--ak-status-working-bg)] text-[var(--ak-status-working)]",
+  stuck: "bg-[var(--ak-status-stuck-bg)] text-[var(--ak-status-stuck)]",
+  done: "bg-[var(--ak-status-done-bg)] text-[var(--ak-status-done)]",
   blank: "bg-[var(--ak-status-blank-bg)] text-[var(--ak-text-muted)]",
 };
 

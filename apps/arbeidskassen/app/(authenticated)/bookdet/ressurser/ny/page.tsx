@@ -22,7 +22,7 @@ export default async function NyRessursPage() {
         </Button>
       </section>
 
-      <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+      <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
         <CardContent className="space-y-6 px-6 py-6">
           <div className="flex items-center justify-center gap-3 text-sm text-[var(--ak-text-muted)]">
             <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export default async function NyRessursPage() {
               <button
                 key={category.key}
                 type="button"
-                className={`rounded-[12px] border px-4 py-4 text-left transition-colors ${
+                className={`rounded-xl border px-4 py-4 text-left transition-colors ${
                   index === 0
                     ? "border-[var(--ak-border)] bg-[var(--ak-bg-main)] shadow-sm"
                     : "border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] hover:bg-[var(--ak-bg-hover)]"

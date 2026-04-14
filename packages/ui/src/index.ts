@@ -43,6 +43,7 @@ export {
 export { AppErrorState } from "./components/feedback/app-error-state";
 
 // shadcn/ui components
+export * from "./components/ui/alert";
 export * from "./components/ui/badge";
 export * from "./components/ui/button";
 export * from "./components/ui/card";

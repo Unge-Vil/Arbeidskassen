@@ -10,8 +10,13 @@ import {
   type TenantContext,
   type TenantRole,
 } from "@arbeidskassen/supabase";
+import {
+  type SupportedLocale,
+  getEncodedErrorMessage,
+  getOptionalString,
+  normalizeAppLocale,
+} from "./shared";
 
-type SupportedLocale = "no" | "en";
 type MemberAdminContext = TenantContext & {
   user: NonNullable<TenantContext["user"]>;
   currentTenant: NonNullable<TenantContext["currentTenant"]>;
@@ -26,23 +31,6 @@ type ResolvedScope = {
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-function getEncodedErrorMessage(message: string): string {
-  return encodeURIComponent(message);
-}
-
-function normalizeAppLocale(value: FormDataEntryValue | null): SupportedLocale {
-  return value === "en" ? "en" : "no";
-}
-
-function getOptionalString(value: FormDataEntryValue | null): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
 
 function normalizeRole(value: FormDataEntryValue | null): TenantRole {
   if (value === "owner" || value === "admin" || value === "member") {

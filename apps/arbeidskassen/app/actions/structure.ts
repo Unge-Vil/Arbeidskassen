@@ -8,50 +8,20 @@ import {
   getTenantContext,
   type TenantContext,
 } from "@arbeidskassen/supabase";
+import {
+  type SupportedLocale,
+  getEncodedErrorMessage,
+  getOptionalString,
+  normalizeAppLocale,
+  normalizeSlug,
+  validateLength,
+} from "./shared";
 
-type SupportedLocale = "no" | "en";
 type StructureEntityType = "organization" | "department" | "subDepartment";
 type StructureAdminContext = TenantContext & {
   currentTenant: NonNullable<TenantContext["currentTenant"]>;
   currentMembership: NonNullable<TenantContext["currentMembership"]>;
 };
-
-function getEncodedErrorMessage(message: string): string {
-  return encodeURIComponent(message);
-}
-
-function normalizeAppLocale(value: FormDataEntryValue | null): SupportedLocale {
-  return value === "en" ? "en" : "no";
-}
-
-function getOptionalString(value: FormDataEntryValue | null): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function validateLength(value: string | null, maxLength: number): boolean {
-  return !value || value.length <= maxLength;
-}
-
-function normalizeSlug(value: FormDataEntryValue | null): string | null {
-  const rawValue = getOptionalString(value);
-
-  if (!rawValue) {
-    return null;
-  }
-
-  return rawValue
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 64);
-}
 
 function getStructureRedirectBase(_locale: SupportedLocale): string {
   return `/organisasjon/struktur`;

@@ -25,7 +25,7 @@ export default async function InnstillingerPage() {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_340px]">
         <div className="space-y-4">
-          <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+          <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
             <CardHeader className="pb-3">
               <CardTitle>{t("general.title")}</CardTitle>
               <p className="text-sm text-[var(--ak-text-muted)]">{t("general.description")}</p>
@@ -53,7 +53,7 @@ export default async function InnstillingerPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+          <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
             <CardHeader className="pb-3">
               <CardTitle>{t("portal.title")}</CardTitle>
               <p className="text-sm text-[var(--ak-text-muted)]">{t("portal.description")}</p>
@@ -75,7 +75,7 @@ export default async function InnstillingerPage() {
           </Card>
         </div>
 
-        <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+        <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
           <CardHeader className="pb-3">
             <CardTitle>{t("sidebar.title")}</CardTitle>
           </CardHeader>

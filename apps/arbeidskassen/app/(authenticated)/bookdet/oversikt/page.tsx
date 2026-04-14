@@ -62,7 +62,7 @@ export default async function OversiktPage() {
         {stats.map((stat) => (
           <Card
             key={stat.label}
-            className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]"
+            className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]"
           >
             <CardContent className="space-y-2 px-5 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ak-text-muted)]">
@@ -76,7 +76,7 @@ export default async function OversiktPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
-        <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+        <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
           <CardHeader className="pb-3">
             <CardTitle>{t("utilization.title")}</CardTitle>
           </CardHeader>
@@ -110,7 +110,7 @@ export default async function OversiktPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+        <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
           <CardHeader className="pb-3">
             <CardTitle>{t("popular.title")}</CardTitle>
           </CardHeader>
@@ -134,7 +134,7 @@ export default async function OversiktPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
-        <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+        <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
           <CardHeader className="pb-3">
             <CardTitle>{t("queue.title")}</CardTitle>
           </CardHeader>
@@ -153,7 +153,7 @@ export default async function OversiktPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
+        <Card className="rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)]">
           <CardHeader className="pb-3">
             <CardTitle>{t("nextStep.title")}</CardTitle>
           </CardHeader>

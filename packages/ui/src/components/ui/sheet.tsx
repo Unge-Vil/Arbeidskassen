@@ -61,7 +61,7 @@ const SheetContent = React.forwardRef<
     >
       {children}
       {!hideClose ? (
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-[var(--ak-text-muted)] transition-colors hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-main)] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-[var(--ak-text-muted)] transition-colors hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-main)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)]">
           <X className="h-4 w-4" />
           <span className="sr-only">Lukk</span>
         </DialogPrimitive.Close>

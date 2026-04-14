@@ -8,27 +8,15 @@ import {
   getTenantContext,
   type Database,
 } from "@arbeidskassen/supabase";
+import {
+  getEncodedErrorMessage,
+  getOptionalString,
+  validateLength,
+} from "./shared";
 
 type WorkingHoursValue = Database["public"]["Tables"]["tenants"]["Row"]["working_hours"];
 
 type SupportedLocale = "no" | "en";
-
-function getEncodedErrorMessage(message: string): string {
-  return encodeURIComponent(message);
-}
-
-function getOptionalString(value: FormDataEntryValue | null): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function validateLength(value: string | null, maxLength: number): boolean {
-  return !value || value.length <= maxLength;
-}
 
 function normalizeTenantLocale(value: FormDataEntryValue | null): SupportedLocale {
   return value === "en" ? "en" : "no";
@@ -212,7 +200,7 @@ export async function updateTenantSettingsAction(formData: FormData) {
     console.error("Failed to update tenant settings", updateError);
     redirect(
       `${redirectBase}?error=${getEncodedErrorMessage(
-        updateError.message || "Kunne ikke lagre virksomhetsinfo akkurat nå.",
+        "Kunne ikke lagre virksomhetsinfo akkurat nå.",
       )}`,
     );
   }

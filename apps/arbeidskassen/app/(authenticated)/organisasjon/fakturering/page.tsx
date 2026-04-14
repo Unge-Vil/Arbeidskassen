@@ -11,7 +11,7 @@ const billingRows = [
 export default function FaktureringPage() {
   return (
     <div className="mx-auto max-w-5xl">
-      <section className="overflow-hidden rounded-[12px] border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+      <section className="overflow-hidden rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-card)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
         <div className="border-b border-[var(--ak-border-soft)] px-6 py-5">
           <h1 className="text-[18px] font-semibold text-[var(--ak-text-main)]">Fakturering</h1>
           <p className="mt-1 text-sm text-[var(--ak-text-muted)]">
