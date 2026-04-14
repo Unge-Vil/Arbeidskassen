@@ -322,7 +322,7 @@ CREATE POLICY "tenant_read_support_logs" ON support_session_logs
 > **Note:** The backoffice is currently a minimal dashboard page at `(authenticated)/backoffice/page.tsx`. The route structure below is the target architecture.
 
 ```
-apps/arbeidskassen/app/[locale]/(authenticated)/backoffice/
+apps/arbeidskassen/app/(authenticated)/backoffice/
 ├── page.tsx                     # System overview (tenant count, MRR, health)
 ├── tenants/                     # Tenant directory (metadata only)
 │   ├── page.tsx                 # List all tenants

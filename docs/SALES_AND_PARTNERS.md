@@ -183,7 +183,7 @@ The Sales Portal is a route group under the main app at `(authenticated)/sales-p
 ### Route Structure (Target)
 
 ```
-apps/arbeidskassen/app/[locale]/(authenticated)/sales-portal/
+apps/arbeidskassen/app/(authenticated)/sales-portal/
 ├── page.tsx                     # Portfolio overview (MRR, customers, commission)
 ├── customers/                   # Referred tenant list
 │   ├── page.tsx                 # All referred tenants (status, MRR, plan)

@@ -69,7 +69,7 @@ Detailed architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 2. **Validate** — Parse all input with a Zod schema. Never use raw `FormData` values.
 3. **Authorize** — Check the user's role/permissions if the action requires elevated access.
 4. **Mutate** — Execute the database operation. RLS enforces tenant isolation automatically.
-5. **Revalidate** — Call `revalidatePath()` or `revalidateTag()` after success.
+5. **Revalidate** — Call `revalidateTag()` for cached data or `revalidatePath()` for specific routes. Never use `revalidatePath("/", "layout")` — it invalidates the entire router cache.
 
 Never skip steps. Never reorder steps. Never trust client-side state as authorization.
 
@@ -222,7 +222,7 @@ When designing new features or data flows, ALWAYS refer to [docs/PRODUCT_VISION_
 
 ## Global Core Context
 
-The Organisasjon module (`apps/arbeidskassen/app/[locale]/(authenticated)/organisasjon/`) is the **master authority** for organizational structure, user identity, and business operations. See [docs/CORE_ORGANIZATION_MODULE.md](docs/CORE_ORGANIZATION_MODULE.md) for the full specification.
+The Organisasjon module (`apps/arbeidskassen/app/(authenticated)/organisasjon/`) is the **master authority** for organizational structure, user identity, and business operations. See [docs/CORE_ORGANIZATION_MODULE.md](docs/CORE_ORGANIZATION_MODULE.md) for the full specification.
 
 - The hierarchy (Tenant → Organization → Department → Sub-department) is defined and managed exclusively in Organisasjon.
 - All feature modules (BookDet, Today, etc.) **reference** Organisasjon entities via foreign keys — they never duplicate or independently manage orgs, departments, or user roles.
@@ -235,7 +235,7 @@ The Organisasjon module (`apps/arbeidskassen/app/[locale]/(authenticated)/organi
 
 ## Backoffice & Privacy
 
-The Backoffice module (`apps/arbeidskassen/app/[locale]/(authenticated)/backoffice/`) is for platform owners only. See [docs/SUPERADMIN_AND_SUPPORT.md](docs/SUPERADMIN_AND_SUPPORT.md) for the full specification.
+The Backoffice module (`apps/arbeidskassen/app/(authenticated)/backoffice/`) is for platform owners only. See [docs/SUPERADMIN_AND_SUPPORT.md](docs/SUPERADMIN_AND_SUPPORT.md) for the full specification.
 
 - Code in the backoffice route group must **only** interact with metadata and system tables (`tenants`, `ai_credits`, `platform_admins`, `platform_audit_logs`, `support_access_grants`).
 - **Never** write queries in backoffice that fetch PII or content from tenant-owned tables (`bookings`, `resources`, `tasks`, `chat_messages`, `profiles`, `audit_logs.old_data`/`new_data`).
@@ -246,7 +246,7 @@ The Backoffice module (`apps/arbeidskassen/app/[locale]/(authenticated)/backoffi
 
 ## Sales & Partnerships
 
-The Sales Portal module (`apps/arbeidskassen/app/[locale]/(authenticated)/sales-portal/`) is for internal and external sales partners. See [docs/SALES_AND_PARTNERS.md](docs/SALES_AND_PARTNERS.md) for the full specification.
+The Sales Portal module (`apps/arbeidskassen/app/(authenticated)/sales-portal/`) is for internal and external sales partners. See [docs/SALES_AND_PARTNERS.md](docs/SALES_AND_PARTNERS.md) for the full specification.
 
 - When working on tenant creation or billing logic, always consider the `referred_by_partner_id` context.
 - **Demo Tenants** (`is_demo = true`) owned by Sales Partners must be bypass-checked in all billing logic — never charge or create Stripe subscriptions for demo tenants.

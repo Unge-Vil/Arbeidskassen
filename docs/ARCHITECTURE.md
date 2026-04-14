@@ -160,53 +160,78 @@ export async function createBooking(formData: FormData) {
 
 ## Application Boundaries
 
-> **Architecture note:** All modules have been consolidated into a single Next.js app (`apps/arbeidskassen`). Modules are route groups under `app/[locale]/(authenticated)/`. There are no separate apps, ports, or proxy rewrites.
+> **Architecture note:** All modules have been consolidated into a single Next.js app (`apps/arbeidskassen`). Modules are route groups under `app/(authenticated)/`. There are no separate apps, ports, or proxy rewrites. Locale is resolved from cookie/header — no `[locale]` URL segment.
 
 ### Single App Structure
 
 ```
 apps/arbeidskassen/app/
-├── layout.tsx                        # Root layout (html, body, ThemeProvider)
+├── layout.tsx                        # Root layout (html, body, ThemeProvider, NextIntlClientProvider)
 ├── error.tsx                         # Global error boundary
-├── [locale]/
-│   ├── layout.tsx                    # NextIntlClientProvider
-│   ├── login/page.tsx                # Shared authentication
-│   ├── select-tenant/page.tsx        # Tenant selection
+├── not-found.tsx                     # 404 page
+├── login/page.tsx                    # Shared authentication
+├── select-tenant/page.tsx            # Tenant selection
+│
+├── (authenticated)/
+│   ├── layout.tsx                    # Suspense boundary + AuthenticatedLayoutContent
+│   ├── authenticated-layout-content.tsx  # Auth guard + Navbar + shell context
+│   ├── authenticated-shell-skeleton.tsx  # Skeleton shown during auth loading
+│   ├── dashboard-overlay-client.tsx      # Lazy-loaded DashboardOverlay (ssr: false)
 │   │
-│   ├── (authenticated)/
-│   │   ├── layout.tsx                # Auth guard + Navbar + tenant context
-│   │   ├── dashboard/page.tsx        # Dashboard with module grid
-│   │   ├── profil/page.tsx           # Profile settings
-│   │   │
-│   │   ├── bookdet/                  # Booking module
-│   │   │   ├── layout.tsx            # BookDet sidebar shell
-│   │   │   ├── oversikt/page.tsx
-│   │   │   ├── sok-book/page.tsx
-│   │   │   ├── mine-bookinger/page.tsx
-│   │   │   ├── bookinger/page.tsx
-│   │   │   ├── ressurser/page.tsx
-│   │   │   ├── sjekklister/page.tsx
-│   │   │   └── innstillinger/page.tsx
-│   │   │
-│   │   ├── organisasjon/             # Core organization module
-│   │   │   ├── layout.tsx            # Organization sidebar shell
-│   │   │   ├── virksomhet/page.tsx
-│   │   │   ├── brukere/page.tsx
-│   │   │   ├── roller/page.tsx
-│   │   │   ├── struktur/page.tsx
-│   │   │   ├── fakturering/page.tsx
-│   │   │   └── audit-logg/page.tsx
-│   │   │
-│   │   ├── teamarea/                 # Collaboration feed
-│   │   │   ├── layout.tsx            # TeamArea sidebar shell
-│   │   │   └── page.tsx              # Feed page
-│   │   │
-│   │   ├── today/page.tsx            # Daily operations (coming soon)
-│   │   ├── backoffice/page.tsx       # Platform admin dashboard
-│   │   └── sales-portal/page.tsx     # Sales & partner portal
+│   ├── dashboard/                    # Dashboard with widget grid
+│   │   ├── page.tsx                  # force-dynamic, lazy-loads DashboardGrid
+│   │   ├── dashboard-grid-client.tsx # Client wrapper for DashboardGrid (ssr: false)
+│   │   ├── loading.tsx
+│   │   └── error.tsx
 │   │
-│   └── (public)/                     # Future: public BookDet pages
-│       └── book/[slug]/page.tsx
+│   ├── profil/                       # Profile settings
+│   │   ├── page.tsx
+│   │   ├── loading.tsx
+│   │   └── error.tsx
+│   │
+│   ├── bookdet/                      # Booking module
+│   │   ├── layout.tsx                # BookDet sidebar shell
+│   │   ├── loading.tsx / error.tsx
+│   │   ├── oversikt/
+│   │   ├── sok-book/
+│   │   ├── mine-bookinger/
+│   │   ├── bookinger/
+│   │   ├── ressurser/
+│   │   ├── sjekklister/
+│   │   └── innstillinger/           # Each sub-route has own loading.tsx + error.tsx
+│   │
+│   ├── organisasjon/                 # Core organization module
+│   │   ├── layout.tsx                # Organization sidebar shell
+│   │   ├── loading.tsx / error.tsx
+│   │   ├── virksomhet/
+│   │   ├── brukere/
+│   │   ├── roller/
+│   │   ├── struktur/
+│   │   ├── fakturering/
+│   │   └── audit-logg/              # Each sub-route has own loading.tsx + error.tsx
+│   │
+│   ├── teamarea/                     # Collaboration feed
+│   │   ├── layout.tsx                # TeamArea shell with Suspense
+│   │   ├── loading.tsx / error.tsx
+│   │   └── page.tsx
+│   │
+│   ├── today/                        # Daily operations
+│   │   ├── page.tsx
+│   │   ├── loading.tsx
+│   │   └── error.tsx
+│   │
+│   ├── backoffice/                   # Platform admin dashboard
+│   │   ├── page.tsx
+│   │   ├── loading.tsx
+│   │   └── error.tsx
+│   │
+│   └── sales-portal/                 # Sales & partner portal
+│       ├── page.tsx
+│       ├── loading.tsx
+│       └── error.tsx
+│
+├── (public)/                         # Future: public BookDet pages
+│   └── book/[slug]/page.tsx
 │
 └── actions/                          # Server Actions
     ├── auth.ts
@@ -378,7 +403,7 @@ The `Button` component looks different in Admin vs Public contexts because `--pr
 Each app defines its own `globals.css` that overrides the base theme from `packages/ui`:
 
 ```css
-/* apps/arbeidskassen/app/[locale]/globals.css — Admin Theme */
+/* Admin Theme — CSS variable overrides */
 @import "tailwindcss";
 @import "@arbeidskassen/ui/globals.css";
 
@@ -403,11 +428,11 @@ Future public-facing pages (e.g., BookDet booking pages at `(public)/book/[slug]
 While atomic components (Button, Input, Card, Badge) are shared, **module layout shells are colocated with their route groups**:
 
 ```
-packages/ui/src/components/                                     # Shared: Button, Input, Card, Dialog, Table, Badge, etc.
-apps/arbeidskassen/app/[locale]/(authenticated)/layout.tsx      # Auth guard + Navbar + tenant context
-apps/arbeidskassen/app/[locale]/(authenticated)/bookdet/        # BookDet sidebar shell + pages
-apps/arbeidskassen/app/[locale]/(authenticated)/organisasjon/   # Organization sidebar shell + pages
-apps/arbeidskassen/app/[locale]/(authenticated)/teamarea/       # TeamArea sidebar shell + pages
+packages/ui/src/components/                                 # Shared: Button, Input, Card, Dialog, Table, Badge, etc.
+apps/arbeidskassen/app/(authenticated)/layout.tsx            # Suspense boundary + auth guard + Navbar
+apps/arbeidskassen/app/(authenticated)/bookdet/              # BookDet sidebar shell + pages
+apps/arbeidskassen/app/(authenticated)/organisasjon/         # Organization sidebar shell + pages
+apps/arbeidskassen/app/(authenticated)/teamarea/             # TeamArea sidebar shell + pages
 ```
 
 This separation ensures that:
@@ -438,7 +463,7 @@ For components that need density-aware spacing, we use a CSS variable-based appr
 // apps/arbeidskassen/app/layout.tsx
 <body className="density-compact">
 
-// Future: apps/arbeidskassen/app/[locale]/(public)/layout.tsx
+// Future: apps/arbeidskassen/app/(public)/layout.tsx
 <div className="density-spacious">
 ```
 

@@ -42,30 +42,37 @@ Arbeidskassen uses [`next-intl`](https://next-intl.dev/) for all internationaliz
 
 #### File Structure
 
-All i18n configuration and messages are consolidated in the single app:
+All i18n configuration and messages are consolidated in the single app. Messages are split into per-module namespace files, loaded selectively based on the current route:
 
 ```
 apps/arbeidskassen/
 ├── messages/
-│   ├── no.json          # Norwegian Bokmål (default) — all modules
-│   ├── en.json          # English — all modules
-│   ├── sv.json          # Swedish (future)
-│   └── da.json          # Danish (future)
+│   ├── no/
+│   │   ├── common.json    # Shared keys (loaded on all routes)
+│   │   ├── bookdet.json   # BookDet module keys
+│   │   ├── teamarea.json  # TeamArea module keys
+│   │   └── today.json     # Today module keys
+│   └── en/
+│       ├── common.json
+│       ├── bookdet.json
+│       ├── teamarea.json
+│       └── today.json
 ├── app/
-│   └── [locale]/        # Dynamic locale segment
-│       ├── layout.tsx   # NextIntlClientProvider wraps children
-│       └── ...
+│   ├── layout.tsx         # Root layout with NextIntlClientProvider
+│   └── ...
 └── i18n/
-    ├── request.ts       # getRequestConfig — resolves locale from URL/cookie
-    └── routing.ts       # Locale routing configuration
+    ├── request.ts         # getRequestConfig — resolves locale from cookie/header, loads namespaces by route
+    └── routing.ts         # Locale routing config (localePrefix: 'never')
 ```
 
-Message keys are namespace-prefixed per module (e.g., `bookdetShell`, `bookdetPages`, `teamareaShell`, `organizationShell`) to avoid collisions. The `common` namespace contains shared keys.
+Locale is resolved from cookie/Accept-Language header — there is no `[locale]` segment in URLs. The `MODULE_NAMESPACE_MAP` in `request.ts` maps URL prefixes to namespace files, so only the relevant module's messages are loaded per page.
 
 #### Message File Format
 
+> **Note:** In production, messages are split into per-namespace files under `messages/no/` and `messages/en/` directories (e.g., `common.json`, `bookdet.json`). The examples below show the JSON structure for illustration.
+
 ```json
-// messages/no.json
+// messages/no/common.json (example structure)
 {
   "booking": {
     "title": "Bestill time",
@@ -87,7 +94,7 @@ Message keys are namespace-prefixed per module (e.g., `bookdetShell`, `bookdetPa
 ```
 
 ```json
-// messages/en.json
+// messages/en/common.json (example structure)
 {
   "booking": {
     "title": "Book appointment",

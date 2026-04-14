@@ -309,7 +309,7 @@ Eksporter fra `packages/ui/src/index.ts`.
 
 ## 5. Fase 3: Sider
 
-### 3A. Profil-side (`apps/arbeidskassen/app/[locale]/(authenticated)/profil/page.tsx`)
+### 3A. Profil-side (`apps/arbeidskassen/app/(authenticated)/profil/page.tsx`)
 
 **Justeringer:**
 
@@ -328,7 +328,7 @@ Eksporter fra `packages/ui/src/index.ts`.
 
 ---
 
-### 3B. Virksomhet-side (`apps/arbeidskassen/app/[locale]/(authenticated)/organisasjon/virksomhet/page.tsx`)
+### 3B. Virksomhet-side (`apps/arbeidskassen/app/(authenticated)/organisasjon/virksomhet/page.tsx`)
 
 Eksakt samme endringer som profil-siden:
 
@@ -403,8 +403,8 @@ function StatusBadge({ variant, label }: { variant: StatusVariant; label: string
 | `packages/ui/src/components/ui/page-header.tsx` | **NY FIL** | 2F |
 | `packages/ui/src/components/ui/status-badge.tsx` | **NY FIL** | 4B |
 | [packages/ui/src/index.ts](packages/ui/src/index.ts) | Eksporter nye komponenter | 2E/2F/4B |
-| [apps/arbeidskassen/app/[locale]/(authenticated)/profil/page.tsx](apps/arbeidskassen/app/%5Blocale%5D/(authenticated)/profil/page.tsx) | Refaktorer layout | 3A |
-| [apps/arbeidskassen/app/[locale]/(authenticated)/organisasjon/virksomhet/page.tsx](apps/arbeidskassen/app/%5Blocale%5D/(authenticated)/organisasjon/virksomhet/page.tsx) | Refaktorer layout | 3B |
+| [apps/arbeidskassen/app/(authenticated)/profil/page.tsx](apps/arbeidskassen/app/(authenticated)/profil/page.tsx) | Refaktorer layout | 3A |
+| [apps/arbeidskassen/app/(authenticated)/organisasjon/virksomhet/page.tsx](apps/arbeidskassen/app/(authenticated)/organisasjon/virksomhet/page.tsx) | Refaktorer layout | 3B |
 | [packages/ui/src/components/navbar.tsx](packages/ui/src/components/navbar.tsx) | Verifiser/juster aktive states | 4A |
 
 ---

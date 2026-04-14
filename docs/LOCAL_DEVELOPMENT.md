@@ -17,23 +17,23 @@ pnpm --filter @arbeidskassen/web dev
 
 ## Route Map
 
-All modules run under a single Next.js app on port `3000`.
+All modules run under a single Next.js app on port `3000`. Locale is resolved from cookie/Accept-Language header — no locale prefix in URLs.
 
 | Route | Description |
 | --- | --- |
 | `/` | Public landing page |
 | `/login` | Shared authentication |
-| `/{locale}/select-tenant` | Tenant selection |
-| `/{locale}/dashboard` | Dashboard with module grid |
-| `/{locale}/profil` | Profile settings |
-| `/{locale}/bookdet` | Booking module (BookDet) |
-| `/{locale}/organisasjon` | Core organization module |
-| `/{locale}/teamarea` | Collaboration feed |
-| `/{locale}/today` | Daily operations workspace |
-| `/{locale}/backoffice` | Platform admin |
-| `/{locale}/sales-portal` | Sales & partner portal |
+| `/select-tenant` | Tenant selection |
+| `/dashboard` | Dashboard with module grid |
+| `/profil` | Profile settings |
+| `/bookdet` | Booking module (BookDet) |
+| `/organisasjon` | Core organization module |
+| `/teamarea` | Collaboration feed |
+| `/today` | Daily operations workspace |
+| `/backoffice` | Platform admin |
+| `/sales-portal` | Sales & partner portal |
 
-All authenticated routes live under `app/[locale]/(authenticated)/` and share a single middleware, layout shell, and auth guard.
+All authenticated routes live under `app/(authenticated)/` and share a single middleware, layout shell, and auth guard.
 
 ---
 
