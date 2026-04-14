@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@arbeidskassen/supabase";
+import { ThemeToggleWrapper } from "./theme-toggle-wrapper";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
@@ -29,6 +30,7 @@ export default async function HomePage() {
           >
             Logg inn
           </Link>
+          <ThemeToggleWrapper />
         </header>
 
         <section className="flex flex-1 items-center py-12">

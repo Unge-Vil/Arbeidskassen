@@ -19,6 +19,7 @@ export {
   type ThemePreference,
   type ResolvedTheme,
 } from "./components/theme-provider";
+export { ThemeToggle } from "./components/theme-toggle";
 export {
   normalizeThemePreference,
   THEME_PREFERENCE_COOKIE,

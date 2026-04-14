@@ -116,7 +116,7 @@ export function ModuleTabs({
             disabled={isDisabled}
             aria-disabled={isDisabled}
             className={cn(
-              "flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed",
+              "flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] disabled:cursor-not-allowed",
               isActive
                 ? "bg-[var(--ak-accent)] text-[var(--ak-accent-foreground)] shadow-sm border-transparent"
                 : "border-transparent text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)]",
@@ -367,7 +367,7 @@ function ActionIconButton({
     <button
       type={type}
       className={cn(
-        "flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-md px-2 text-[var(--ak-text-muted)] transition-colors hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)] outline-none focus-visible:ring-2 focus-visible:ring-ring md:h-9 md:min-w-9",
+        "flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-md px-2 text-[var(--ak-text-muted)] transition-colors hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] md:h-9 md:min-w-9",
         className
       )}
       {...props}
@@ -505,7 +505,7 @@ export function ProfileMenu({
         <button
           type="button"
           aria-label="Åpne profilmeny"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--ak-border)] bg-gradient-to-tr from-blue-500 to-indigo-600 text-[11px] font-bold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring md:h-8 md:w-8"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--ak-border)] bg-gradient-to-tr from-blue-500 to-indigo-600 text-[11px] font-bold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] md:h-8 md:w-8"
         >
           {userInitial}
         </button>
@@ -792,7 +792,7 @@ function MobileNavDrawer({
             <button
               type="button"
               onClick={handleSearch}
-              className="flex h-11 w-full items-center gap-3 rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] px-3 text-left text-[13px] font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] focus-visible:ring-2 focus-visible:ring-ring outline-none"
+              className="flex h-11 w-full items-center gap-3 rounded-xl border border-[var(--ak-border-soft)] bg-[var(--ak-bg-main)] px-3 text-left text-[13px] font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] outline-none"
             >
               <Search size={17} className="text-[var(--ak-text-muted)]" />
               <span>Søk i {appName}</span>
@@ -819,7 +819,7 @@ function MobileNavDrawer({
                       disabled={isDisabled}
                       onClick={() => handleModuleSelect(mod.id)}
                       className={cn(
-                        "flex min-h-11 w-full items-center gap-3 rounded-xl border px-3 py-2 text-left text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed",
+                        "flex min-h-11 w-full items-center gap-3 rounded-xl border px-3 py-2 text-left text-[13px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] disabled:cursor-not-allowed",
                         isActive
                           ? "border-[var(--ak-border)] bg-[var(--ak-bg-card)] text-[var(--ak-text-main)]"
                           : "border-transparent text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)] hover:text-[var(--ak-text-dim)]",
@@ -851,7 +851,7 @@ function MobileNavDrawer({
               </div>
               <button
                 type="button"
-                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] focus-visible:ring-2 focus-visible:ring-ring outline-none"
+                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] outline-none"
               >
                 <Bell size={16} className="text-[var(--ak-text-muted)]" />
                 Varsler
@@ -880,7 +880,7 @@ function MobileNavDrawer({
                       onClick={() => handleThemePreferenceChange(option.id)}
                       disabled={isThemePending}
                       className={cn(
-                        "flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-[12px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-[12px] font-semibold transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)]",
                         isActive
                           ? "border-[var(--ak-border)] bg-[var(--ak-bg-card)] text-[var(--ak-text-main)]"
                           : "border-[var(--ak-border-soft)] text-[var(--ak-text-muted)] hover:bg-[var(--ak-bg-hover)]"
@@ -906,7 +906,7 @@ function MobileNavDrawer({
                       <input type="hidden" name="locale" value={locale} />
                       <button
                         type="submit"
-                        className="flex min-h-11 w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] focus-visible:ring-2 focus-visible:ring-ring outline-none"
+                        className="flex min-h-11 w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[13px] font-medium text-[var(--ak-text-main)] transition-colors hover:bg-[var(--ak-bg-hover)] focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] outline-none"
                       >
                         <div className="flex flex-col">
                           <span>{tenant.label}</span>
@@ -960,7 +960,7 @@ function MobileNavDrawer({
                 <input type="hidden" name="locale" value={locale} />
                 <button
                   type="submit"
-                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-[13px] font-semibold text-red-600 transition-colors hover:bg-red-500/10 focus-visible:ring-2 focus-visible:ring-ring outline-none"
+                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-[13px] font-semibold text-red-600 transition-colors hover:bg-red-500/10 focus-visible:ring-2 focus-visible:ring-[var(--ak-ring)] outline-none"
                 >
                   <LogOut size={15} /> Logg ut
                 </button>

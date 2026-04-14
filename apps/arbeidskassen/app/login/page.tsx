@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { normalizeReturnTo } from "@arbeidskassen/ui";
+import { normalizeReturnTo, ThemeToggle } from "@arbeidskassen/ui";
 import { createBrowserClient } from "@arbeidskassen/supabase/client";
 
 export default function LoginPage() {
@@ -124,6 +124,10 @@ export default function LoginPage() {
           >
             Tilbake til forsiden
           </Link>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <ThemeToggle />
         </div>
       </div>
     </div>

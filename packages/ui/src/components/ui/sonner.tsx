@@ -17,7 +17,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={(theme === "night" ? "dark" : theme) as ToasterProps["theme"]}
       className="toaster group"
       icons={{
         success: <CircleCheck className="h-4 w-4" />,
@@ -29,12 +29,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
+            "group toast group-[.toaster]:bg-[var(--ak-bg-panel)] group-[.toaster]:text-[var(--ak-text-main)] group-[.toaster]:border-[var(--ak-border-soft)] group-[.toaster]:shadow-lg",
+          description: "group-[.toast]:text-[var(--ak-text-muted)]",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+            "group-[.toast]:bg-[var(--ak-accent)] group-[.toast]:text-[var(--ak-accent-foreground)]",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "group-[.toast]:bg-[var(--ak-bg-hover)] group-[.toast]:text-[var(--ak-text-muted)]",
         },
       }}
       {...props}
