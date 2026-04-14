@@ -176,32 +176,62 @@ Arbeidskassen uses [`next-themes`](https://github.com/pauldotknopf/next-themes) 
 | --- | --- | --- |
 | **Light** | Default. Clean, high-contrast for professional use. | `:root` CSS variables |
 | **Dark** | Reduced eye strain. Important for field workers using tablets in low light. | `.dark` class on `<html>` |
-| **System** | Follows the user's OS preference. | `next-themes` with `attribute="class"` and `defaultTheme="system"` |
+| **Night** | Ultra-dark AMOLED-friendly mode with deeper blacks than Dark. | `.night` class on `<html>` |
+| **System** | Follows the user's OS preference (maps to Light or Dark). | `next-themes` with `attribute="class"` and `enableSystem` |
 
 ### How It Works
 
 #### 1. CSS Variables (packages/ui/src/globals.css)
 
-All colors are defined as HSL values in CSS custom properties. Components reference these variables through Tailwind's semantic classes, never raw color values.
+Colors are defined in two layers inside `packages/ui/src/globals.css`:
+
+- **shadcn HSL variables** (`--background`, `--foreground`, etc.) — for shadcn component compatibility.
+- **Platform tokens** (`--ak-bg-main`, `--ak-text-main`, etc.) — the primary design tokens used across Arbeidskassen.
+
+Components should prefer `--ak-*` tokens (e.g. `bg-[var(--ak-bg-main)]`) over shadcn utilities.
+
+**Tailwind v4 directives** (required at the top of `globals.css`):
+
+```css
+@import "tailwindcss";
+@source "../../../apps";
+@source "../../../packages/ui/src";
+@plugin "tailwindcss-animate";
+
+/* Map dark: variant to class-based .dark and .night (next-themes sets class on <html>) */
+@custom-variant dark (&:is(.dark, .night) *);
+
+/* Register shadcn HSL variables so bg-background, ring-ring etc. work in Tailwind v4 */
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  /* ... all shadcn color mappings */
+}
+```
+
+**Variable blocks** in `@layer base`:
 
 ```css
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --destructive: 0 84.2% 60.2%;
-    /* ... full palette */
+    --ak-bg-main: #f4f5f5;
+    --ak-text-main: #1a1f2e;
+    /* ... full light palette */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 62.8% 30.6%;
-    /* ... full palette */
+    --background: 0 0% 3.9%;
+    --ak-bg-main: #121212;
+    --ak-text-main: #f3f4f6;
+    /* ... full dark palette */
+  }
+
+  .night {
+    --background: 0 0% 2%;
+    --ak-bg-main: #0a0a0a;
+    --ak-text-main: #f3f4f6;
+    /* ... full night palette */
   }
 }
 ```
@@ -212,19 +242,18 @@ All colors are defined as HSL values in CSS custom properties. Components refere
 
 ```typescript
 // app/layout.tsx
-import { ThemeProvider } from "next-themes";
-import "@arbeidskassen/ui/globals.css"; // MUST use this instead of "./globals.css"
+import { ThemeProvider, THEME_PREFERENCE_COOKIE } from "@arbeidskassen/ui";
+import "@arbeidskassen/ui/globals.css"; // MUST use this — NOT "./globals.css"
+import { cookies } from "next/headers";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const themeFromCookie = cookieStore.get(THEME_PREFERENCE_COOKIE)?.value;
+
   return (
     <html lang="no" suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider initialThemePreference={themeFromCookie as any}>
           {children}
         </ThemeProvider>
       </body>
@@ -233,18 +262,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
+The `ThemeProvider` from `@arbeidskassen/ui` wraps next-themes with:
+- `attribute="class"` — sets `.light`, `.dark`, or `.night` on `<html>`
+- `themes={["light", "dark", "night"]}` — three supported themes
+- `enableSystem` — OS preference support
+- `storageKey="theme-preference"` — localStorage key
+- A `ThemeCookieSync` that writes the `ak-theme-preference` cookie so the server can read it for SSR
+
 #### 3. Theme Toggle Component
 
 ```typescript
 "use client";
 
-import { useTheme } from "next-themes";
+import { useTheme } from "@arbeidskassen/ui"; // NOT from "next-themes" directly
 
 export function ThemeToggle() {
-  const { setTheme, theme } = useTheme();
-  // Renders a button that cycles through light → dark → system
+  const { themePreference, setThemePreference } = useTheme();
+  // Cycles through light → dark → system
+  // For public pages, use <ThemeToggle /> from @arbeidskassen/ui
 }
 ```
+
+> **IMPORTANT**: Always import `useTheme` from `@arbeidskassen/ui`, not from `next-themes` directly. The wrapper provides normalized `themePreference` and `resolvedTheme` values.
 
 ### Custom Themes (Easter Eggs & Tenant Branding)
 
@@ -292,11 +331,13 @@ ALTER TABLE tenants ADD COLUMN theme_overrides JSONB DEFAULT '{}';
 
 ### Theming Rules
 
-1. **Never use hardcoded Tailwind colors** like `bg-blue-500`, `text-red-600`, or `border-gray-300`. Always use semantic classes: `bg-primary`, `text-destructive`, `border-border`.
-2. **All color values** go through CSS variables defined in `globals.css`.
-3. **New shadcn/ui components** automatically respect the theme because they use the variable-backed classes.
-4. **Icons and illustrations** must work on both light and dark backgrounds. Use `currentColor` or semantic color classes.
-5. **Contrast ratios** must meet WCAG 2.1 AA minimums (4.5:1 for normal text, 3:1 for large text) in all theme variants — including easter egg themes.
+1. **Prefer `--ak-*` platform tokens** (e.g. `bg-[var(--ak-bg-main)]`, `text-[var(--ak-text-dim)]`) over shadcn utilities like `bg-background`.
+2. **Never use hardcoded Tailwind colors** like `bg-blue-500` or `text-red-600`. Always use semantic CSS variables.
+3. **All color values** go through CSS variables defined in `globals.css`.
+4. **New shadcn/ui components** automatically respect the theme because they use the variable-backed classes.
+5. **Icons and illustrations** must work on Light, Dark, and Night backgrounds. Use `currentColor` or semantic color classes.
+6. **Contrast ratios** must meet WCAG 2.1 AA minimums (4.5:1 for normal text, 3:1 for large text) in all three theme variants.
+7. **The `dark:` Tailwind variant** maps to both `.dark` and `.night` via `@custom-variant`. You generally don't need it since CSS variables already switch per theme.
 
 ---
 

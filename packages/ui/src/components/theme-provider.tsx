@@ -10,7 +10,6 @@ import {
   formatThemeCookieValue,
   normalizeResolvedTheme,
   normalizeThemePreference,
-  parseThemePreferenceCookie,
   resolveInitialThemePreference,
   THEME_PREFERENCE_STORAGE_KEY,
   type ResolvedTheme,
@@ -71,66 +70,18 @@ function ThemeContextBridge({
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
-function ThemePreferenceSync({
-  forcedTheme,
-  initialThemePreference,
-}: {
-  forcedTheme?: ResolvedTheme;
-  initialThemePreference?: ThemePreference;
-}) {
-  const { theme, setTheme } = useNextTheme();
+/**
+ * Syncs the current theme to a cookie so the server can read it for SSR.
+ * localStorage and cross-tab sync are handled natively by next-themes.
+ */
+function ThemeCookieSync({ forcedTheme }: { forcedTheme?: ResolvedTheme }) {
+  const { theme } = useNextTheme();
 
   React.useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const preferredTheme = resolveInitialThemePreference({
-      forcedTheme,
-      profileThemePreference: initialThemePreference,
-      cookieThemePreference: parseThemePreferenceCookie(document.cookie),
-      storageThemePreference: window.localStorage.getItem(THEME_PREFERENCE_STORAGE_KEY),
-    });
-
-    if (theme !== preferredTheme) {
-      setTheme(preferredTheme);
-    }
-  }, [forcedTheme, initialThemePreference, setTheme]);
-
-  React.useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const nextTheme = normalizeThemePreference(forcedTheme ?? theme);
-
-    window.localStorage.setItem(THEME_PREFERENCE_STORAGE_KEY, nextTheme);
-    document.cookie = formatThemeCookieValue(nextTheme);
+    if (typeof window === "undefined") return;
+    const value = normalizeThemePreference(forcedTheme ?? theme);
+    document.cookie = formatThemeCookieValue(value);
   }, [forcedTheme, theme]);
-
-  React.useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const handleStorage = (event: StorageEvent) => {
-      if (event.key !== THEME_PREFERENCE_STORAGE_KEY || !event.newValue) {
-        return;
-      }
-
-      const nextTheme = normalizeThemePreference(event.newValue);
-
-      if (theme !== nextTheme) {
-        setTheme(nextTheme);
-      }
-    };
-
-    window.addEventListener("storage", handleStorage);
-
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-    };
-  }, [setTheme, theme]);
 
   return null;
 }
@@ -166,10 +117,7 @@ export function ThemeProvider({
       themes={["light", "dark", "night"]}
     >
       <ThemeContextBridge forcedTheme={forcedTheme}>
-        <ThemePreferenceSync
-          forcedTheme={forcedTheme}
-          initialThemePreference={initialThemePreference}
-        />
+        <ThemeCookieSync forcedTheme={forcedTheme} />
         {children}
       </ThemeContextBridge>
     </NextThemesProvider>
